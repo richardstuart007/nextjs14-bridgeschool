@@ -8,8 +8,8 @@ export const metadata: Metadata = {
     template: '%s | Bridge School Dashboard',
     default: 'Bridge School Dashboard'
   },
-  description: 'Bridge School.',
-  metadataBase: new URL('https://nextjs-bridgeschool.vercel.app/')
+  description: 'Nextjs14 Bridge School.',
+  metadataBase: new URL('https://nextjs14-bridgeschool.vercel.app/')
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
