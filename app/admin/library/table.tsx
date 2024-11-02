@@ -5,8 +5,11 @@ import { useState, useEffect } from 'react'
 import MaintPopup from '@/app/admin/library/libraryMaintPopup'
 import ConfirmDialog from '@/app/ui/utils/confirmDialog'
 import { LibraryTable } from '@/app/lib/definitions'
-import { deleteLibraryById } from '@/app/lib/data'
-import { fetchLibraryFiltered, fetchLibraryTotalPages } from '@/app/lib/data'
+import {
+  deleteLibraryById,
+  fetchLibraryFiltered,
+  fetchLibraryTotalPages
+} from '@/app/lib/data/tables/library'
 import Search from '@/app/ui/utils/search'
 import Pagination from '@/app/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'

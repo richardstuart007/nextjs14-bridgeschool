@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DropdownSearch from '@/app/lib/dropdown/dropdown'
-import { fetch_reftype } from '@/app/lib/data'
+import { fetch_reftype } from '@/app/lib/data/tables/reftype'
 
 type DropdownProps = {
   selectedOption: string

@@ -1,7 +1,8 @@
 'use server'
 
 import { z } from 'zod'
-import { writeUser, writeUsersOwner, writeUsersPwd, fetchUserByEmail } from '@/app/lib/data'
+import { writeUser, writeUsersPwd, fetchUserByEmail } from '@/app/lib/data/tables/users'
+import { writeUsersOwner } from '@/app/lib/data/tables/usersowner'
 import type { UsersTable } from '@/app/lib/definitions'
 import { signIn } from '@/auth'
 // ----------------------------------------------------------------------

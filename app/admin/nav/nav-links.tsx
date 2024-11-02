@@ -4,7 +4,8 @@ import {
   HomeIcon,
   UserIcon,
   CircleStackIcon,
-  BuildingLibraryIcon
+  BuildingLibraryIcon,
+  ServerStackIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -31,11 +32,13 @@ export default function Page() {
   useEffect(() => {
     const hrefUser = `/admin/users`
     const hrefLibrary = `/admin/library`
+    const hrefOwner = `/admin/owner`
     const hrefAdmin = `/admin`
     const initialLinks = [
       { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
       { name: 'Users', href: hrefUser, icon: UserIcon },
       { name: 'Library', href: hrefLibrary, icon: BuildingLibraryIcon },
+      { name: 'Owner', href: hrefOwner, icon: ServerStackIcon },
       { name: 'Admin', href: hrefAdmin, icon: CircleStackIcon }
     ]
     setLinks(initialLinks)

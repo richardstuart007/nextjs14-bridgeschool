@@ -1,5 +1,5 @@
 import { LibraryTable } from '@/app/lib/definitions'
-import { fetchLibraryByRefGroupOwner } from '@/app/lib/data'
+import { fetchLibraryByRefGroupOwner } from '@/app/lib/data/tables/library'
 //
 //  Errors and Messages
 //

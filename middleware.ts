@@ -6,7 +6,8 @@ import {
   Routes_Prefix_admin,
   Routes_Login
 } from '@/routes'
-import { isAdmin, writeLogging } from '@/app/lib/data'
+import { writeLogging } from '@/app/lib/data/writeLogging'
+import { isAdmin } from '@/app/lib/data/tables/sessions'
 import { cookies } from 'next/headers'
 
 export default async function middleware(req: any): Promise<any> {

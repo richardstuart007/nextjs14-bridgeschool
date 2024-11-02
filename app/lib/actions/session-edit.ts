@@ -3,7 +3,8 @@
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { getCookieSessionId, UpdateSessions } from '@/app/lib/data'
+import { getCookieSessionId } from '@/app/lib/data/data-cookie'
+import { UpdateSessions } from '@/app/lib/data/tables/sessions'
 // ----------------------------------------------------------------------
 //  Update Session
 // ----------------------------------------------------------------------

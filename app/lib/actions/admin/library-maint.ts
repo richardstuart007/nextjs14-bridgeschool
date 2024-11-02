@@ -1,8 +1,9 @@
 'use server'
 
 import { z } from 'zod'
-import { updateLibrary, writeLibrary, fetch_ownergroup1 } from '@/app/lib/data'
-import validateLibrary from '@/app/lib/actions/admin-library-validate'
+import { updateLibrary, writeLibrary } from '@/app/lib/data/tables/library'
+import { fetch_ownergroup1 } from '@/app/lib/data/tables/ownergroup'
+import validateLibrary from '@/app/lib/actions/admin/library-validate'
 // ----------------------------------------------------------------------
 //  Update Library Setup
 // ----------------------------------------------------------------------

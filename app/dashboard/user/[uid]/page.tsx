@@ -1,6 +1,6 @@
 import Form from '@/app/dashboard/user/[uid]/form'
 import Breadcrumbs from '@/app/ui/utils/breadcrumbs'
-import { fetchUserById } from '@/app/lib/data'
+import { fetchUserById } from '@/app/lib/data/tables/users'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { UsersTable } from '@/app/lib/definitions'

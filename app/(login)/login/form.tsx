@@ -6,7 +6,7 @@ import { Button } from '../../ui/utils/button'
 import { useFormState } from 'react-dom'
 import { loginUser } from '@/app/lib/actions/user-login'
 import { usePathname, useRouter } from 'next/navigation'
-import { deleteCookie } from '@/app/lib/data'
+import { deleteCookie } from '@/app/lib/data/data-cookie'
 import Socials from './socials'
 import { useState, useEffect } from 'react'
 

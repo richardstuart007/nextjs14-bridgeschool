@@ -1,6 +1,7 @@
 import ReviewForm from '@/app/dashboard/(quiz)/quiz-review/[hid]/ui/form'
 import Breadcrumbs from '@/app/ui/utils/breadcrumbs'
-import { fetchQuestionsByGid, fetchHistoryById } from '@/app/lib/data'
+import { fetchQuestionsByGid } from '@/app/lib/data/tables/questions'
+import { fetchHistoryById } from '@/app/lib/data/tables/usershistory'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { QuestionsTable, UsershistoryTable } from '@/app/lib/definitions'

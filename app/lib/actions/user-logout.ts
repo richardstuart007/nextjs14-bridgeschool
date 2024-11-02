@@ -1,7 +1,7 @@
 'use server'
 
 import { signOut } from '@/auth'
-import { navsignout } from '@/app/lib/data'
+import { navsignout } from '@/app/lib/data/tables/sessions'
 // ----------------------------------------------------------------------
 //  Sign out
 // ----------------------------------------------------------------------

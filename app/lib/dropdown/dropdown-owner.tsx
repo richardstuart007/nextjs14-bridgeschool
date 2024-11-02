@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DropdownSearch from '@/app/lib/dropdown/dropdown'
-import { fetch_owner } from '@/app/lib/data'
+import { fetch_owner } from '@/app/lib/data/tables/owner'
 
 type DropdownProps = {
   selectedOption: string

@@ -2,14 +2,26 @@
 
 import { lusitana } from '@/app/ui/fonts'
 import { useState, useEffect } from 'react'
-import UserEditPopup from '@/app/admin/users/useredit/userEditPopup'
-import PwdEditPopup from '@/app/admin/users/pwdedit/pwdEditPopup'
+import MaintPopup from '@/app/admin/owner/ownerMaintPopup'
 import ConfirmDialog from '@/app/ui/utils/confirmDialog'
-import { UsersTable } from '@/app/lib/definitions'
-import { deleteByUid, fetchUsersFiltered, fetchUsersTotalPages } from '@/app/lib/data/tables/users'
+import { ownerTable } from '@/app/lib/definitions'
+import {
+  deleteOwnerById,
+  fetchOwnerFiltered,
+  fetchOwnerTotalPages
+} from '@/app/lib/data/tables/owner'
 import Search from '@/app/ui/utils/search'
 import Pagination from '@/app/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
+import { checkKeyInTables } from '@/app/lib/data/data-utilities'
+
+//
+// Define a type for the table-column pair
+//
+interface TableColumnPair {
+  table: string
+  column: string
+}
 
 export default function Table() {
   //
@@ -19,14 +31,15 @@ export default function Table() {
   const query = searchParams.get('query') || ''
   const currentPage = Number(searchParams.get('page')) || 1
 
-  const [users, setUsers] = useState<UsersTable[]>([])
+  const [owner, setowner] = useState<ownerTable[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
-  const [shouldFetchUsers, setShouldFetchUsers] = useState(true)
+  const [shouldFetchData, setShouldFetchData] = useState(true)
   const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<UsersTable | null>(null)
-  const [selectedPwd, setSelectedPwd] = useState<UsersTable | null>(null)
+  const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
+  const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
+  const [selectedRow, setSelectedRow] = useState<ownerTable | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: '',
@@ -34,27 +47,27 @@ export default function Table() {
     onConfirm: () => {}
   })
   //----------------------------------------------------------------------------------------------
-  // Fetch users on mount and when shouldFetchUsers changes
+  // Fetch owner on mount and when shouldFetchData changes
   //----------------------------------------------------------------------------------------------
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchdata = async () => {
       try {
-        const fetchedUsers = await fetchUsersFiltered(query, currentPage)
-        setUsers(fetchedUsers)
+        const data = await fetchOwnerFiltered(query, currentPage)
+        setowner(data)
       } catch (error) {
-        console.error('Error fetching users:', error)
+        console.error('Error fetching owner:', error)
       }
     }
-    fetchUsers()
-    setShouldFetchUsers(false)
-  }, [query, currentPage, shouldFetchUsers])
+    fetchdata()
+    setShouldFetchData(false)
+  }, [query, currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
   // Fetch total pages on mount and when shouldFetchTotalPages changes
   //----------------------------------------------------------------------------------------------
   useEffect(() => {
     const fetchTotalPages = async () => {
       try {
-        const fetchedTotalPages = await fetchUsersTotalPages(query)
+        const fetchedTotalPages = await fetchOwnerTotalPages(query)
         setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching total pages:', error)
@@ -64,41 +77,68 @@ export default function Table() {
     setShouldFetchTotalPages(false)
   }, [query, shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
-  //  Edit User
+  //  Edit
   //----------------------------------------------------------------------------------------------
-  function handleEditClick(user: UsersTable) {
-    setSelectedUser(user)
-    setIsModalOpen(true)
+  function handleClickEdit(owner: ownerTable) {
+    setSelectedRow(owner)
+    setIsModelOpenEdit(true)
   }
   //----------------------------------------------------------------------------------------------
-  //  Password User
+  //  Add
   //----------------------------------------------------------------------------------------------
-  function handlePwdClick(user: UsersTable) {
-    setSelectedPwd(user)
-    setIsModalOpen(true)
+  function handleClickAdd() {
+    setIsModelOpenAdd(true)
   }
   //----------------------------------------------------------------------------------------------
-  //  Close Modal
+  //  Close Modal Edit
   //----------------------------------------------------------------------------------------------
-  function handleCloseModal() {
-    setIsModalOpen(false)
-    setSelectedUser(null)
-    setSelectedPwd(null)
-    setShouldFetchUsers(true)
+  function handleModalCloseEdit() {
+    setIsModelOpenEdit(false)
+    setSelectedRow(null)
+    setShouldFetchData(true)
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Close Modal Add
+  //----------------------------------------------------------------------------------------------
+  function handleModalCloseAdd() {
+    setIsModelOpenAdd(false)
+    setShouldFetchData(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Delete
   //----------------------------------------------------------------------------------------------
-  function handleDeleteClick(user: UsersTable) {
+  function handleDeleteClick(owner: ownerTable) {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',
-      subTitle: `Are you sure you want to delete (${user.u_uid}) : ${user.u_name}?`,
+      subTitle: `Are you sure you want to delete (${owner.ooid}) : ${owner.otitle}?`,
       onConfirm: async () => {
         //
-        // Call the server function to delete the user
+        // Check a list of tables if owner changes
         //
-        const message = await deleteByUid(user.u_uid)
+        const keyValue = owner.oowner
+        const tableColumnPairs: TableColumnPair[] = [
+          { table: 'usersowner', column: 'uoowner' },
+          { table: 'ownergroup', column: 'ogowner' },
+          { table: 'library', column: 'lrowner' },
+          { table: 'questions', column: 'qowner' },
+          { table: 'usershistory', column: 'r_owner' }
+        ]
+        const exists = await checkKeyInTables(keyValue, tableColumnPairs)
+        if (exists) {
+          setMessage(`Deletion Failed.  Owner:${keyValue} exists in other tables`)
+          setConfirmDialog({ ...confirmDialog, isOpen: false })
+
+          // Automatically clear the message after some seconds
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+          return
+        }
+        //
+        // Call the server function to delete the owner
+        //
+        const message = await deleteOwnerById(owner.ooid)
         //
         // Log the returned message
         //
@@ -106,7 +146,7 @@ export default function Table() {
         //
         //  Reload the page
         //
-        setShouldFetchUsers(true)
+        setShouldFetchData(true)
         setShouldFetchTotalPages(true)
         //
         //  Reset dialog
@@ -119,9 +159,17 @@ export default function Table() {
   return (
     <>
       <div className='flex w-full items-center justify-between'>
-        <h1 className={`${lusitana.className} text-2xl`}>Users</h1>
+        <h1 className={`${lusitana.className} text-2xl`}>owner</h1>
+        <h1 className='px-2 py-1 text-sm'>
+          <button
+            onClick={() => handleClickAdd()}
+            className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
+          >
+            Add
+          </button>
+        </h1>
       </div>
-      <Search placeholder='uid:23 name:richard email:richardstuart007@hotmail.com fedid:1234' />
+      <Search placeholder='oid:1  owner:Richard title:Richard' />
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>
@@ -129,31 +177,16 @@ export default function Table() {
               <thead className='rounded-lg text-left font-normal text-sm'>
                 <tr>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Id
+                    Owner
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Name
+                    Title
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Email
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Federation ID
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Admin
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Fed Country
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Provider
+                    ID
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     Edit
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Pwd
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     Delete
@@ -161,39 +194,25 @@ export default function Table() {
                 </tr>
               </thead>
               <tbody className='bg-white'>
-                {users?.map(user => (
+                {owner?.map(owner => (
                   <tr
-                    key={user.u_uid}
+                    key={owner.ooid}
                     className='w-full border-b py-2 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg'
                   >
-                    <td className='px-2 py-1 text-sm'>{user.u_uid}</td>
-                    <td className='px-2 py-1 text-sm'>{user.u_name}</td>
-                    <td className='px-2 py-1 text-sm'>{user.u_email}</td>
-                    <td className='px-2 py-1 text-sm'>{user.u_fedid}</td>
-                    <td className='px-2 py-1 text-sm'>{user.u_admin ? 'Y' : ''}</td>
-                    <td className='px-2 py-1 text-sm'>{user.u_fedcountry}</td>
-                    <td className='px-2 py-1 text-sm'>{user.u_provider}</td>
+                    <td className='px-2 py-1 text-sm '>{owner.oowner}</td>
+                    <td className='px-2 py-1 text-sm '>{owner.otitle}</td>
+                    <td className='px-2 py-1 text-sm '>{owner.ooid}</td>
                     <td className='px-2 py-1 text-sm'>
                       <button
-                        onClick={() => handleEditClick(user)}
+                        onClick={() => handleClickEdit(owner)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
                       </button>
                     </td>
                     <td className='px-2 py-1 text-sm'>
-                      {user.u_provider === 'email' && (
-                        <button
-                          onClick={() => handlePwdClick(user)}
-                          className='bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600'
-                        >
-                          Pwd
-                        </button>
-                      )}
-                    </td>
-                    <td className='px-2 py-1 text-sm'>
                       <button
-                        onClick={() => handleDeleteClick(user)}
+                        onClick={() => handleDeleteClick(owner)}
                         className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
@@ -210,22 +229,25 @@ export default function Table() {
           <Pagination totalPages={totalPages} />
         </div>
 
-        {/* User Edit Modal */}
-        {selectedUser && (
-          <UserEditPopup
-            userRecord={selectedUser}
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
+        {/* Edit Modal */}
+        {selectedRow && (
+          <MaintPopup
+            ownerRecord={selectedRow}
+            isOpen={isModelOpenEdit}
+            onClose={handleModalCloseEdit}
           />
         )}
 
-        {/* Password Edit Modal */}
-        {selectedPwd && (
-          <PwdEditPopup userRecord={selectedPwd} isOpen={isModalOpen} onClose={handleCloseModal} />
+        {/* Add Modal */}
+        {isModelOpenAdd && (
+          <MaintPopup ownerRecord={null} isOpen={isModelOpenAdd} onClose={handleModalCloseAdd} />
         )}
 
         {/* Confirmation Dialog */}
         <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
+
+        {/* Error message */}
+        <div className='mt-2'>{message && <div className='text-red-600 mb-4'>{message}</div>}</div>
       </div>
     </>
   )
