@@ -6,8 +6,8 @@ import {
   Routes_Prefix_admin,
   Routes_Login
 } from '@/routes'
-import { writeLogging } from '@/app/lib/data/writeLogging'
-import { isAdmin } from '@/app/lib/data/tables/sessions'
+import { writeLogging } from '@/src/lib/data/writeLogging'
+import { isAdmin } from '@/src/lib/data/tables/sessions'
 import { cookies } from 'next/headers'
 
 export default async function middleware(req: any): Promise<any> {
@@ -89,7 +89,7 @@ export default async function middleware(req: any): Promise<any> {
     //  Not authorised ()
     //
     const isAdminAuthorised = await isAdmin()
-    // console.log('isAdminAuthorised', isAdminAuthorised)
+    console.log('isAdminAuthorised', isAdminAuthorised)
     if (!isAdminAuthorised) {
       writeLogging(
         functionName,
