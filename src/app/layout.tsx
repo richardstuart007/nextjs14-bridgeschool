@@ -1,5 +1,5 @@
-import '@/src/ui/global.css'
-import { inter } from '@/src/ui/fonts'
+import '@/src/global.css'
+import { inter } from '@/src/fonts'
 import { Metadata } from 'next'
 import { UserProvider } from '@/UserContext'
 

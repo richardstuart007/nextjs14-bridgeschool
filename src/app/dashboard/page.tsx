@@ -1,4 +1,4 @@
-import { lusitana } from '@/src/ui/fonts'
+import { lusitana } from '@/src/fonts'
 import SummaryGraphs from '@/src/app/dashboard/dashboard/summary/summary'
 import { SummarySkeleton } from '@/src/app/dashboard/dashboard/summary/skeleton'
 import { Suspense } from 'react'

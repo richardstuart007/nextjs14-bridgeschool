@@ -1,6 +1,6 @@
 'use client'
 
-import { lusitana } from '@/src/ui/fonts'
+import { lusitana } from '@/src/fonts'
 import { useState, useEffect } from 'react'
 import UserEditPopup from '@/src/app/admin/users/useredit/userEditPopup'
 import PwdEditPopup from '@/src/app/admin/users/pwdedit/pwdEditPopup'

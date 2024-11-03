@@ -1,6 +1,6 @@
 'use client'
 
-import { lusitana } from '@/src/ui/fonts'
+import { lusitana } from '@/src/fonts'
 import { useState, useEffect } from 'react'
 import MaintPopup from '@/src/app/admin/library/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'

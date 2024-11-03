@@ -1,7 +1,7 @@
 import Pagination from '@/src/ui/utils/pagination'
 import Search from '@/src/ui/utils/search'
 import Table from '@/src/app/dashboard/library/[uid]/table'
-import { lusitana } from '@/src/ui/fonts'
+import { lusitana } from '@/src/fonts'
 import { TableSkeleton } from '@/src/app/dashboard/library/[uid]/skeleton'
 import { Suspense } from 'react'
 import { fetchLibraryUserTotalPages } from '@/src/lib/data/tables/library'

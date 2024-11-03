@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { lusitana } from '@/src/ui/fonts'
+import { lusitana } from '@/src/fonts'
 
 export default function SchoolLogo({ showOnSmallScreens = false }) {
   return (
