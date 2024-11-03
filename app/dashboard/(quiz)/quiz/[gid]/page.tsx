@@ -3,7 +3,7 @@ import Breadcrumbs from '@/app/ui/utils/breadcrumbs'
 import { fetchQuestionsByGid } from '@/app/lib/data/tables/questions'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { QuestionsTable } from '@/app/lib/definitions'
+import { table_Questions } from '@/app/lib/definitions'
 
 export const metadata: Metadata = {
   title: 'Quiz'
@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: { gid: number } }) {
   //  Variables used in the return statement
   //
   const gid: number = params.gid
-  let questions: QuestionsTable[] = []
+  let questions: table_Questions[] = []
   try {
     //
     //  Get Questions

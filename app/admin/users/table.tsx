@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import UserEditPopup from '@/app/admin/users/useredit/userEditPopup'
 import PwdEditPopup from '@/app/admin/users/pwdedit/pwdEditPopup'
 import ConfirmDialog from '@/app/ui/utils/confirmDialog'
-import { UsersTable } from '@/app/lib/definitions'
+import { table_Users } from '@/app/lib/definitions'
 import { deleteByUid, fetchUsersFiltered, fetchUsersTotalPages } from '@/app/lib/data/tables/users'
 import Search from '@/app/ui/utils/search'
 import Pagination from '@/app/ui/utils/pagination'
@@ -19,14 +19,14 @@ export default function Table() {
   const query = searchParams.get('query') || ''
   const currentPage = Number(searchParams.get('page')) || 1
 
-  const [users, setUsers] = useState<UsersTable[]>([])
+  const [users, setUsers] = useState<table_Users[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchUsers, setShouldFetchUsers] = useState(true)
   const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<UsersTable | null>(null)
-  const [selectedPwd, setSelectedPwd] = useState<UsersTable | null>(null)
+  const [selectedUser, setSelectedUser] = useState<table_Users | null>(null)
+  const [selectedPwd, setSelectedPwd] = useState<table_Users | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: '',
@@ -66,14 +66,14 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Edit User
   //----------------------------------------------------------------------------------------------
-  function handleEditClick(user: UsersTable) {
+  function handleEditClick(user: table_Users) {
     setSelectedUser(user)
     setIsModalOpen(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Password User
   //----------------------------------------------------------------------------------------------
-  function handlePwdClick(user: UsersTable) {
+  function handlePwdClick(user: table_Users) {
     setSelectedPwd(user)
     setIsModalOpen(true)
   }
@@ -89,7 +89,7 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Delete
   //----------------------------------------------------------------------------------------------
-  function handleDeleteClick(user: UsersTable) {
+  function handleDeleteClick(user: table_Users) {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',

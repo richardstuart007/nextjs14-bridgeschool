@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { writeUser, writeUsersPwd, fetchUserByEmail } from '@/app/lib/data/tables/users'
 import { writeUsersOwner } from '@/app/lib/data/tables/usersowner'
-import type { UsersTable } from '@/app/lib/definitions'
+import type { table_Users } from '@/app/lib/definitions'
 import { signIn } from '@/auth'
 // ----------------------------------------------------------------------
 //  Register
@@ -63,7 +63,7 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
   //
   //  Write User
   //
-  const userRecord = (await writeUser(provider, email, name)) as UsersTable | undefined
+  const userRecord = (await writeUser(provider, email, name)) as table_Users | undefined
   if (!userRecord) {
     throw Error('registerUser: Write User Error')
   }

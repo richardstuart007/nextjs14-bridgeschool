@@ -74,7 +74,7 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
   //
   // Validate fields
   //
-  const LibraryTable = {
+  const table_Library = {
     lrlid: lrlid,
     lrref: lrref,
     lrdesc: lrdesc,
@@ -85,7 +85,7 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
     lrgroup: lrgroup,
     lrgid: 0
   }
-  const errorMessages = await validateLibrary(LibraryTable)
+  const errorMessages = await validateLibrary(table_Library)
   if (errorMessages.message) {
     return {
       errors: errorMessages.errors,

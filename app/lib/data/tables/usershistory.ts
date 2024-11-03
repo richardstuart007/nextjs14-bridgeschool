@@ -3,11 +3,11 @@
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import {
-  UsershistoryTable,
-  HistoryGroupTable,
-  UsershistoryTopResults,
-  UsershistoryRecentResults,
-  NewUsershistoryTable
+  table_Usershistory,
+  structure_HistoryGroup,
+  structure_UsershistoryTopResults,
+  structure_UsershistoryRecentResults,
+  table_Usershistory_New
 } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 const HISTORY_ITEMS_PER_PAGE = 10
@@ -56,7 +56,7 @@ export async function fetchHistoryFiltered(query: string, currentPage: number) {
       LIMIT ${HISTORY_ITEMS_PER_PAGE} OFFSET ${offset}
      `
     const client = await db.connect()
-    const data = await client.query<HistoryGroupTable>(sqlQuery)
+    const data = await client.query<structure_HistoryGroup>(sqlQuery)
     client.release()
     const rows = data.rows
     return rows
@@ -171,7 +171,7 @@ export async function fetchHistoryById(r_hid: number) {
   const functionName = 'fetchHistoryById'
   // noStore()
   try {
-    const data = await sql<UsershistoryTable>`
+    const data = await sql<table_Usershistory>`
       SELECT *
       FROM usershistory
       WHERE r_hid = ${r_hid};
@@ -196,7 +196,7 @@ export async function fetchTopResultsData() {
   // ????????????
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
-    const data = await sql<UsershistoryTopResults>`
+    const data = await sql<structure_UsershistoryTopResults>`
       SELECT
         r_uid,
         u_name,
@@ -239,7 +239,7 @@ export async function fetchRecentResultsData1() {
   // ????????????
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
-    const data = await sql<UsershistoryRecentResults>`
+    const data = await sql<structure_UsershistoryRecentResults>`
   SELECT
     r_hid, r_uid, u_name, r_totalpoints, r_maxpoints, r_correctpercent
   FROM (
@@ -284,7 +284,7 @@ export async function fetchRecentResultsData5(userIds: number[]) {
   try {
     const [id1, id2, id3, id4, id5] = userIds
 
-    const data = await sql<UsershistoryRecentResults>`
+    const data = await sql<structure_UsershistoryRecentResults>`
 SELECT r_hid, r_uid, u_name, r_totalpoints, r_maxpoints, r_correctpercent
 FROM (
     SELECT
@@ -311,7 +311,7 @@ ORDER BY r_uid;
 //---------------------------------------------------------------------
 //  Write User History
 //---------------------------------------------------------------------
-export async function writeUsershistory(NewUsershistoryTable: NewUsershistoryTable) {
+export async function writeUsershistory(table_Usershistory_New: table_Usershistory_New) {
   const functionName = 'writeUsershistory'
   try {
     //
@@ -331,7 +331,7 @@ export async function writeUsershistory(NewUsershistoryTable: NewUsershistoryTab
       r_correctpercent,
       r_gid,
       r_sid
-    } = NewUsershistoryTable
+    } = table_Usershistory_New
 
     const r_qid_string = `{${r_qid.join(',')}}`
     const r_ans_string = `{${r_ans.join(',')}}`
@@ -343,8 +343,8 @@ export async function writeUsershistory(NewUsershistoryTable: NewUsershistoryTab
     VALUES (${r_datetime}, ${r_owner},${r_group},${r_questions},${r_qid_string},${r_ans_string},${r_uid},${r_points_string},
       ${r_maxpoints},${r_totalpoints},${r_correctpercent},${r_gid},${r_sid})
     RETURNING *`
-    const UsershistoryTable = rows[0]
-    return UsershistoryTable
+    const table_Usershistory = rows[0]
+    return table_Usershistory
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

@@ -4,14 +4,14 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/app/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { LibraryMaint } from '@/app/lib/actions/admin/library-maint'
-import type { LibraryTable } from '@/app/lib/definitions'
+import type { table_Library } from '@/app/lib/definitions'
 import DropdownType from '@/app/lib/dropdown/dropdown-type'
 import DropdownOwner from '@/app/lib/dropdown/dropdown-owner'
 import DropdownWho from '@/app/lib/dropdown/dropdown-who'
 import DropdownOwnerGroup from '@/app/lib/dropdown/dropdown-group'
 
 interface FormProps {
-  libraryRecord: LibraryTable | null
+  libraryRecord: table_Library | null
   onSuccess: () => void
   shouldCloseOnUpdate?: boolean
 }

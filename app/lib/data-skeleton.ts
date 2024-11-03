@@ -1,9 +1,12 @@
-import { UsershistoryTopResults, UsershistoryRecentResults } from '@/app/lib/definitions'
+import {
+  structure_UsershistoryTopResults,
+  structure_UsershistoryRecentResults
+} from '@/app/lib/definitions'
 //---------------------------------------------------------------------
 //  Top results data
 //---------------------------------------------------------------------
 export function fetchTopResultsData() {
-  const UsershistoryTopResults: UsershistoryTopResults[] = [
+  const structure_UsershistoryTopResults: structure_UsershistoryTopResults[] = [
     {
       r_uid: 1,
       u_name: 'Alice Johnson',
@@ -48,13 +51,13 @@ export function fetchTopResultsData() {
   //
   //  Return rows
   //
-  return UsershistoryTopResults
+  return structure_UsershistoryTopResults
 }
 //---------------------------------------------------------------------
 //  Recent result data last
 //---------------------------------------------------------------------
 export function fetchRecentResultsData1() {
-  const UsershistoryRecentResults: UsershistoryRecentResults[] = [
+  const structure_UsershistoryRecentResults: structure_UsershistoryRecentResults[] = [
     {
       r_hid: 101,
       r_uid: 1,
@@ -99,13 +102,13 @@ export function fetchRecentResultsData1() {
   //
   //  Return rows
   //
-  return UsershistoryRecentResults
+  return structure_UsershistoryRecentResults
 }
 //---------------------------------------------------------------------
 //  Recent results data
 //---------------------------------------------------------------------
 export function fetchRecentResultsData5() {
-  const UsershistoryRecentResults5: UsershistoryRecentResults[] = [
+  const UsershistoryRecentResults5: structure_UsershistoryRecentResults[] = [
     {
       r_hid: 201,
       r_uid: 1,

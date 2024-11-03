@@ -1,4 +1,4 @@
-import { LibraryTable } from '@/app/lib/definitions'
+import { table_Library } from '@/app/lib/definitions'
 import { fetchLibraryByRefGroupOwner } from '@/app/lib/data/tables/library'
 //
 //  Errors and Messages
@@ -15,7 +15,7 @@ export type StateSetup = {
   message?: string | null
 }
 
-export default async function validateLibrary(record: LibraryTable): Promise<StateSetup> {
+export default async function validateLibrary(record: table_Library): Promise<StateSetup> {
   const { lrlid, lrref, lrowner, lrgroup } = record
   let errors: StateSetup['errors'] = {}
   //

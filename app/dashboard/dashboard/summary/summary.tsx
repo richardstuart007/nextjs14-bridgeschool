@@ -4,7 +4,10 @@ import {
   fetchRecentResultsData5
 } from '@/app/lib/data/tables/usershistory'
 import { StackedBarChart } from './graphs'
-import { UsershistoryTopResults, UsershistoryRecentResults } from '@/app/lib/definitions'
+import {
+  structure_UsershistoryTopResults,
+  structure_UsershistoryRecentResults
+} from '@/app/lib/definitions'
 //
 //  Graph Interfaces
 //
@@ -22,13 +25,15 @@ export default async function SummaryGraphs() {
   //
   //  Fetch the data
   //
-  const [dataTop, dataRecent1]: [UsershistoryTopResults[], UsershistoryRecentResults[]] =
-    await Promise.all([fetchTopResultsData(), fetchRecentResultsData1()])
+  const [dataTop, dataRecent1]: [
+    structure_UsershistoryTopResults[],
+    structure_UsershistoryRecentResults[]
+  ] = await Promise.all([fetchTopResultsData(), fetchRecentResultsData1()])
   //
   //  Extract the user IDs and get the data for the last 5 results for each user
   //
   const userIds: number[] = dataRecent1.map(item => item.r_uid)
-  const dataRecent5: UsershistoryRecentResults[] = await fetchRecentResultsData5(userIds)
+  const dataRecent5: structure_UsershistoryRecentResults[] = await fetchRecentResultsData5(userIds)
   //
   // TOP graph
   //
@@ -65,8 +70,8 @@ export default async function SummaryGraphs() {
   //  Generate the data for the RECENT results graph
   //--------------------------------------------------------------------------------
   function recentGraph(
-    dataRecent1: UsershistoryRecentResults[],
-    dataRecent5: UsershistoryRecentResults[]
+    dataRecent1: structure_UsershistoryRecentResults[],
+    dataRecent5: structure_UsershistoryRecentResults[]
   ): GraphStructure {
     //
     //  Derive the names
@@ -100,7 +105,7 @@ export default async function SummaryGraphs() {
   //  Calculate the average and individual percentages for each user
   //--------------------------------------------------------------------------------
   function calculatePercentages(
-    dataRecent5: UsershistoryRecentResults[],
+    dataRecent5: structure_UsershistoryRecentResults[],
     userIds: number[]
   ): number[] {
     //

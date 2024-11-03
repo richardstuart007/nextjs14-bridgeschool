@@ -4,7 +4,7 @@ import {
   fetchRecentResultsData5
 } from '@/app/lib/data-skeleton'
 import { StackedBarChart } from './graphs'
-import { UsershistoryRecentResults } from '@/app/lib/definitions'
+import { structure_UsershistoryRecentResults } from '@/app/lib/definitions'
 //-----------------------------------------------------------------------------
 //  Graph skeleton
 //--------------------------------------------------------------------------------
@@ -64,8 +64,8 @@ export function SummarySkeleton() {
   //  Generate the data for the RECENT results graph
   //--------------------------------------------------------------------------------
   function recentGraph(
-    dataRecent1: UsershistoryRecentResults[],
-    dataRecent5: UsershistoryRecentResults[]
+    dataRecent1: structure_UsershistoryRecentResults[],
+    dataRecent5: structure_UsershistoryRecentResults[]
   ): GraphStructure {
     //
     //  Derive the names
@@ -101,7 +101,7 @@ export function SummarySkeleton() {
   //  Calculate the average and individual percentages for each user
   //--------------------------------------------------------------------------------
   function calculatePercentages(
-    dataRecent5: UsershistoryRecentResults[],
+    dataRecent5: structure_UsershistoryRecentResults[],
     userIds: number[]
   ): number[] {
     //

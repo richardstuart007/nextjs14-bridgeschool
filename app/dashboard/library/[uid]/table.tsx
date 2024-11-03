@@ -1,6 +1,6 @@
 import { BookView, BookQuiz } from '@/app/ui/utils/link-buttons'
 import { fetchLibraryUserFiltered } from '@/app/lib/data/tables/library'
-export default async function LibraryTable({
+export default async function table_Library({
   query,
   currentPage,
   uid

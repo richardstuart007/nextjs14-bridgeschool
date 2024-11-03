@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { QuestionsTable, NewUsershistoryTable } from '@/app/lib/definitions'
+import { table_Questions, table_Usershistory_New } from '@/app/lib/definitions'
 import QuizQuestion from '@/app/dashboard/(quiz)/quiz-question/quiz-question'
 import QuizBidding from '@/app/dashboard/(quiz)/quiz-question/quiz-bidding/QuizBidding'
 import QuizHands from '@/app/dashboard/(quiz)/quiz-question/quiz-hands/QuizHands'
@@ -12,7 +12,7 @@ import { fetchSessionInfo } from '@/app/lib/data/tables/sessions'
 import { useUserContext } from '@/UserContext'
 
 interface QuestionsFormProps {
-  questions: QuestionsTable[]
+  questions: table_Questions[]
 }
 //...................................................................................
 //.  Main Line
@@ -31,7 +31,7 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
   //
   //  Questions state updated in initial load
   //
-  const [questions, setQuestions] = useState<QuestionsTable[]>([])
+  const [questions, setQuestions] = useState<table_Questions[]>([])
   //
   //  Fetch session data when the component mounts
   //
@@ -149,7 +149,7 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
     //
     // Create a NewUsersHistoryTable object
     //
-    const NewUsershistoryTable: NewUsershistoryTable = {
+    const table_Usershistory_New: table_Usershistory_New = {
       r_datetime: new Date().toISOString().replace('T', ' ').replace('Z', '').substring(0, 23),
       r_owner: question.qowner,
       r_group: question.qgroup,
@@ -164,7 +164,7 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
       r_gid: question.qgid,
       r_sid: cxid
     }
-    const historyRecord = await writeUsershistory(NewUsershistoryTable)
+    const historyRecord = await writeUsershistory(table_Usershistory_New)
     //
     //  Go to the quiz review page
     //

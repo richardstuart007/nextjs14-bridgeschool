@@ -3,8 +3,8 @@
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/app/lib/data/writeLogging'
+import { table_Owner } from '@/app/lib/definitions'
 const MAINT_ITEMS_PER_PAGE = 15
-import { ownerTable } from '@/app/lib/definitions'
 //---------------------------------------------------------------------
 //  Fetch owner table
 //---------------------------------------------------------------------
@@ -12,7 +12,7 @@ export async function fetch_owner() {
   const functionName = 'fetch_owner'
   // noStore()
   try {
-    const data = await sql<ownerTable>`
+    const data = await sql<table_Owner>`
       SELECT *
       FROM owner
       ;
@@ -81,7 +81,7 @@ export async function fetchOwnerFiltered(query: string, currentPage: number) {
     //  Run SQL
     //
     const client = await db.connect()
-    const data = await client.query<ownerTable>(sqlQuery)
+    const data = await client.query<table_Owner>(sqlQuery)
     client.release()
     //
     //  Return results
@@ -250,7 +250,7 @@ export async function fetchOwnerByID(ooid: number) {
   const functionName = 'fetchOwnerByID'
   // noStore()
   try {
-    const data = await sql<ownerTable>`
+    const data = await sql<table_Owner>`
       SELECT *
       FROM owner
       WHERE ooid = ${ooid};
@@ -270,7 +270,7 @@ export async function fetchOwnerByOwner(oowner: string) {
   const functionName = 'fetchOwnerByOwner'
   // noStore()
   try {
-    const data = await sql<ownerTable>`
+    const data = await sql<table_Owner>`
       SELECT *
       FROM owner
       WHERE oowner = ${oowner};

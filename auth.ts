@@ -2,7 +2,7 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { authConfig } from './auth.config'
 import { z } from 'zod'
-import type { UserAuth, ProviderSignInParams } from '@/app/lib/definitions'
+import type { structure_UserAuth, structure_ProviderSignInParams } from '@/app/lib/definitions'
 import bcrypt from 'bcryptjs'
 import { fetchUserByEmail, fetchUserPwdByEmail } from '@/app/lib/data/tables/users'
 import { providerSignIn } from '@/app/lib/data/data-auth'
@@ -32,7 +32,7 @@ export const {
       //
       //  Write session information & cookie
       //
-      const signInData: ProviderSignInParams = {
+      const signInData: structure_ProviderSignInParams = {
         provider: provider,
         email: email,
         name: name
@@ -131,7 +131,7 @@ export const {
             password: userPwd.uphash
           }
           // console.log('Auth: rtnData:', rtnData)
-          return rtnData as UserAuth
+          return rtnData as structure_UserAuth
         } catch (error) {
           console.error('Authorization error:', error)
           return null

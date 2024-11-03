@@ -1,10 +1,10 @@
 'use client'
 import Popup from '@/app/ui/utils/popup'
-import Form from '@/app/admin/library/libraryMaint'
-import { LibraryTable } from '@/app/lib/definitions'
+import Form from '@/app/admin/library/maint'
+import { table_Library } from '@/app/lib/definitions'
 
 interface Props {
-  libraryRecord: LibraryTable | null
+  libraryRecord: table_Library | null
   isOpen: boolean
   onClose: () => void
 }

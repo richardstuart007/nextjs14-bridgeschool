@@ -1,10 +1,10 @@
 'use client'
 import Popup from '@/app/ui/utils/popup'
 import Form from '@/app/admin/users/pwdedit/pwdEdit'
-import { UsersTable } from '@/app/lib/definitions'
+import { table_Users } from '@/app/lib/definitions'
 
 interface Props {
-  userRecord: UsersTable | null
+  userRecord: table_Users | null
   isOpen: boolean
   onClose: () => void
 }

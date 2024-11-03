@@ -1,10 +1,10 @@
 'use client'
 import Popup from '@/app/ui/utils/popup'
-import Form from '@/app/admin/owner/ownerMaint'
-import { ownerTable } from '@/app/lib/definitions'
+import Form from '@/app/admin/owner/maint'
+import { table_Owner } from '@/app/lib/definitions'
 
 interface Props {
-  ownerRecord: ownerTable | null
+  ownerRecord: table_Owner | null
   isOpen: boolean
   onClose: () => void
 }

@@ -4,10 +4,10 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/app/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { OwnerMaint } from '@/app/lib/actions/admin/owner-maint'
-import type { ownerTable } from '@/app/lib/definitions'
+import type { table_Owner } from '@/app/lib/definitions'
 
 interface FormProps {
-  ownerRecord: ownerTable | null
+  ownerRecord: table_Owner | null
   onSuccess: () => void
   shouldCloseOnUpdate?: boolean
 }

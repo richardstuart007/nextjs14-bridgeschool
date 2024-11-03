@@ -1,13 +1,14 @@
-import { table_Owner } from '@/app/lib/definitions'
-import { fetchOwnerByOwner, fetchOwnerByID } from '@/app/lib/data/tables/owner'
+import { table_Ownergroup } from '@/app/lib/definitions'
+import { fetch_ownergroup1, fetch_ownergroupID } from '@/app/lib/data/tables/ownergroup'
 import { checkKeyInTables } from '@/app/lib/data/data-utilities'
 //
 //  Errors and Messages
 //
 export type StateSetup = {
   errors?: {
-    otitle?: string[]
-    oowner?: string[]
+    ogowner?: string[]
+    oggroup?: string[]
+    ogtitle?: string[]
   }
   message?: string | null
 }
@@ -19,8 +20,8 @@ interface TableColumnPair {
   column: string
 }
 
-export default async function validateOwner(record: table_Owner): Promise<StateSetup> {
-  const { ooid, oowner } = record
+export default async function validateOwnergroup(record: table_Ownergroup): Promise<StateSetup> {
+  const { oggid, ogowner, oggroup } = record
   //
   // Initialise errors return
   //
@@ -30,32 +31,32 @@ export default async function validateOwner(record: table_Owner): Promise<StateS
   //
   let id_record = null
   let id_oowner = ''
-  if (ooid !== 0) {
-    id_record = await fetchOwnerByID(ooid)
-    id_oowner = id_record.oowner
+  if (oggid !== 0) {
+    id_record = await fetch_ownergroupID(oggid)
+    id_oowner = id_record.ogowner
   }
   //
   // Get new owner (if exists)
   //
-  const oowner_record = await fetchOwnerByOwner(oowner)
+  const ogowner_record = await fetch_ownergroup1(ogowner, oggroup)
   //
   //  Check for Add duplicate
   //
-  if (ooid === 0 && oowner_record) {
-    errors.oowner = ['Owner must be unique']
+  if (oggid === 0 && ogowner_record) {
+    errors.ogowner = ['Ownergroup must be unique']
   }
   //
   //  Check for Update
   //
-  if (oowner_record) {
-    if (ooid !== 0 && oowner_record.ooid !== ooid) {
-      errors.oowner = ['Owner must be unique']
+  if (ogowner_record) {
+    if (oggid !== 0 && ogowner_record.oggid !== oggid) {
+      errors.ogowner = ['Ownergroup must be unique']
     }
   }
   //
   // Check a list of tables if owner changes
   //
-  if (ooid !== 0 && oowner !== id_oowner) {
+  if (oggid !== 0 && ogowner !== id_oowner) {
     const keyValue = id_oowner
     const tableColumnPairs: TableColumnPair[] = [
       { table: 'usersowner', column: 'uoowner' },
@@ -65,7 +66,7 @@ export default async function validateOwner(record: table_Owner): Promise<StateS
       { table: 'usershistory', column: 'r_owner' }
     ]
     const exists = await checkKeyInTables(keyValue, tableColumnPairs)
-    if (exists) errors.oowner = [`Key:${id_oowner} exists in other tables`]
+    if (exists) errors.ogowner = [`Key:${id_oowner} exists in other tables`]
   }
   //
   // Return error messages

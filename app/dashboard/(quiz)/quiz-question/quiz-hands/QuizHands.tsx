@@ -1,6 +1,6 @@
 import QuizHandsTableHeader from './QuizHandsTableHeader'
 import QuizHandsTableLine from './QuizHandsTableLine'
-import { QuestionsTable } from '@/app/lib/definitions'
+import { table_Questions } from '@/app/lib/definitions'
 
 interface handObj {
   position: string
@@ -8,7 +8,7 @@ interface handObj {
 }
 
 interface QuizHandsProps {
-  question: QuestionsTable
+  question: table_Questions
 }
 
 export default function QuizHands({ question }: QuizHandsProps): JSX.Element | null {

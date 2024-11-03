@@ -4,9 +4,9 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/app/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { PwdEdit } from '@/app/lib/actions/admin/pwd-edit'
-import type { UsersTable } from '@/app/lib/definitions'
+import type { table_Users } from '@/app/lib/definitions'
 
-export default function Form({ UserRecord }: { UserRecord: UsersTable }) {
+export default function Form({ UserRecord }: { UserRecord: table_Users }) {
   const initialState = { message: null, errors: {} }
   const [formState, formAction] = useFormState(PwdEdit, initialState)
   const [uppwd, setUppwd] = useState('')

@@ -1,7 +1,7 @@
 'use server'
 
 import { sql } from '@vercel/postgres'
-import { QuestionsTable } from '@/app/lib/definitions'
+import { table_Questions } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 //---------------------------------------------------------------------
 //  Questions data by Owner/Group
@@ -10,7 +10,7 @@ export async function fetchQuestionsByOwnerGroup(qowner: string, qgroup: string)
   const functionName = 'fetchQuestionsByOwnerGroup'
   // noStore()
   try {
-    const data = await sql<QuestionsTable>`
+    const data = await sql<table_Questions>`
       SELECT *
       FROM questions
       WHERE qowner = ${qowner} and qgroup = ${qgroup}
@@ -34,7 +34,7 @@ export async function fetchQuestionsByGid(qgid: number) {
   const functionName = 'fetchQuestionsByGid'
   // noStore()
   try {
-    const data = await sql<QuestionsTable>`
+    const data = await sql<table_Questions>`
       SELECT *
       FROM questions
       WHERE qgid = ${qgid}

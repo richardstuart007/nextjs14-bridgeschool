@@ -4,10 +4,10 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '../../../ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { UserEdit } from '@/app/lib/actions/user-edit'
-import type { UsersTable } from '@/app/lib/definitions'
+import type { table_Users } from '@/app/lib/definitions'
 import SelectCountry from '@/app/ui/countries/select-country'
 
-export default function Form({ UserRecord }: { UserRecord: UsersTable }) {
+export default function Form({ UserRecord }: { UserRecord: table_Users }) {
   const initialState = { message: null, errors: {} }
   const [formState, formAction] = useFormState(UserEdit, initialState)
   const [u_name, setU_name] = useState(UserRecord.u_name)

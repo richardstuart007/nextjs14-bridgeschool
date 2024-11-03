@@ -1,7 +1,7 @@
 'use server'
 
 import { sql } from '@vercel/postgres'
-import { whoTable } from '@/app/lib/definitions'
+import { table_Who } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 //---------------------------------------------------------------------
 //  Fetch who table
@@ -10,7 +10,7 @@ export async function fetch_who() {
   const functionName = 'fetch_who'
   // noStore()
   try {
-    const data = await sql<whoTable>`
+    const data = await sql<table_Who>`
       SELECT *
       FROM who
       ;

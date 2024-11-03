@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import RadioGroup from './radio-button'
-import { QuestionsTable } from '@/app/lib/definitions'
+import { table_Questions } from '@/app/lib/definitions'
 
 // Define the RadioOption type
 interface RadioOption {
@@ -10,7 +10,7 @@ interface RadioOption {
 }
 
 interface QuizChoiceProps {
-  question: QuestionsTable
+  question: table_Questions
   setAnswer: React.Dispatch<React.SetStateAction<number[]>>
   setShowSubmit: (value: boolean) => void
 }

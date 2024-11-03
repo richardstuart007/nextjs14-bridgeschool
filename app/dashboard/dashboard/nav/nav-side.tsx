@@ -8,7 +8,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useUserContext } from '@/UserContext'
 import { getAuthSession } from '@/app/lib/data/data-auth'
 import { fetchSessionInfo } from '@/app/lib/data/tables/sessions'
-import { SessionInfo } from '@/app/lib/definitions'
+import { structure_SessionsInfo } from '@/app/lib/definitions'
 import { logout } from '@/app/lib/actions/user-logout'
 
 export default function NavSide() {
@@ -24,7 +24,7 @@ export default function NavSide() {
   //  Change of pathname - Get session info
   //
   const pathname = usePathname()
-  const [sessionInfo, setSessionInfo] = useState<SessionInfo | undefined>(undefined)
+  const [sessionInfo, setSessionInfo] = useState<structure_SessionsInfo | undefined>(undefined)
   useEffect(() => {
     getSessionInfo()
     // eslint-disable-next-line
@@ -53,11 +53,11 @@ export default function NavSide() {
     if (sessionId) {
       const bsid = parseInt(sessionId, 10)
       const sessionData = await fetchSessionInfo(bsid)
-      const ContextInfo = {
+      const structure_ContextInfo = {
         cxuid: sessionData.bsuid,
         cxid: sessionData.bsid
       }
-      setSessionContext(ContextInfo)
+      setSessionContext(structure_ContextInfo)
       setSessionInfo(sessionData)
     }
   }

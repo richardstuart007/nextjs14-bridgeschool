@@ -2,7 +2,7 @@
 
 import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { SessionsTable, SessionInfo } from '@/app/lib/definitions'
+import { table_Sessions, structure_SessionsInfo } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 import { deleteCookie, getCookieSessionId } from '@/app/lib/data/data-cookie'
 //---------------------------------------------------------------------
@@ -77,7 +77,7 @@ export async function fetchSessionsById(s_id: number) {
   const functionName = 'fetchSessionsById'
   noStore()
   try {
-    const data = await sql<SessionsTable>`
+    const data = await sql<table_Sessions>`
       SELECT *
       FROM sessions
       WHERE s_id = ${s_id};
@@ -118,7 +118,7 @@ export async function UpdateSessions(
   }
 }
 //---------------------------------------------------------------------
-//  Fetch SessionInfo data by ID
+//  Fetch structure_SessionsInfo data by ID
 //---------------------------------------------------------------------
 export async function fetchSessionInfo(sessionId: number) {
   const functionName = 'fetchSessionInfo'
@@ -142,7 +142,7 @@ export async function fetchSessionInfo(sessionId: number) {
     `
 
     const row = data.rows[0]
-    const SessionInfo: SessionInfo = {
+    const structure_SessionsInfo: structure_SessionsInfo = {
       bsuid: row.u_uid,
       bsname: row.u_name,
       bsemail: row.u_email,
@@ -153,7 +153,7 @@ export async function fetchSessionInfo(sessionId: number) {
       bsskipcorrect: row.s_skipcorrect,
       bsdftmaxquestions: row.s_dftmaxquestions
     }
-    return SessionInfo
+    return structure_SessionsInfo
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

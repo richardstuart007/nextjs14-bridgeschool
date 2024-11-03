@@ -2,7 +2,7 @@
 
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { UsersTable, UserspwdTable } from '@/app/lib/definitions'
+import { table_Users, table_Userspwd } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 import bcrypt from 'bcryptjs'
 
@@ -11,11 +11,11 @@ const USERS_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
 //  Fetch User by email
 //---------------------------------------------------------------------
-export async function fetchUserByEmail(email: string): Promise<UsersTable | undefined> {
+export async function fetchUserByEmail(email: string): Promise<table_Users | undefined> {
   const functionName = 'fetchUserByEmail'
   noStore()
   try {
-    const userrecord = await sql<UsersTable>`SELECT * FROM users WHERE u_email=${email}`
+    const userrecord = await sql<table_Users>`SELECT * FROM users WHERE u_email=${email}`
     //
     //  Not found
     //
@@ -36,11 +36,11 @@ export async function fetchUserByEmail(email: string): Promise<UsersTable | unde
 //---------------------------------------------------------------------
 //  Fetch Userpwd by email
 //---------------------------------------------------------------------
-export async function fetchUserPwdByEmail(email: string): Promise<UserspwdTable | undefined> {
+export async function fetchUserPwdByEmail(email: string): Promise<table_Userspwd | undefined> {
   const functionName = 'fetchUserPwdByEmail'
   noStore()
   try {
-    const data = await sql<UserspwdTable>`SELECT * FROM userspwd WHERE upemail=${email}`
+    const data = await sql<table_Userspwd>`SELECT * FROM userspwd WHERE upemail=${email}`
     //
     //  Not found
     //
@@ -61,11 +61,11 @@ export async function fetchUserPwdByEmail(email: string): Promise<UserspwdTable 
 //---------------------------------------------------------------------
 //  Fetch User by ID
 //---------------------------------------------------------------------
-export async function fetchUserById(uid: number): Promise<UsersTable | undefined> {
+export async function fetchUserById(uid: number): Promise<table_Users | undefined> {
   const functionName = 'fetchUserById'
   noStore()
   try {
-    const userrecord = await sql<UsersTable>`SELECT * FROM users WHERE u_uid=${uid}`
+    const userrecord = await sql<table_Users>`SELECT * FROM users WHERE u_uid=${uid}`
     //
     //  Not found
     //
@@ -222,7 +222,7 @@ export async function fetchUsersFiltered(query: string, currentPage: number) {
     //  Run SQL
     //
     const client = await db.connect()
-    const data = await client.query<UsersTable>(sqlQuery)
+    const data = await client.query<table_Users>(sqlQuery)
     client.release()
     //
     //  Return results

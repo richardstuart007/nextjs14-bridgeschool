@@ -4,7 +4,7 @@ import { fetchQuestionsByGid } from '@/app/lib/data/tables/questions'
 import { fetchHistoryById } from '@/app/lib/data/tables/usershistory'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { QuestionsTable, UsershistoryTable } from '@/app/lib/definitions'
+import { table_Questions, table_Usershistory } from '@/app/lib/definitions'
 
 export const metadata: Metadata = {
   title: 'Quiz Review'
@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: { hid: number } }) {
     //
     //  Get History
     //
-    const history: UsershistoryTable = await fetchHistoryById(hid)
+    const history: table_Usershistory = await fetchHistoryById(hid)
     if (!history) {
       notFound()
     }
@@ -27,14 +27,14 @@ export default async function Page({ params }: { params: { hid: number } }) {
     //  Get Questions
     //
     const qgid = history.r_gid
-    const questions_gid: QuestionsTable[] = await fetchQuestionsByGid(qgid)
+    const questions_gid: table_Questions[] = await fetchQuestionsByGid(qgid)
     if (!questions_gid || questions_gid.length === 0) {
       notFound()
     }
     //
     //  Strip out questions not answered
     //
-    let questions: QuestionsTable[] = []
+    let questions: table_Questions[] = []
     const qid = history.r_qid
     qid.forEach(qid => {
       const questionIndex = questions_gid.findIndex(q => q.qqid === qid)

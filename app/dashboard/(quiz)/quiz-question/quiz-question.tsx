@@ -1,7 +1,7 @@
-import { QuestionsTable } from '@/app/lib/definitions'
+import { table_Questions } from '@/app/lib/definitions'
 
 interface RadioGroupProps {
-  question: QuestionsTable
+  question: table_Questions
   quizQuestion: number
   quizTotal: number
 }

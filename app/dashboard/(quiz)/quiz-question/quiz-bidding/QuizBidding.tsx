@@ -1,9 +1,9 @@
 import QuizBiddingTableHeader from './QuizBiddingTableHeader'
 import QuizBiddingTableLine from './QuizBiddingTableLine'
-import { QuestionsTable } from '@/app/lib/definitions'
+import { table_Questions } from '@/app/lib/definitions'
 
 interface QuizBiddingProps {
-  question: QuestionsTable
+  question: table_Questions
 }
 
 export default function QuizBidding({ question }: QuizBiddingProps): JSX.Element | null {

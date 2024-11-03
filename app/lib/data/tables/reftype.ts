@@ -1,7 +1,7 @@
 'use server'
 
 import { sql } from '@vercel/postgres'
-import { reftypeTable } from '@/app/lib/definitions'
+import { table_Reftype } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 //---------------------------------------------------------------------
 //  Fetch reftype
@@ -10,7 +10,7 @@ export async function fetch_reftype() {
   const functionName = 'fetch_reftype'
   // noStore()
   try {
-    const data = await sql<reftypeTable>`
+    const data = await sql<table_Reftype>`
       SELECT *
       FROM reftype
       ;

@@ -1,15 +1,15 @@
 'use client'
 
 import { createContext, useState, useContext, ReactNode } from 'react'
-import { ContextInfo } from '@/app/lib/definitions'
+import { structure_ContextInfo } from '@/app/lib/definitions'
 //
 // Define the context type
 //
 type UserContextType = {
-  sessionContext: ContextInfo
-  setSessionContext: React.Dispatch<React.SetStateAction<ContextInfo>>
+  sessionContext: structure_ContextInfo
+  setSessionContext: React.Dispatch<React.SetStateAction<structure_ContextInfo>>
 }
-const defaultContext: ContextInfo = {
+const defaultContext: structure_ContextInfo = {
   cxid: 0,
   cxuid: 0
 }
@@ -27,7 +27,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   //
   //  Provided the user state and setter
   //
-  const [sessionContext, setSessionContext] = useState<ContextInfo>(defaultContext)
+  const [sessionContext, setSessionContext] = useState<structure_ContextInfo>(defaultContext)
   //
   //  Pass state to the context
   //

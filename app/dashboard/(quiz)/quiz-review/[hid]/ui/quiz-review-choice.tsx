@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import RadioGroup from './radio-review-button'
-import { QuestionsTable } from '@/app/lib/definitions'
+import { table_Questions } from '@/app/lib/definitions'
 
 interface RadioOption {
   id: string
@@ -9,7 +9,7 @@ interface RadioOption {
 }
 
 interface QuizReviewChoiceProps {
-  question: QuestionsTable
+  question: table_Questions
   correctAnswer: number
   selectedAnswer: number
 }

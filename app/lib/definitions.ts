@@ -1,6 +1,6 @@
 import { DateTime } from 'next-auth/providers/kakao'
 
-export type LibraryTable = {
+export type table_Library = {
   lrlid: number
   lrref: string
   lrdesc: string
@@ -12,7 +12,7 @@ export type LibraryTable = {
   lrgid: number
 }
 
-export type LibraryGroupTable = {
+export type table_LibraryGroup = {
   lrlid: number
   lrref: string
   lrdesc: string
@@ -30,7 +30,7 @@ export type LibraryGroupTable = {
   oggid: number
 }
 
-export type QuestionsTable = {
+export type table_Questions = {
   qqid: number
   qowner: string
   qdetail: string
@@ -46,7 +46,7 @@ export type QuestionsTable = {
   qgid: number
 }
 
-export type UsershistoryTable = {
+export type table_Usershistory = {
   r_hid: number
   r_datetime: DateTime
   r_owner: string
@@ -63,9 +63,9 @@ export type UsershistoryTable = {
   r_sid: number
 }
 
-export type NewUsershistoryTable = Omit<UsershistoryTable, 'r_hid'>
+export type table_Usershistory_New = Omit<table_Usershistory, 'r_hid'>
 
-export type HistoryGroupTable = {
+export type structure_HistoryGroup = {
   r_hid: number
   r_datetime: DateTime
   r_owner: string
@@ -88,16 +88,7 @@ export type HistoryGroupTable = {
   u_name: string
 }
 
-export type OwnergroupTable = {
-  ogowner: string
-  oggroup: string
-  ogtitle: string
-  ogcntquestions: number
-  ogcntlibrary: number
-  oggid: number
-}
-
-export type SessionsTable = {
+export type table_Sessions = {
   s_id: number
   s_datetime: DateTime
   s_uid: number
@@ -107,7 +98,7 @@ export type SessionsTable = {
   s_dftmaxquestions: number
 }
 
-export type SessionInfo = {
+export type structure_SessionsInfo = {
   bsuid: number
   bsname: string
   bsemail: string
@@ -119,19 +110,19 @@ export type SessionInfo = {
   bsdftmaxquestions: number
 }
 
-export type ContextInfo = {
+export type structure_ContextInfo = {
   cxuid: number
   cxid: number
 }
 
-export type UserAuth = {
+export type structure_UserAuth = {
   id: string
   name: string
   email: string
   password: string
 }
 
-export type UsersTable = {
+export type table_Users = {
   u_uid: number
   u_name: string
   u_email: string
@@ -142,18 +133,18 @@ export type UsersTable = {
   u_provider: string
 }
 
-export type UserspwdTable = {
+export type table_Userspwd = {
   upuid: number
   upemail: string
   uphash: string
 }
 
-export type UsersOwnerTable = {
+export type table_Usersowner = {
   uouid: number
   uoowner: string
 }
 
-export interface UsershistoryTopResults {
+export interface structure_UsershistoryTopResults {
   r_uid: number
   u_name: string
   record_count: number
@@ -162,7 +153,7 @@ export interface UsershistoryTopResults {
   percentage: number
 }
 
-export interface UsershistoryRecentResults {
+export interface structure_UsershistoryRecentResults {
   r_hid: number
   r_uid: number
   u_name: string
@@ -171,13 +162,13 @@ export interface UsershistoryRecentResults {
   r_correctpercent: number
 }
 
-export interface ProviderSignInParams {
+export interface structure_ProviderSignInParams {
   provider: string
   email: string
   name: string
 }
 
-export type LoggingTable = {
+export type table_Logging = {
   lgid: number
   lgdatetime: DateTime
   lgmsg: string
@@ -185,19 +176,19 @@ export type LoggingTable = {
   lgsession: number
 }
 
-export type reftypeTable = {
+export type table_Reftype = {
   rttype: string
   rttitle: string
   rtrid: number
 }
 
-export type ownerTable = {
+export type table_Owner = {
   oowner: string
   otitle: string
   ooid: number
 }
 
-export type ownergroupTable = {
+export type table_Ownergroup = {
   ogowner: string
   oggroup: string
   ogtitle: string
@@ -206,12 +197,7 @@ export type ownergroupTable = {
   oggid: number
 }
 
-export type usersownerTable = {
-  uouid: number
-  uoowner: string
-}
-
-export type whoTable = {
+export type table_Who = {
   wwho: string
   wtitle: string
   wwid: number

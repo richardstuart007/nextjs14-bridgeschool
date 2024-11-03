@@ -5,13 +5,13 @@ import { Button } from '@/app/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { sessionUser } from '@/app/lib/actions/session-edit'
 import { fetchSessionInfo } from '@/app/lib/data/tables/sessions'
-import { SessionInfo } from '@/app/lib/definitions'
+import { structure_SessionsInfo } from '@/app/lib/definitions'
 
 export default function SessionForm({ id }: { id: number }): JSX.Element {
   //
   // State variable to hold session data
   //
-  const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null)
+  const [sessionInfo, setSessionInfo] = useState<structure_SessionsInfo | null>(null)
   const [bsdftmaxquestions, setbsdftmaxquestions] = useState<number>(0)
   const [bsskipcorrect, setbsskipcorrect] = useState<boolean>(false)
   const [bssortquestions, setbssortquestions] = useState<boolean>(false)

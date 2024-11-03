@@ -1,7 +1,7 @@
 'use server'
 
 import { sql } from '@vercel/postgres'
-import { UsersOwnerTable } from '@/app/lib/definitions'
+import { table_Usersowner } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 
 // ----------------------------------------------------------------------
@@ -41,7 +41,7 @@ export async function fetch_usersowner(uouid: number) {
   const functionName = 'fetch_usersowner'
   // noStore()
   try {
-    const data = await sql<UsersOwnerTable>`
+    const data = await sql<table_Usersowner>`
       SELECT *
       FROM usersowner
       WHERE uouid = ${uouid}

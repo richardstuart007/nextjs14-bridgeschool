@@ -2,7 +2,7 @@
 
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { LibraryTable, LibraryGroupTable } from '@/app/lib/definitions'
+import { table_Library, table_LibraryGroup } from '@/app/lib/definitions'
 import { writeLogging } from '@/app/lib/data/writeLogging'
 const LIBRARY_ITEMS_PER_PAGE = 10
 const MAINT_ITEMS_PER_PAGE = 15
@@ -70,7 +70,7 @@ export async function fetchLibraryUserFiltered(query: string, currentPage: numbe
     //  Run SQL
     //
     const client = await db.connect()
-    const data = await client.query<LibraryGroupTable>(sqlQuery)
+    const data = await client.query<table_LibraryGroup>(sqlQuery)
     client.release()
     //
     //  Return results
@@ -247,7 +247,7 @@ export async function fetchLibraryFiltered(query: string, currentPage: number) {
     //  Run SQL
     //
     const client = await db.connect()
-    const data = await client.query<LibraryGroupTable>(sqlQuery)
+    const data = await client.query<table_LibraryGroup>(sqlQuery)
     client.release()
     //
     //  Return results
@@ -364,7 +364,7 @@ export async function fetchLibraryById(lrlid: number) {
   const functionName = 'fetchLibraryById'
   // noStore()
   try {
-    const data = await sql<LibraryTable>`
+    const data = await sql<table_Library>`
       SELECT *
       FROM library
       WHERE lrlid = ${lrlid};
@@ -384,7 +384,7 @@ export async function fetchLibraryByRefGroupOwner(lrref: string, lrgroup: string
   const functionName = 'fetchLibraryByRefGroupOwner'
   // noStore()
   try {
-    const data = await sql<LibraryTable>`
+    const data = await sql<table_Library>`
       SELECT *
       FROM library
       WHERE

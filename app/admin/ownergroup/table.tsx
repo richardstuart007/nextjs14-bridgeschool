@@ -2,17 +2,21 @@
 
 import { lusitana } from '@/app/ui/fonts'
 import { useState, useEffect } from 'react'
-import MaintPopup from '@/app/admin/library/maintPopup'
+import MaintPopup from '@/app/admin/ownergroup/maintPopup'
 import ConfirmDialog from '@/app/ui/utils/confirmDialog'
-import { table_Library } from '@/app/lib/definitions'
-import {
-  deleteLibraryById,
-  fetchLibraryFiltered,
-  fetchLibraryTotalPages
-} from '@/app/lib/data/tables/library'
+import { table_Ownergroup } from '@/app/lib/definitions'
+import { deleteById, fetchFiltered, fetchPages } from '@/app/lib/data/tables/ownergroup'
 import Search from '@/app/ui/utils/search'
 import Pagination from '@/app/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
+import { checkKeyInTables } from '@/app/lib/data/data-utilities'
+//
+// Define a type for the table-column pair
+//
+interface TableColumnPair {
+  table: string
+  column: string
+}
 
 export default function Table() {
   //
@@ -22,14 +26,15 @@ export default function Table() {
   const query = searchParams.get('query') || ''
   const currentPage = Number(searchParams.get('page')) || 1
 
-  const [library, setLibrary] = useState<table_Library[]>([])
+  const [row, setRow] = useState<table_Ownergroup[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
   const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<table_Library | null>(null)
+  const [selectedRow, setSelectedRow] = useState<table_Ownergroup | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: '',
@@ -37,15 +42,15 @@ export default function Table() {
     onConfirm: () => {}
   })
   //----------------------------------------------------------------------------------------------
-  // Fetch library on mount and when shouldFetchData changes
+  // Fetch data on mount and when shouldFetchData changes
   //----------------------------------------------------------------------------------------------
   useEffect(() => {
     const fetchdata = async () => {
       try {
-        const data = await fetchLibraryFiltered(query, currentPage)
-        setLibrary(data)
+        const data = await fetchFiltered(query, currentPage)
+        setRow(data)
       } catch (error) {
-        console.error('Error fetching library:', error)
+        console.error('Error fetching data:', error)
       }
     }
     fetchdata()
@@ -57,7 +62,7 @@ export default function Table() {
   useEffect(() => {
     const fetchTotalPages = async () => {
       try {
-        const fetchedTotalPages = await fetchLibraryTotalPages(query)
+        const fetchedTotalPages = await fetchPages(query)
         setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching total pages:', error)
@@ -69,8 +74,8 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
-  function handleClickEdit(library: table_Library) {
-    setSelectedRow(library)
+  function handleClickEdit(row: table_Ownergroup) {
+    setSelectedRow(row)
     setIsModelOpenEdit(true)
   }
   //----------------------------------------------------------------------------------------------
@@ -97,16 +102,36 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Delete
   //----------------------------------------------------------------------------------------------
-  function handleDeleteClick(library: table_Library) {
+  function handleDeleteClick(row: table_Ownergroup) {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',
-      subTitle: `Are you sure you want to delete (${library.lrlid}) : ${library.lrdesc}?`,
+      subTitle: `Are you sure you want to delete (${row.oggid}) : ${row.ogtitle}?`,
       onConfirm: async () => {
         //
-        // Call the server function to delete the library
+        // Check a list of tables if data changes
         //
-        const message = await deleteLibraryById(library.lrlid)
+        const keyValue = String(row.oggid)
+        const tableColumnPairs: TableColumnPair[] = [
+          { table: 'library', column: 'lrgid' },
+          { table: 'questions', column: 'qgid' },
+          { table: 'usershistory', column: 'r_gid' }
+        ]
+        const exists = await checkKeyInTables(keyValue, tableColumnPairs)
+        if (exists) {
+          setMessage(`Deletion Failed.  Owner:${keyValue} exists in other tables`)
+          setConfirmDialog({ ...confirmDialog, isOpen: false })
+
+          // Automatically clear the message after some seconds
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+          return
+        }
+        //
+        // Call the server function to delete the row
+        //
+        const message = await deleteById(row.oggid)
         //
         // Log the returned message
         //
@@ -127,7 +152,7 @@ export default function Table() {
   return (
     <>
       <div className='flex w-full items-center justify-between'>
-        <h1 className={`${lusitana.className} text-2xl`}>Library</h1>
+        <h1 className={`${lusitana.className} text-2xl`}>ownergroup</h1>
         <h1 className='px-2 py-1 text-sm'>
           <button
             onClick={() => handleClickAdd()}
@@ -137,7 +162,7 @@ export default function Table() {
           </button>
         </h1>
       </div>
-      <Search placeholder='lid:123  ref:leb desc: leb who:hugger type:youtube  owner:richard  group:leb  gid:123' />
+      <Search placeholder='oid:1  ownergroup:Richard title:Richard' />
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>
@@ -151,25 +176,10 @@ export default function Table() {
                     Group
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Group-Id
+                    Title
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Lib
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Ref
-                  </th>
-                  {/* <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Link
-                  </th> */}
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Description
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Who
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Type
+                    ID
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     Edit
@@ -180,23 +190,18 @@ export default function Table() {
                 </tr>
               </thead>
               <tbody className='bg-white'>
-                {library?.map(library => (
+                {row?.map(row => (
                   <tr
-                    key={library.lrlid}
+                    key={row.oggid}
                     className='w-full border-b py-2 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg'
                   >
-                    <td className='px-2 py-1 text-sm '>{library.lrowner}</td>
-                    <td className='px-2 py-1 text-sm '>{library.lrgroup}</td>
-                    <td className='px-2 py-1 text-sm '>{library.lrgid}</td>
-                    <td className='px-2 py-1 text-sm '>{library.lrlid}</td>
-                    <td className='px-2 py-1 text-sm '>{library.lrref}</td>
-                    {/* <td className='px-2 py-1 text-sm '>{library.lrlink}</td> */}
-                    <td className='px-2 py-1 text-sm '>{library.lrdesc}</td>
-                    <td className='px-2 py-1 text-sm '>{library.lrwho}</td>
-                    <td className='px-2 py-1 text-sm '>{library.lrtype}</td>
+                    <td className='px-2 py-1 text-sm '>{row.ogowner}</td>
+                    <td className='px-2 py-1 text-sm '>{row.oggroup}</td>
+                    <td className='px-2 py-1 text-sm '>{row.ogtitle}</td>
+                    <td className='px-2 py-1 text-sm '>{row.oggid}</td>
                     <td className='px-2 py-1 text-sm'>
                       <button
-                        onClick={() => handleClickEdit(library)}
+                        onClick={() => handleClickEdit(row)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
@@ -204,7 +209,7 @@ export default function Table() {
                     </td>
                     <td className='px-2 py-1 text-sm'>
                       <button
-                        onClick={() => handleDeleteClick(library)}
+                        onClick={() => handleDeleteClick(row)}
                         className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
@@ -224,7 +229,7 @@ export default function Table() {
         {/* Edit Modal */}
         {selectedRow && (
           <MaintPopup
-            libraryRecord={selectedRow}
+            record={selectedRow}
             isOpen={isModelOpenEdit}
             onClose={handleModalCloseEdit}
           />
@@ -232,11 +237,14 @@ export default function Table() {
 
         {/* Add Modal */}
         {isModelOpenAdd && (
-          <MaintPopup libraryRecord={null} isOpen={isModelOpenAdd} onClose={handleModalCloseAdd} />
+          <MaintPopup record={null} isOpen={isModelOpenAdd} onClose={handleModalCloseAdd} />
         )}
 
         {/* Confirmation Dialog */}
         <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
+
+        {/* Error message */}
+        <div className='mt-2'>{message && <div className='text-red-600 mb-4'>{message}</div>}</div>
       </div>
     </>
   )

@@ -34,8 +34,8 @@ export async function checkKeyInTables(
       //
       // Construct and run the query for each table and column
       //
-      const sqlQuery = `SELECT 1 FROM ${table} WHERE ${column} = $1 LIMIT 1`
-      const data = await client.query(sqlQuery, [keyValue])
+      const sqlQuery = `SELECT 1 FROM ${table} WHERE ${column} = ${keyValue} LIMIT 1`
+      const data = await client.query(sqlQuery)
       //
       //  Key exists
       //

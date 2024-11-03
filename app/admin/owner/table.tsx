@@ -2,9 +2,9 @@
 
 import { lusitana } from '@/app/ui/fonts'
 import { useState, useEffect } from 'react'
-import MaintPopup from '@/app/admin/owner/ownerMaintPopup'
+import MaintPopup from '@/app/admin/owner/maintPopup'
 import ConfirmDialog from '@/app/ui/utils/confirmDialog'
-import { ownerTable } from '@/app/lib/definitions'
+import { table_Owner } from '@/app/lib/definitions'
 import {
   deleteOwnerById,
   fetchOwnerFiltered,
@@ -31,14 +31,14 @@ export default function Table() {
   const query = searchParams.get('query') || ''
   const currentPage = Number(searchParams.get('page')) || 1
 
-  const [owner, setowner] = useState<ownerTable[]>([])
+  const [owner, setowner] = useState<table_Owner[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
   const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<ownerTable | null>(null)
+  const [selectedRow, setSelectedRow] = useState<table_Owner | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -79,7 +79,7 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
-  function handleClickEdit(owner: ownerTable) {
+  function handleClickEdit(owner: table_Owner) {
     setSelectedRow(owner)
     setIsModelOpenEdit(true)
   }
@@ -107,7 +107,7 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Delete
   //----------------------------------------------------------------------------------------------
-  function handleDeleteClick(owner: ownerTable) {
+  function handleDeleteClick(owner: table_Owner) {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',

@@ -11,10 +11,10 @@ import {
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
-import { SessionInfo } from '@/app/lib/definitions'
+import { structure_SessionsInfo } from '@/app/lib/definitions'
 
 interface FormProps {
-  sessionInfo: SessionInfo
+  sessionInfo: structure_SessionsInfo
 }
 export default function NavLinks(props: FormProps): JSX.Element {
   //

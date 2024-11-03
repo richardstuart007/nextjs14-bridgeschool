@@ -1,7 +1,7 @@
 'use client'
-import { SessionInfo } from '@/app/lib/definitions'
+import { structure_SessionsInfo } from '@/app/lib/definitions'
 interface FormProps {
-  sessionInfo: SessionInfo
+  sessionInfo: structure_SessionsInfo
 }
 export default function NavSession(props: FormProps): JSX.Element {
   //

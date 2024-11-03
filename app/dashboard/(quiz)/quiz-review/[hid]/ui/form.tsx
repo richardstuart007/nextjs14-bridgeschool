@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { QuestionsTable, UsershistoryTable } from '@/app/lib/definitions'
+import { table_Questions, table_Usershistory } from '@/app/lib/definitions'
 import QuizQuestion from '@/app/dashboard/(quiz)/quiz-question/quiz-question'
 import QuizBidding from '@/app/dashboard/(quiz)/quiz-question/quiz-bidding/QuizBidding'
 import QuizHands from '@/app/dashboard/(quiz)/quiz-question/quiz-hands/QuizHands'
@@ -12,8 +12,8 @@ import {
 import QuizReviewChoice from './quiz-review-choice'
 
 interface QuestionsFormProps {
-  history: UsershistoryTable
-  questions: QuestionsTable[]
+  history: table_Usershistory
+  questions: table_Questions[]
 }
 //...................................................................................
 //.  Main Line

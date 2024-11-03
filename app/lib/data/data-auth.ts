@@ -6,24 +6,28 @@ import { writeSessions } from '@/app/lib/data/tables/sessions'
 import { fetchUserByEmail, writeUser } from '@/app/lib/data/tables/users'
 import { writeUsersOwner } from '@/app/lib/data/tables/usersowner'
 import { writeLogging } from '@/app/lib/data/writeLogging'
-import { UsersTable, UsersOwnerTable, ProviderSignInParams } from '@/app/lib/definitions'
+import {
+  table_Users,
+  table_Usersowner,
+  structure_ProviderSignInParams
+} from '@/app/lib/definitions'
 
 // ----------------------------------------------------------------------
 //  Google Provider
 // ----------------------------------------------------------------------
-export async function providerSignIn({ provider, email, name }: ProviderSignInParams) {
+export async function providerSignIn({ provider, email, name }: structure_ProviderSignInParams) {
   const functionName = 'providerSignIn'
   try {
     //
     //  Get user from database
     //
-    let userRecord: UsersTable | undefined
-    userRecord = (await fetchUserByEmail(email)) as UsersTable | undefined
+    let userRecord: table_Users | undefined
+    userRecord = (await fetchUserByEmail(email)) as table_Users | undefined
     //
     //  Create user if does not exist
     //
     if (!userRecord) {
-      userRecord = (await writeUser(provider, email, name)) as UsersTable | undefined
+      userRecord = (await writeUser(provider, email, name)) as table_Users | undefined
       if (!userRecord) {
         throw Error('providerSignIn: Write User Error')
       }
@@ -31,7 +35,7 @@ export async function providerSignIn({ provider, email, name }: ProviderSignInPa
       //  Write the usersowner data
       //
       const userid = userRecord.u_uid
-      ;(await writeUsersOwner(userid)) as UsersOwnerTable
+      ;(await writeUsersOwner(userid)) as table_Usersowner
     }
     //
     // Write session information
