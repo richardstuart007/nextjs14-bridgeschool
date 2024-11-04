@@ -1,5 +1,5 @@
 import { table_Library } from '@/src/lib/definitions'
-import { fetchLibraryByRefGroupOwner } from '@/src/lib/data/tables/library'
+import { checkKeysInTables } from '@/src/lib/data/checkKeysInTables'
 //
 //  Errors and Messages
 //
@@ -19,23 +19,21 @@ export default async function validateLibrary(record: table_Library): Promise<St
   const { lrlid, lrref, lrowner, lrgroup } = record
   let errors: StateSetup['errors'] = {}
   //
-  // Get existing unique combo ref/group/owner
-  //
-  const row = await fetchLibraryByRefGroupOwner(lrref, lrgroup, lrowner)
-  // console.log('row', row)
-  //
   //  Check for Add duplicate
   //
-  if (lrlid === 0 && row) {
-    errors.lrref = ['Reference & group & owner must be unique']
-  }
-  //
-  //  Check for Update
-  //
-  if (row) {
-    if (lrlid !== 0 && row.lrlid !== lrlid) {
-      errors.lrref = ['Reference & group & owner must be unique']
-    }
+  if (lrlid === 0) {
+    const tableColumnValuePairs = [
+      {
+        table: 'library',
+        columnValuePairs: [
+          { column: 'lrowner', value: lrowner },
+          { column: 'lrgroup', value: lrgroup },
+          { column: 'lrref', value: lrref }
+        ]
+      }
+    ]
+    const exists = await checkKeysInTables(tableColumnValuePairs)
+    if (exists) errors.lrref = ['Owner/Group/Ref must be unique']
   }
   //
   // Return error messages
@@ -43,7 +41,7 @@ export default async function validateLibrary(record: table_Library): Promise<St
   if (Object.keys(errors).length > 0) {
     return {
       errors,
-      message: 'Form validation failed. Please fix the errors and try again.'
+      message: 'Form validation failed.'
     }
   }
   //

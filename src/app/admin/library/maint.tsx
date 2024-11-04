@@ -71,16 +71,56 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
         {/*  ...................................................................................*/}
         {/*   Owner */}
         {/*  ...................................................................................*/}
-        <DropdownOwner selectedOption={lrowner} setSelectedOption={setLrowner} name={'lrowner'} />
+        {lrlid === 0 ? (
+          <DropdownOwner selectedOption={lrowner} setSelectedOption={setLrowner} name={'lrowner'} />
+        ) : (
+          /* -----------------Edit ------------------*/
+          <>
+            <div className='mt-2'>
+              <label
+                className='mb-1 mt-5 block text-xs font-medium text-gray-900'
+                htmlFor='lrowner'
+              >
+                Owner
+              </label>
+              <>
+                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
+                  {lrowner}
+                </span>
+                <input id='lrowner' type='hidden' name='lrowner' value={lrowner} />
+              </>
+            </div>
+          </>
+        )}
         {/*  ...................................................................................*/}
         {/*   Owner Group */}
         {/*  ...................................................................................*/}
-        <DropdownOwnerGroup
-          selectedOption={lrgroup}
-          setSelectedOption={setLrgroup}
-          name={'lrgroup'}
-          owner={lrowner}
-        />
+        {lrlid === 0 ? (
+          <DropdownOwnerGroup
+            selectedOption={lrgroup}
+            setSelectedOption={setLrgroup}
+            name={'lrgroup'}
+            owner={lrowner}
+          />
+        ) : (
+          /* -----------------Edit ------------------*/
+          <>
+            <div className='mt-2'>
+              <label
+                className='mb-1 mt-5 block text-xs font-medium text-gray-900'
+                htmlFor='lrgroup'
+              >
+                Owner Group
+              </label>
+              <>
+                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
+                  {lrgroup}
+                </span>
+                <input id='lrgroup' type='hidden' name='lrgroup' value={lrgroup} />
+              </>
+            </div>
+          </>
+        )}
         {/*  ...................................................................................*/}
         {/*   Reference */}
         {/*  ...................................................................................*/}
@@ -89,16 +129,27 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
             Reference
           </label>
           <div className='relative'>
-            <input
-              className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
-              id='lrref'
-              type='lrref'
-              name='lrref'
-              value={lrref}
-              onChange={e => setLrref(e.target.value)}
-            />
+            {lrlid === 0 ? (
+              <input
+                className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
+                id='lrref'
+                type='lrref'
+                name='lrref'
+                value={lrref}
+                onChange={e => setLrref(e.target.value)}
+              />
+            ) : (
+              /* -----------------Edit ------------------*/
+              <>
+                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
+                  {lrref}
+                </span>
+                <input id='lrref' type='hidden' name='lrref' value={lrref} />
+              </>
+            )}
           </div>
         </div>
+        {/*   Errors */}
         <div id='fedid-error' aria-live='polite' aria-atomic='true'>
           {formState.errors?.lrref &&
             formState.errors.lrref.map((error: string) => (
