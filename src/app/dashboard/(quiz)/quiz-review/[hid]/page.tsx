@@ -1,10 +1,10 @@
-import ReviewForm from '@/src/app/dashboard/(quiz)/quiz-review/[hid]/ui/form'
+import ReviewForm from '@/src/ui/dashboard/quizreview/form'
 import Breadcrumbs from '@/src/ui/utils/breadcrumbs'
-import { fetchQuestionsByGid } from '@/src/lib/data/tables/questions'
-import { fetchHistoryById } from '@/src/lib/data/tables/usershistory'
+import { fetchQuestionsByGid } from '@/src/lib/tables/questions'
+import { fetchHistoryById } from '@/src/lib/tables/usershistory'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { table_Questions, table_Usershistory } from '@/src/lib/definitions'
+import { table_Questions, table_Usershistory } from '@/src/lib/tables/definitions'
 
 export const metadata: Metadata = {
   title: 'Quiz Review'

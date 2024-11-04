@@ -2,10 +2,13 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { authConfig } from './auth.config'
 import { z } from 'zod'
-import type { structure_UserAuth, structure_ProviderSignInParams } from '@/src/lib/definitions'
+import type {
+  structure_UserAuth,
+  structure_ProviderSignInParams
+} from '@/src/lib/tables/definitions'
 import bcrypt from 'bcryptjs'
-import { fetchUserByEmail, fetchUserPwdByEmail } from '@/src/lib/data/tables/users'
-import { providerSignIn } from '@/src/lib/data/data-auth'
+import { fetchUserByEmail, fetchUserPwdByEmail } from '@/src/lib/tables/users'
+import { providerSignIn } from '@/src/lib/data-auth'
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
 // ----------------------------------------------------------------------

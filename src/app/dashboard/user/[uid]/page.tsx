@@ -1,9 +1,9 @@
-import Form from '@/src/app/dashboard/user/[uid]/form'
+import Form from '@/src/ui/dashboard/user/form'
 import Breadcrumbs from '@/src/ui/utils/breadcrumbs'
-import { fetchUserById } from '@/src/lib/data/tables/users'
+import { fetchUserById } from '@/src/lib/tables/users'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { table_Users } from '@/src/lib/definitions'
+import { table_Users } from '@/src/lib/tables/definitions'
 
 export const metadata: Metadata = {
   title: 'User'

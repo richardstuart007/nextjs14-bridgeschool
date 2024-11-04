@@ -1,4 +1,4 @@
-import Table from '@/src/app/admin/users/table'
+import Table from '@/src/ui/admin/users/table'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 

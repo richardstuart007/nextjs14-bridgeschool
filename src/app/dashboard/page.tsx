@@ -1,6 +1,6 @@
 import { lusitana } from '@/src/fonts'
-import SummaryGraphs from '@/src/app/dashboard/dashboard/summary/summary'
-import { SummarySkeleton } from '@/src/app/dashboard/dashboard/summary/skeleton'
+import SummaryGraphs from '@/src/ui/dashboard/dashboard/summary/summary'
+import { SummarySkeleton } from '@/src/ui/dashboard/dashboard/summary/skeleton'
 import { Suspense } from 'react'
 
 export default async function Page() {

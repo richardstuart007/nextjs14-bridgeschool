@@ -1,5 +1,5 @@
 'use client'
-import NavSide from '@/src/app/dashboard/dashboard/nav/nav-side'
+import NavSide from '@/src/ui/dashboard/dashboard/nav/nav-side'
 import { Suspense } from 'react'
 
 export default function Layout({ children }: { children: React.ReactNode }) {

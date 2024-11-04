@@ -1,10 +1,10 @@
 import Pagination from '@/src/ui/utils/pagination'
 import Search from '@/src/ui/utils/search'
-import Table from '@/src/app/dashboard/library/[uid]/table'
+import Table from '@/src/ui/dashboard/library/table'
 import { lusitana } from '@/src/fonts'
-import { TableSkeleton } from '@/src/app/dashboard/library/[uid]/skeleton'
+import { TableSkeleton } from '@/src/ui/dashboard/library/skeleton'
 import { Suspense } from 'react'
-import { fetchLibraryUserTotalPages } from '@/src/lib/data/tables/library'
+import { fetchLibraryUserTotalPages } from '@/src/lib/tables/library'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {

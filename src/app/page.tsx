@@ -4,7 +4,7 @@ import SchoolLogo from '@/src/ui/utils/school-logo'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { lusitana } from '@/src/fonts'
-import { deleteCookie } from '@/src/lib/data/data-cookie'
+import { deleteCookie } from '@/src/lib/data-cookie'
 
 export default function Page() {
   //
