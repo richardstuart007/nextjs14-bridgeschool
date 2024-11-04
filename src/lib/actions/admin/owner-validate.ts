@@ -1,6 +1,5 @@
 import { table_Owner } from '@/src/lib/definitions'
-import { fetchOwnerByOwner, fetchOwnerByID } from '@/src/lib/data/tables/owner'
-import { checkKeyInTables } from '@/src/lib/data/data-utilities'
+import { checkKeysInTables } from '@/src/lib/data/checkKeysInTables'
 //
 //  Errors and Messages
 //
@@ -11,14 +10,6 @@ export type StateSetup = {
   }
   message?: string | null
 }
-//
-// Define a type for the table-column pair
-//
-interface TableColumnPair {
-  table: string
-  column: string
-}
-
 export default async function validateOwner(record: table_Owner): Promise<StateSetup> {
   const { ooid, oowner } = record
   //
@@ -26,46 +17,17 @@ export default async function validateOwner(record: table_Owner): Promise<StateS
   //
   let errors: StateSetup['errors'] = {}
   //
-  // Get existing owner
-  //
-  let id_record = null
-  let id_oowner = ''
-  if (ooid !== 0) {
-    id_record = await fetchOwnerByID(ooid)
-    id_oowner = id_record.oowner
-  }
-  //
-  // Get new owner (if exists)
-  //
-  const oowner_record = await fetchOwnerByOwner(oowner)
-  //
   //  Check for Add duplicate
   //
-  if (ooid === 0 && oowner_record) {
-    errors.oowner = ['Owner must be unique']
-  }
-  //
-  //  Check for Update
-  //
-  if (oowner_record) {
-    if (ooid !== 0 && oowner_record.ooid !== ooid) {
-      errors.oowner = ['Owner must be unique']
-    }
-  }
-  //
-  // Check a list of tables if owner changes
-  //
-  if (ooid !== 0 && oowner !== id_oowner) {
-    const keyValue = id_oowner
-    const tableColumnPairs: TableColumnPair[] = [
-      { table: 'usersowner', column: 'uoowner' },
-      { table: 'ownergroup', column: 'ogowner' },
-      { table: 'library', column: 'lrowner' },
-      { table: 'questions', column: 'qowner' },
-      { table: 'usershistory', column: 'r_owner' }
+  if (ooid === 0) {
+    const tableColumnValuePairs = [
+      {
+        table: 'owner',
+        columnValuePairs: [{ column: 'oowner', value: oowner }]
+      }
     ]
-    const exists = await checkKeyInTables(keyValue, tableColumnPairs)
-    if (exists) errors.oowner = [`Key:${id_oowner} exists in other tables`]
+    const exists = await checkKeysInTables(tableColumnValuePairs)
+    if (exists) errors.oowner = ['Owner must be unique']
   }
   //
   // Return error messages

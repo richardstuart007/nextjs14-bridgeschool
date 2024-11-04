@@ -64,7 +64,27 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
         {/*  ...................................................................................*/}
         {/*   Owner */}
         {/*  ...................................................................................*/}
-        <DropdownOwner selectedOption={ogowner} setSelectedOption={setogowner} name={'ogowner'} />
+        {oggid === 0 ? (
+          <DropdownOwner selectedOption={ogowner} setSelectedOption={setogowner} name={'ogowner'} />
+        ) : (
+          /* -----------------Edit ------------------*/
+          <>
+            <div className='mt-2'>
+              <label
+                className='mb-1 mt-5 block text-xs font-medium text-gray-900'
+                htmlFor='ogowner'
+              >
+                Owner
+              </label>
+              <>
+                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
+                  {ogowner}
+                </span>
+                <input id='ogowner' type='hidden' name='ogowner' value={ogowner} />
+              </>
+            </div>
+          </>
+        )}
         {/*  ...................................................................................*/}
         {/*   Group */}
         {/*  ...................................................................................*/}
@@ -73,16 +93,27 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
             Group
           </label>
           <div className='relative'>
-            <input
-              className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
-              id='oggroup'
-              type='oggroup'
-              name='oggroup'
-              value={oggroup}
-              onChange={e => setoggroup(e.target.value)}
-            />
+            {oggid === 0 ? (
+              <input
+                className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm'
+                id='oggroup'
+                type='oggroup'
+                name='oggroup'
+                value={oggroup}
+                onChange={e => setoggroup(e.target.value)}
+              />
+            ) : (
+              /* -----------------Edit ------------------*/
+              <>
+                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
+                  {oggroup}
+                </span>
+                <input id='oggroup' type='hidden' name='oggroup' value={oggroup} />
+              </>
+            )}
           </div>
         </div>
+        {/*   Errors */}
         <div id='fedid-error' aria-live='polite' aria-atomic='true'>
           {formState.errors?.oggroup &&
             formState.errors.oggroup.map((error: string) => (
@@ -109,6 +140,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
             />
           </div>
         </div>
+        {/*   Errors */}
         <div id='fedid-error' aria-live='polite' aria-atomic='true'>
           {formState.errors?.ogtitle &&
             formState.errors.ogtitle.map((error: string) => (
@@ -117,7 +149,6 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
               </p>
             ))}
         </div>
-
         {/*  ...................................................................................*/}
         {/*   Update Button */}
         {/*  ...................................................................................*/}

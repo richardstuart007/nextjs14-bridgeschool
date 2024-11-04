@@ -13,15 +13,7 @@ import {
 import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { checkKeyInTables } from '@/src/lib/data/data-utilities'
-
-//
-// Define a type for the table-column pair
-//
-interface TableColumnPair {
-  table: string
-  column: string
-}
+import { checkKeysInTables } from '@/src/lib/data/checkKeysInTables'
 
 export default function Table() {
   //
@@ -116,17 +108,22 @@ export default function Table() {
         //
         // Check a list of tables if owner changes
         //
-        const keyValue = owner.oowner
-        const tableColumnPairs: TableColumnPair[] = [
-          { table: 'usersowner', column: 'uoowner' },
-          { table: 'ownergroup', column: 'ogowner' },
-          { table: 'library', column: 'lrowner' },
-          { table: 'questions', column: 'qowner' },
-          { table: 'usershistory', column: 'r_owner' }
+        const tableColumnValuePairs = [
+          {
+            table: 'ownergroup',
+            columnValuePairs: [
+              { column: 'ogowner', value: owner.oowner }
+              // { column: 'email', value: 'john@example.com' }
+            ]
+          },
+          {
+            table: 'usersowner',
+            columnValuePairs: [{ column: 'uoowner', value: owner.oowner }]
+          }
         ]
-        const exists = await checkKeyInTables(keyValue, tableColumnPairs)
+        const exists = await checkKeysInTables(tableColumnValuePairs)
         if (exists) {
-          setMessage(`Deletion Failed.  Owner:${keyValue} exists in other tables`)
+          setMessage(`Deletion Failed.  Keys exists in other tables`)
           setConfirmDialog({ ...confirmDialog, isOpen: false })
 
           // Automatically clear the message after some seconds

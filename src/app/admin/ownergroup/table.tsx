@@ -9,14 +9,7 @@ import { deleteById, fetchFiltered, fetchPages } from '@/src/lib/data/tables/own
 import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { checkKeyInTables } from '@/src/lib/data/data-utilities'
-//
-// Define a type for the table-column pair
-//
-interface TableColumnPair {
-  table: string
-  column: string
-}
+import { checkKeysInTables } from '@/src/lib/data/checkKeysInTables'
 
 export default function Table() {
   //
@@ -109,17 +102,22 @@ export default function Table() {
       subTitle: `Are you sure you want to delete (${row.oggid}) : ${row.ogtitle}?`,
       onConfirm: async () => {
         //
-        // Check a list of tables if data changes
+        // Check a list of tables if owner changes
         //
-        const keyValue = String(row.oggid)
-        const tableColumnPairs: TableColumnPair[] = [
-          { table: 'library', column: 'lrgid' },
-          { table: 'questions', column: 'qgid' },
-          { table: 'usershistory', column: 'r_gid' }
+        const oggid_string = String(row.oggid)
+        const tableColumnValuePairs = [
+          {
+            table: 'library',
+            columnValuePairs: [{ column: 'lrgid', value: oggid_string }]
+          },
+          {
+            table: 'questions',
+            columnValuePairs: [{ column: 'qgid', value: oggid_string }]
+          }
         ]
-        const exists = await checkKeyInTables(keyValue, tableColumnPairs)
+        const exists = await checkKeysInTables(tableColumnValuePairs)
         if (exists) {
-          setMessage(`Deletion Failed.  Owner:${keyValue} exists in other tables`)
+          setMessage(`Deletion Failed.  Keys exists in other tables`)
           setConfirmDialog({ ...confirmDialog, isOpen: false })
 
           // Automatically clear the message after some seconds

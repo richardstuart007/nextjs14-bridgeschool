@@ -67,16 +67,27 @@ export default function Form({ ownerRecord, onSuccess, shouldCloseOnUpdate = tru
             Owner
           </label>
           <div className='relative'>
-            <input
-              className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
-              id='oowner'
-              type='oowner'
-              name='oowner'
-              value={oowner}
-              onChange={e => setoowner(e.target.value)}
-            />
+            {ooid === 0 ? (
+              <input
+                className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm'
+                id='oowner'
+                type='oowner'
+                name='oowner'
+                value={oowner}
+                onChange={e => setoowner(e.target.value)}
+              />
+            ) : (
+              /* -----------------Edit ------------------*/
+              <>
+                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
+                  {oowner}
+                </span>
+                <input id='oowner' type='hidden' name='oowner' value={oowner} />
+              </>
+            )}
           </div>
         </div>
+        {/*   Errors */}
         <div id='fedid-error' aria-live='polite' aria-atomic='true'>
           {formState.errors?.oowner &&
             formState.errors.oowner.map((error: string) => (
