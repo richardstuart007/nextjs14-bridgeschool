@@ -1,8 +1,8 @@
 'use server'
 
 import { z } from 'zod'
-import { updateOwner, writeOwner } from '@/src/lib/tables/owner'
-import validateOwner from '@/src/ui/admin/owner/action-validate'
+import { updateOwnergroup, writeOwnergroup } from '@/src/lib/tables/ownergroup'
+import validateOwnergroup from '@/src/ui/admin/ownergroup/maint-validate'
 // ----------------------------------------------------------------------
 //  Update Owner Setup
 // ----------------------------------------------------------------------
@@ -10,16 +10,18 @@ import validateOwner from '@/src/ui/admin/owner/action-validate'
 //  Form Schema for validation
 //
 const FormSchemaSetup = z.object({
-  oowner: z.string(),
-  otitle: z.string()
+  ogowner: z.string(),
+  oggroup: z.string(),
+  ogtitle: z.string()
 })
 //
 //  Errors and Messages
 //
 export type StateSetup = {
   errors?: {
-    oowner?: string[]
-    otitle?: string[]
+    ogowner?: string[]
+    oggroup?: string[]
+    ogtitle?: string[]
   }
   message?: string | null
   databaseUpdated?: boolean
@@ -27,13 +29,14 @@ export type StateSetup = {
 
 const Setup = FormSchemaSetup
 
-export async function OwnerMaint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   //  Validate form data
   //
   const validatedFields = Setup.safeParse({
-    oowner: formData.get('oowner'),
-    otitle: formData.get('otitle')
+    ogowner: formData.get('ogowner'),
+    oggroup: formData.get('oggroup'),
+    ogtitle: formData.get('ogtitle')
   })
   // console.log('formData', formData)
   //
@@ -48,22 +51,23 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
   //
   // Unpack form data
   //
-  // console.log('Database update')
-  const { oowner, otitle } = validatedFields.data
+  const { ogowner, oggroup, ogtitle } = validatedFields.data
   //
   //  Convert hidden fields value to numeric
   //
-  const ooid = Number(formData.get('ooid'))
-  // console.log('ooid:', ooid)
+  const oggid = Number(formData.get('oggid'))
   //
   // Validate fields
   //
-  const OwnerTable = {
-    ooid: ooid,
-    oowner: oowner,
-    otitle: otitle
+  const table_Ownergroup = {
+    oggid: oggid,
+    ogowner: ogowner,
+    oggroup: oggroup,
+    ogcntquestions: 0,
+    ogcntlibrary: 0,
+    ogtitle: ogtitle
   }
-  const errorMessages = await validateOwner(OwnerTable)
+  const errorMessages = await validateOwnergroup(table_Ownergroup)
   if (errorMessages.message) {
     return {
       errors: errorMessages.errors,
@@ -78,7 +82,9 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
     //
     //  Write/Update the owner
     //
-    await (ooid === 0 ? writeOwner(oowner, otitle) : updateOwner(ooid, oowner, otitle))
+    await (oggid === 0
+      ? writeOwnergroup(ogowner, oggroup, ogtitle)
+      : updateOwnergroup(oggid, ogowner, oggroup, ogtitle))
 
     return {
       message: `Database updated successfully.`,

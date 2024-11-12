@@ -18,10 +18,10 @@ interface TableColumnValuePairs {
   columnValuePairs: ColumnValuePair[]
 }
 
-export async function checkKeysInTables(
+export async function table_check(
   tableColumnValuePairs: TableColumnValuePairs[]
 ): Promise<boolean> {
-  const functionName = 'checkKeysInTables'
+  const functionName = 'table_check'
   noStore()
   const client = await db.connect()
 

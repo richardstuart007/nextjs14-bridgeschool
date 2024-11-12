@@ -1,5 +1,5 @@
 import { table_Library } from '@/src/lib/tables/definitions'
-import { checkKeysInTables } from '@/src/lib/checkKeysInTables'
+import { table_check } from '@/src/lib/tables/table_check'
 //
 //  Errors and Messages
 //
@@ -32,7 +32,7 @@ export default async function validateLibrary(record: table_Library): Promise<St
         ]
       }
     ]
-    const exists = await checkKeysInTables(tableColumnValuePairs)
+    const exists = await table_check(tableColumnValuePairs)
     if (exists) errors.lrref = ['Owner/Group/Ref must be unique']
   }
   //

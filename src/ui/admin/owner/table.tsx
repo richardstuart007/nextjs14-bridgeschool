@@ -9,7 +9,7 @@ import { deleteOwnerById, fetchOwnerFiltered, fetchOwnerTotalPages } from '@/src
 import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { checkKeysInTables } from '@/src/lib/checkKeysInTables'
+import { table_check } from '@/src/lib/tables/table_check'
 
 export default function Table() {
   //
@@ -114,7 +114,7 @@ export default function Table() {
             columnValuePairs: [{ column: 'uoowner', value: owner.oowner }]
           }
         ]
-        const exists = await checkKeysInTables(tableColumnValuePairs)
+        const exists = await table_check(tableColumnValuePairs)
         if (exists) {
           setMessage(`Deletion Failed.  Keys exists in other tables`)
           setConfirmDialog({ ...confirmDialog, isOpen: false })

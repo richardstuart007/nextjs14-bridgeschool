@@ -2,18 +2,26 @@
 
 import { lusitana } from '@/src/fonts'
 import { useState, useEffect } from 'react'
-import MaintPopup_Ownergroup from '@/src/ui/admin/ownergroup/maintPopup'
-import MaintPopup_Library from '@/src/ui/admin/library/tablePopup'
-import MaintPopup_Questions from '@/src/ui/admin/questions/tablePopup'
+import MaintPopup_detail from '@/src/ui/admin/questions/detail/maintPopup'
+import MaintPopup_answers from '@/src/ui/admin/questions/answers/maintPopup'
+import MaintPopup_hands from '@/src/ui/admin/questions/hands/maintPopup'
+import MaintPopup_bidding from '@/src/ui/admin/questions/bidding/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
-import { table_Ownergroup } from '@/src/lib/tables/definitions'
-import { deleteById, fetchFiltered, fetchPages } from '@/src/lib/tables/ownergroup'
+import { table_Questions } from '@/src/lib/tables/definitions'
+import {
+  deleteQuestionsById,
+  fetchQuestionsFiltered,
+  fetchQuestionsTotalPages
+} from '@/src/lib/tables/questions'
 import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { table_check } from '@/src/lib/tables/table_check'
 
-export default function Table() {
+interface FormProps {
+  gid?: string | null
+}
+export default function Table({ gid }: FormProps) {
+  console.log('gid:', gid)
   //
   //  URL updated with search paramenters (Search)
   //
@@ -21,16 +29,21 @@ export default function Table() {
   const query = searchParams.get('query') || ''
   const currentPage = Number(searchParams.get('page')) || 1
 
-  const [row, setRow] = useState<table_Ownergroup[]>([])
+  const [record, setrecord] = useState<table_Questions[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
   const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
-  const [isModelOpenEdit_ownergroup, setIsModelOpenEdit_ownergroup] = useState(false)
-  const [isModelOpenEdit_library, setIsModelOpenEdit_library] = useState(false)
-  const [isModelOpenEdit_questions, setIsModelOpenEdit_questions] = useState(false)
-  const [isModelOpenAdd_ownergroup, setIsModelOpenAdd_ownergroup] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<table_Ownergroup | null>(null)
+  const [isModelOpenEdit_detail, setIsModelOpenEdit_detail] = useState(false)
+  const [isModelOpenAdd_detail, setIsModelOpenAdd_detail] = useState(false)
+  const [isModelOpenEdit_answers, setIsModelOpenEdit_answers] = useState(false)
+  const [isModelOpenAdd_answers, setIsModelOpenAdd_answers] = useState(false)
+  const [isModelOpenEdit_hands, setIsModelOpenEdit_hands] = useState(false)
+  const [isModelOpenAdd_hands, setIsModelOpenAdd_hands] = useState(false)
+  const [isModelOpenEdit_bidding, setIsModelOpenEdit_bidding] = useState(false)
+  const [isModelOpenAdd_bidding, setIsModelOpenAdd_bidding] = useState(false)
+
+  const [selectedRow, setSelectedRow] = useState<table_Questions | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -39,15 +52,15 @@ export default function Table() {
     onConfirm: () => {}
   })
   //----------------------------------------------------------------------------------------------
-  // Fetch data on mount and when shouldFetchData changes
+  // Fetch questions on mount and when shouldFetchData changes
   //----------------------------------------------------------------------------------------------
   useEffect(() => {
     const fetchdata = async () => {
       try {
-        const data = await fetchFiltered(query, currentPage)
-        setRow(data)
+        const data = await fetchQuestionsFiltered(query, currentPage)
+        setrecord(data)
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('Error fetching questions:', error)
       }
     }
     fetchdata()
@@ -59,7 +72,7 @@ export default function Table() {
   useEffect(() => {
     const fetchTotalPages = async () => {
       try {
-        const fetchedTotalPages = await fetchPages(query)
+        const fetchedTotalPages = await fetchQuestionsTotalPages(query)
         setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching total pages:', error)
@@ -71,87 +84,73 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
-  function handleClickEdit_ownergroup(row: table_Ownergroup) {
-    setSelectedRow(row)
-    setIsModelOpenEdit_ownergroup(true)
+  function handleClickEdit_detail(questions: table_Questions) {
+    setSelectedRow(questions)
+    setIsModelOpenEdit_detail(true)
   }
-  function handleClickEdit_library(row: table_Ownergroup) {
-    setSelectedRow(row)
-    setIsModelOpenEdit_library(true)
+  function handleClickEdit_answers(questions: table_Questions) {
+    setSelectedRow(questions)
+    setIsModelOpenEdit_answers(true)
   }
-  function handleClickEdit_questions(row: table_Ownergroup) {
-    setSelectedRow(row)
-    setIsModelOpenEdit_questions(true)
+  function handleClickEdit_hands(questions: table_Questions) {
+    setSelectedRow(questions)
+    setIsModelOpenEdit_hands(true)
+  }
+  function handleClickEdit_bidding(questions: table_Questions) {
+    setSelectedRow(questions)
+    setIsModelOpenEdit_bidding(true)
+  }
+
+  //----------------------------------------------------------------------------------------------
+  //  Close Modal close
+  //----------------------------------------------------------------------------------------------
+  function handleModalCloseEdit_detail() {
+    setIsModelOpenEdit_detail(false)
+    setSelectedRow(null)
+    setShouldFetchData(true)
+  }
+
+  function handleModalCloseEdit_answers() {
+    setIsModelOpenEdit_answers(false)
+    setSelectedRow(null)
+    setShouldFetchData(true)
+  }
+
+  function handleModalCloseEdit_hands() {
+    setIsModelOpenEdit_hands(false)
+    setSelectedRow(null)
+    setShouldFetchData(true)
+  }
+  //  Close Modal Edit
+  //----------------------------------------------------------------------------------------------
+  function handleModalCloseEdit_bidding() {
+    setIsModelOpenEdit_bidding(false)
+    setSelectedRow(null)
+    setShouldFetchData(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Add
   //----------------------------------------------------------------------------------------------
-  function handleClickAdd_ownergroup() {
-    setIsModelOpenAdd_ownergroup(true)
+  function handleClickAdd_detail() {
+    setIsModelOpenAdd_detail(true)
   }
-  //----------------------------------------------------------------------------------------------
-  //  Close Modal Edit
-  //----------------------------------------------------------------------------------------------
-  function handleModalCloseEdit_ownergroup() {
-    setIsModelOpenEdit_ownergroup(false)
-    setSelectedRow(null)
-    setShouldFetchData(true)
-  }
-  function handleModalCloseEdit_library() {
-    setIsModelOpenEdit_library(false)
-    setSelectedRow(null)
-    setShouldFetchData(true)
-  }
-  function handleModalCloseEdit_questions() {
-    setIsModelOpenEdit_questions(false)
-    setSelectedRow(null)
-    setShouldFetchData(true)
-  }
-  //----------------------------------------------------------------------------------------------
-  //  Close Modal Add
-  //----------------------------------------------------------------------------------------------
-  function handleModalCloseAdd_ownergroup() {
-    setIsModelOpenAdd_ownergroup(false)
+  function handleModalCloseAdd_detail() {
+    setIsModelOpenAdd_detail(false)
     setShouldFetchData(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Delete
   //----------------------------------------------------------------------------------------------
-  function handleDeleteClick_ownergroup(row: table_Ownergroup) {
+  function handleDeleteClick(questions: table_Questions) {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',
-      subTitle: `Are you sure you want to delete (${row.oggid}) : ${row.ogtitle}?`,
+      subTitle: `Are you sure you want to delete (${questions.qqid}) : ${questions.qgroup}?`,
       onConfirm: async () => {
         //
-        // Check a list of tables if owner changes
+        // Call the server function to delete the questions
         //
-        const oggid_string = String(row.oggid)
-        const tableColumnValuePairs = [
-          {
-            table: 'library',
-            columnValuePairs: [{ column: 'lrgid', value: oggid_string }]
-          },
-          {
-            table: 'questions',
-            columnValuePairs: [{ column: 'qgid', value: oggid_string }]
-          }
-        ]
-        const exists = await table_check(tableColumnValuePairs)
-        if (exists) {
-          setMessage(`Deletion Failed.  Keys exists in other tables`)
-          setConfirmDialog({ ...confirmDialog, isOpen: false })
-
-          // Automatically clear the message after some seconds
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
-          return
-        }
-        //
-        // Call the server function to delete the row
-        //
-        const message = await deleteById(row.oggid)
+        const message = await deleteQuestionsById(questions.qqid)
         //
         // Log the returned message
         //
@@ -172,17 +171,17 @@ export default function Table() {
   return (
     <>
       <div className='flex w-full items-center justify-between'>
-        <h1 className={`${lusitana.className} text-2xl`}>ownergroup</h1>
+        <h1 className={`${lusitana.className} text-2xl`}>questions</h1>
         <h1 className='px-2 py-1 text-sm'>
           <button
-            onClick={() => handleClickAdd_ownergroup()}
+            onClick={() => handleClickAdd_detail()}
             className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
           >
             Add
           </button>
         </h1>
       </div>
-      <Search placeholder='oid:1  ownergroup:Richard title:Richard' />
+      <Search placeholder='qid:1  owner:Richard group:BergenRaises' />
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>
@@ -190,25 +189,28 @@ export default function Table() {
               <thead className='rounded-lg text-left font-normal text-sm'>
                 <tr>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Owner
+                    Questions
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     Group
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Title
+                    Seq
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Library Count
+                    Detail
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Questions Count
+                    Answers
+                  </th>
+                  <th scope='col' className='px-2 py-2 font-medium text-left'>
+                    Bidding
+                  </th>
+                  <th scope='col' className='px-2 py-2 font-medium text-left'>
+                    Hands
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     ID
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Edit
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     Delete
@@ -216,42 +218,59 @@ export default function Table() {
                 </tr>
               </thead>
               <tbody className='bg-white'>
-                {row?.map(row => (
+                {record?.map(record => (
                   <tr
-                    key={row.oggid}
+                    key={record.qqid}
                     className='w-full border-b py-2 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg'
                   >
-                    <td className='px-2 py-1 text-sm '>{row.ogowner}</td>
-                    <td className='px-2 py-1 text-sm '>{row.oggroup}</td>
-                    <td className='px-2 py-1 text-sm '>{row.ogtitle}</td>
+                    <td className='px-2 py-1 text-sm '>{record.qowner}</td>
+                    <td className='px-2 py-1 text-sm '>{record.qgroup}</td>
+                    <td className='px-2 py-1 text-sm '>{record.qseq}</td>
                     <td className='px-2 py-1 text-sm '>
                       <button
-                        onClick={() => handleClickEdit_library(row)}
+                        onClick={() => handleClickEdit_detail(record)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
-                        {row.ogcntlibrary}
+                        {record.qdetail.length > 75
+                          ? `${record.qdetail.slice(0, 75)}...`
+                          : record.qdetail}
                       </button>
                     </td>
                     <td className='px-2 py-1 text-sm '>
                       <button
-                        onClick={() => handleClickEdit_questions(row)}
+                        onClick={() => handleClickEdit_answers(record)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
-                        {row.ogcntquestions}
-                      </button>
-                    </td>
-                    <td className='px-2 py-1 text-sm '>{row.oggid}</td>
-                    <td className='px-2 py-1 text-sm'>
-                      <button
-                        onClick={() => handleClickEdit_ownergroup(row)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
-                      >
-                        Edit
+                        {record.qans && record.qans.length > 0 ? 'Y' : 'N'}
                       </button>
                     </td>
                     <td className='px-2 py-1 text-sm'>
                       <button
-                        onClick={() => handleDeleteClick_ownergroup(row)}
+                        onClick={() => handleClickEdit_hands(record)}
+                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
+                      >
+                        {(record.qnorth?.length ?? 0) > 0 ||
+                        (record.qeast?.length ?? 0) > 0 ||
+                        (record.qsouth?.length ?? 0) > 0 ||
+                        (record.qwest?.length ?? 0) > 0
+                          ? 'Y'
+                          : 'N'}
+                      </button>
+                    </td>
+
+                    <td className='px-2 py-1 text-sm'>
+                      <button
+                        onClick={() => handleClickEdit_bidding(record)}
+                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
+                      >
+                        {record.qrounds && record.qrounds.length > 0 ? 'Y' : 'N'}
+                      </button>
+                    </td>
+                    <td className='px-2 py-1 text-sm '>{record.qqid}</td>
+
+                    <td className='px-2 py-1 text-sm'>
+                      <button
+                        onClick={() => handleDeleteClick(record)}
                         className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
@@ -270,33 +289,41 @@ export default function Table() {
 
         {/* Edit Modal */}
         {selectedRow && (
-          <MaintPopup_Ownergroup
+          <MaintPopup_detail
             record={selectedRow}
-            isOpen={isModelOpenEdit_ownergroup}
-            onClose={handleModalCloseEdit_ownergroup}
+            isOpen={isModelOpenEdit_detail}
+            onClose={handleModalCloseEdit_detail}
+          />
+        )}
+
+        {selectedRow && (
+          <MaintPopup_answers
+            record={selectedRow}
+            isOpen={isModelOpenEdit_answers}
+            onClose={handleModalCloseEdit_answers}
           />
         )}
         {selectedRow && (
-          <MaintPopup_Library
-            gid={String(selectedRow.oggid)}
-            isOpen={isModelOpenEdit_library}
-            onClose={handleModalCloseEdit_library}
+          <MaintPopup_hands
+            record={selectedRow}
+            isOpen={isModelOpenEdit_hands}
+            onClose={handleModalCloseEdit_hands}
           />
         )}
         {selectedRow && (
-          <MaintPopup_Questions
-            gid={String(selectedRow.oggid)}
-            isOpen={isModelOpenEdit_questions}
-            onClose={handleModalCloseEdit_questions}
+          <MaintPopup_bidding
+            record={selectedRow}
+            isOpen={isModelOpenEdit_bidding}
+            onClose={handleModalCloseEdit_bidding}
           />
         )}
 
         {/* Add Modal */}
-        {isModelOpenAdd_ownergroup && (
-          <MaintPopup_Ownergroup
+        {isModelOpenAdd_detail && (
+          <MaintPopup_detail
             record={null}
-            isOpen={isModelOpenAdd_ownergroup}
-            onClose={handleModalCloseAdd_ownergroup}
+            isOpen={isModelOpenAdd_detail}
+            onClose={handleModalCloseAdd_detail}
           />
         )}
 

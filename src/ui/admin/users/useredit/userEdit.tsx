@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
-import { UserEdit } from '@/src/ui/admin/users/useredit/action-edit'
+import { UserEdit } from '@/src/ui/admin/users/useredit/UserEdit-action'
 import type { table_Users } from '@/src/lib/tables/definitions'
 import SelectCountry from '@/src/ui/utils/countries/select-country'
 

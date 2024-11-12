@@ -3,12 +3,11 @@ import { useState } from 'react'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
-import { Maint } from '@/src/ui/admin/ownergroup/maint-action'
-import type { table_Ownergroup } from '@/src/lib/tables/definitions'
-import DropdownOwner from '@/src/ui/utils/dropdown/dropdown-owner'
+import { Maint } from '@/src/ui/admin/reftype/maint-action'
+import type { table_Reftype } from '@/src/lib/tables/definitions'
 
 interface FormProps {
-  record: table_Ownergroup | null
+  record: table_Reftype | null
   onSuccess: () => void
   shouldCloseOnUpdate?: boolean
 }
@@ -19,10 +18,9 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
   //
   //  State and Initial values
   //
-  const oggid = record?.oggid || 0
-  const [ogowner, setogowner] = useState(record?.ogowner || '')
-  const [oggroup, setoggroup] = useState(record?.oggroup || '')
-  const [ogtitle, setogtitle] = useState(record?.ogtitle || '')
+  const rtrid = record?.rtrid || 0
+  const [rttype, setrttype] = useState(record?.rttype || '')
+  const [rttitle, setrttitle] = useState(record?.rttitle || '')
   //-------------------------------------------------------------------------
   //  Update Button
   //-------------------------------------------------------------------------
@@ -33,7 +31,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
     const { pending } = useFormStatus()
     return (
       <Button className='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
-        {oggid === 0 ? 'Create' : 'Update'}
+        {rtrid === 0 ? 'Create' : 'Update'}
       </Button>
     )
   }
@@ -54,101 +52,78 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
         {/*  ID  */}
         {/*  ...................................................................................*/}
         <div>
-          {oggid !== 0 && (
-            <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='oggid'>
-              ID: {oggid}
+          {rtrid !== 0 && (
+            <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='rtrid'>
+              ID: {rtrid}
             </label>
           )}
-          <input id='oggid' type='hidden' name='oggid' value={oggid} />
+          <input id='rtrid' type='hidden' name='rtrid' value={rtrid} />
         </div>
         {/*  ...................................................................................*/}
-        {/*   Owner */}
-        {/*  ...................................................................................*/}
-        {oggid === 0 ? (
-          <DropdownOwner selectedOption={ogowner} setSelectedOption={setogowner} name={'ogowner'} />
-        ) : (
-          /* -----------------Edit ------------------*/
-          <>
-            <div className='mt-2'>
-              <label
-                className='mb-1 mt-5 block text-xs font-medium text-gray-900'
-                htmlFor='ogowner'
-              >
-                Owner
-              </label>
-              <>
-                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
-                  {ogowner}
-                </span>
-                <input id='ogowner' type='hidden' name='ogowner' value={ogowner} />
-              </>
-            </div>
-          </>
-        )}
-        {/*  ...................................................................................*/}
-        {/*   Group */}
+        {/*   Reftype */}
         {/*  ...................................................................................*/}
         <div className='mt-2'>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='oggroup'>
-            Group
+          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='rttype'>
+            Reftype
           </label>
           <div className='relative'>
-            {oggid === 0 ? (
+            {rtrid === 0 ? (
               <input
                 className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm'
-                id='oggroup'
-                type='oggroup'
-                name='oggroup'
-                value={oggroup}
-                onChange={e => setoggroup(e.target.value)}
+                id='rttype'
+                type='rttype'
+                name='rttype'
+                value={rttype}
+                onChange={e => setrttype(e.target.value)}
               />
             ) : (
               /* -----------------Edit ------------------*/
               <>
                 <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
-                  {oggroup}
+                  {rttype}
                 </span>
-                <input id='oggroup' type='hidden' name='oggroup' value={oggroup} />
+                <input id='rttype' type='hidden' name='rttype' value={rttype} />
               </>
             )}
           </div>
         </div>
         {/*   Errors */}
         <div id='fedid-error' aria-live='polite' aria-atomic='true'>
-          {formState.errors?.oggroup &&
-            formState.errors.oggroup.map((error: string) => (
+          {formState.errors?.rttype &&
+            formState.errors.rttype.map((error: string) => (
               <p className='mt-2 text-sm text-red-500' key={error}>
                 {error}
               </p>
             ))}
         </div>
+
         {/*  ...................................................................................*/}
         {/*   Title */}
         {/*  ...................................................................................*/}
         <div className='mt-2'>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='ogtitle'>
+          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='rttitle'>
             Title
           </label>
           <div className='relative'>
             <input
               className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
-              id='ogtitle'
-              type='ogtitle'
-              name='ogtitle'
-              value={ogtitle}
-              onChange={e => setogtitle(e.target.value)}
+              id='rttitle'
+              type='rttitle'
+              name='rttitle'
+              value={rttitle}
+              onChange={e => setrttitle(e.target.value)}
             />
           </div>
         </div>
-        {/*   Errors */}
         <div id='fedid-error' aria-live='polite' aria-atomic='true'>
-          {formState.errors?.ogtitle &&
-            formState.errors.ogtitle.map((error: string) => (
+          {formState.errors?.rttitle &&
+            formState.errors.rttitle.map((error: string) => (
               <p className='mt-2 text-sm text-red-500' key={error}>
                 {error}
               </p>
             ))}
         </div>
+
         {/*  ...................................................................................*/}
         {/*   Update Button */}
         {/*  ...................................................................................*/}

@@ -3,26 +3,28 @@ import { useState } from 'react'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
-import { Maint } from '@/src/ui/admin/ownergroup/maint-action'
-import type { table_Ownergroup } from '@/src/lib/tables/definitions'
+import { Maint_detail } from '@/src/ui/admin/questions/detail/action'
+import type { table_Questions } from '@/src/lib/tables/definitions'
 import DropdownOwner from '@/src/ui/utils/dropdown/dropdown-owner'
+import DropdownOwnerGroup from '@/src/ui/utils/dropdown/dropdown-group'
 
 interface FormProps {
-  record: table_Ownergroup | null
+  record: table_Questions | null
   onSuccess: () => void
   shouldCloseOnUpdate?: boolean
 }
 
 export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: FormProps) {
   const initialState = { message: null, errors: {}, databaseUpdated: false }
-  const [formState, formAction] = useFormState(Maint, initialState)
+  const [formState, formAction] = useFormState(Maint_detail, initialState)
   //
   //  State and Initial values
   //
-  const oggid = record?.oggid || 0
-  const [ogowner, setogowner] = useState(record?.ogowner || '')
-  const [oggroup, setoggroup] = useState(record?.oggroup || '')
-  const [ogtitle, setogtitle] = useState(record?.ogtitle || '')
+  const qqid = record?.qqid || 0
+  const qseq = record?.qseq || 0
+  const [qowner, setqowner] = useState(record?.qowner || '')
+  const [qgroup, setqgroup] = useState(record?.qgroup || '')
+  const [qdetail, setqdetail] = useState(record?.qdetail || '')
   //-------------------------------------------------------------------------
   //  Update Button
   //-------------------------------------------------------------------------
@@ -33,7 +35,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
     const { pending } = useFormStatus()
     return (
       <Button className='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
-        {oggid === 0 ? 'Create' : 'Update'}
+        {qqid === 0 ? 'Create' : 'Update'}
       </Button>
     )
   }
@@ -54,101 +56,98 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
         {/*  ID  */}
         {/*  ...................................................................................*/}
         <div>
-          {oggid !== 0 && (
-            <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='oggid'>
-              ID: {oggid}
+          {qqid !== 0 && (
+            <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='qqid'>
+              ID: {qqid}
             </label>
           )}
-          <input id='oggid' type='hidden' name='oggid' value={oggid} />
+          <input id='qqid' type='hidden' name='qqid' value={qqid} />
         </div>
         {/*  ...................................................................................*/}
         {/*   Owner */}
         {/*  ...................................................................................*/}
-        {oggid === 0 ? (
-          <DropdownOwner selectedOption={ogowner} setSelectedOption={setogowner} name={'ogowner'} />
+        {qowner === '' ? (
+          <DropdownOwner selectedOption={qowner} setSelectedOption={setqowner} name={'qowner'} />
         ) : (
           /* -----------------Edit ------------------*/
           <>
             <div className='mt-2'>
-              <label
-                className='mb-1 mt-5 block text-xs font-medium text-gray-900'
-                htmlFor='ogowner'
-              >
+              <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='qowner'>
                 Owner
               </label>
               <>
                 <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
-                  {ogowner}
+                  {qowner}
                 </span>
-                <input id='ogowner' type='hidden' name='ogowner' value={ogowner} />
+                <input id='qowner' type='hidden' name='qowner' value={qowner} />
               </>
             </div>
           </>
         )}
         {/*  ...................................................................................*/}
-        {/*   Group */}
+        {/*   Owner Group */}
         {/*  ...................................................................................*/}
-        <div className='mt-2'>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='oggroup'>
-            Group
-          </label>
-          <div className='relative'>
-            {oggid === 0 ? (
-              <input
-                className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm'
-                id='oggroup'
-                type='oggroup'
-                name='oggroup'
-                value={oggroup}
-                onChange={e => setoggroup(e.target.value)}
-              />
-            ) : (
-              /* -----------------Edit ------------------*/
+        {qgroup === '' ? (
+          <DropdownOwnerGroup
+            selectedOption={qgroup}
+            setSelectedOption={setqgroup}
+            name={'qgroup'}
+            owner={qowner}
+          />
+        ) : (
+          /* -----------------Edit ------------------*/
+          <>
+            <div className='mt-2'>
+              <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='qgroup'>
+                Owner Group
+              </label>
               <>
                 <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
-                  {oggroup}
+                  {qgroup}
                 </span>
-                <input id='oggroup' type='hidden' name='oggroup' value={oggroup} />
+                <input id='qgroup' type='hidden' name='qgroup' value={qgroup} />
               </>
-            )}
-          </div>
-        </div>
-        {/*   Errors */}
-        <div id='fedid-error' aria-live='polite' aria-atomic='true'>
-          {formState.errors?.oggroup &&
-            formState.errors.oggroup.map((error: string) => (
-              <p className='mt-2 text-sm text-red-500' key={error}>
-                {error}
-              </p>
-            ))}
+            </div>
+          </>
+        )}
+        {/*  ...................................................................................*/}
+        {/*  Seq  */}
+        {/*  ...................................................................................*/}
+        <div>
+          {qseq !== 0 && (
+            <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='qqid'>
+              Seq: {qseq}
+            </label>
+          )}
+          <input id='qseq' type='hidden' name='qseq' value={qseq} />
         </div>
         {/*  ...................................................................................*/}
-        {/*   Title */}
+        {/*  Description */}
         {/*  ...................................................................................*/}
-        <div className='mt-2'>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='ogtitle'>
-            Title
+        <div>
+          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='qdetail'>
+            Description
           </label>
           <div className='relative'>
             <input
               className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
-              id='ogtitle'
-              type='ogtitle'
-              name='ogtitle'
-              value={ogtitle}
-              onChange={e => setogtitle(e.target.value)}
+              id='qdetail'
+              type='qdetail'
+              name='qdetail'
+              value={qdetail}
+              onChange={e => setqdetail(e.target.value)}
             />
           </div>
         </div>
-        {/*   Errors */}
-        <div id='fedid-error' aria-live='polite' aria-atomic='true'>
-          {formState.errors?.ogtitle &&
-            formState.errors.ogtitle.map((error: string) => (
+        <div id='name-error' aria-live='polite' aria-atomic='true'>
+          {formState.errors?.qdetail &&
+            formState.errors.qdetail.map((error: string) => (
               <p className='mt-2 text-sm text-red-500' key={error}>
                 {error}
               </p>
             ))}
         </div>
+
         {/*  ...................................................................................*/}
         {/*   Update Button */}
         {/*  ...................................................................................*/}

@@ -1,5 +1,5 @@
 import { table_Owner } from '@/src/lib/tables/definitions'
-import { checkKeysInTables } from '@/src/lib/checkKeysInTables'
+import { table_check } from '@/src/lib/tables/table_check'
 //
 //  Errors and Messages
 //
@@ -26,7 +26,7 @@ export default async function validateOwner(record: table_Owner): Promise<StateS
         columnValuePairs: [{ column: 'oowner', value: oowner }]
       }
     ]
-    const exists = await checkKeysInTables(tableColumnValuePairs)
+    const exists = await table_check(tableColumnValuePairs)
     if (exists) errors.oowner = ['Owner must be unique']
   }
   //

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
-import { OwnerMaint } from '@/src/ui/admin/owner/action-maint'
+import { OwnerMaint } from '@/src/ui/admin/owner/maint-action'
 import type { table_Owner } from '@/src/lib/tables/definitions'
 
 interface FormProps {

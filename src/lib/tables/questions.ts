@@ -1,8 +1,10 @@
 'use server'
 
-import { sql } from '@vercel/postgres'
+import { sql, db } from '@vercel/postgres'
+import { unstable_noStore as noStore } from 'next/cache'
 import { table_Questions } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/logging'
+const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
 //  Questions data by Owner/Group
 //---------------------------------------------------------------------
@@ -45,6 +47,306 @@ export async function fetchQuestionsByGid(qgid: number) {
     //
     const rows = data.rows
     return rows
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  Fetch questions
+//---------------------------------------------------------------------
+export async function fetch_questions() {
+  const functionName = 'fetch_questions'
+  // noStore()
+  try {
+    const data = await sql<table_Questions>`
+      SELECT *
+      FROM questions
+      ;
+    `
+    const rows = data.rows
+    return rows
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  Delete  and related tables rows by ID
+//---------------------------------------------------------------------
+export async function deleteQuestionsById(qqid: number): Promise<string> {
+  const functionName = 'deleteQuestionsById'
+  noStore()
+  //
+  //  Counts
+  //
+  const deletedCounts = {
+    questions: 0
+  }
+
+  try {
+    const userDeleteResult = await sql`DELETE FROM questions WHERE qqid=${qqid}`
+    deletedCounts.questions = userDeleteResult.rowCount ?? 0
+    //
+    // Prepare a summary message
+    //
+    const summaryMessage = `
+      Deleted Records:
+      questions: ${deletedCounts.questions}
+    `
+    console.log(summaryMessage)
+    return summaryMessage
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  questions data
+//---------------------------------------------------------------------
+export async function fetchQuestionsFiltered(query: string, currentPage: number) {
+  const functionName = 'fetchQuestionsFiltered'
+  noStore()
+  const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
+  try {
+    //
+    //  Build Where clause
+    //
+    let sqlWhere = await buildWhere_questions(query)
+    //
+    //  Build Query Statement
+    //
+    const sqlQuery = `SELECT *
+    FROM questions
+     ${sqlWhere}
+      ORDER BY qowner, qgroup, qseq
+      LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
+     `
+    //
+    //  Run SQL
+    //
+    const client = await db.connect()
+    const data = await client.query<table_Questions>(sqlQuery)
+    client.release()
+    //
+    //  Return results
+    //
+    const rows = data.rows
+    return rows
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  questions where clause
+//---------------------------------------------------------------------
+export async function buildWhere_questions(query: string) {
+  //
+  //  Empty search
+  //
+  if (!query) return ``
+  //
+  // Initialize variables
+  //
+  let qid = 0
+  let group = ''
+  let owner = ''
+  //
+  // Split the search query into parts based on spaces
+  //
+  const parts = query.split(/\s+/).filter(part => part.trim() !== '')
+  //
+  // Loop through each part to extract values using switch statement
+  //
+  parts.forEach(part => {
+    if (part.includes(':')) {
+      const [key, value] = part.split(':')
+      //
+      //  Check for empty values
+      //
+      if (value === '') return
+      //
+      // Process each part
+      //
+      switch (key) {
+        case 'qid':
+          if (!isNaN(Number(value))) {
+            qid = parseInt(value, 10)
+          }
+          break
+        case 'group':
+          group = value
+          break
+        case 'owner':
+          owner = value
+          break
+        default:
+          owner = value
+          break
+      }
+    } else {
+      // Default to 'owner' if no key is provided
+      if (owner === '') {
+        owner = part
+      }
+    }
+  })
+  //
+  // Add conditions for each variable if not empty or zero
+  //
+  let whereClause = ''
+  if (qid !== 0) whereClause += `qqid = ${qid} AND `
+  if (group !== '') whereClause += `qgroup ILIKE '%${group}%' AND `
+  if (owner !== '') whereClause += `qowner ILIKE '%${owner}%' AND `
+  //
+  // Remove the trailing 'AND' if there are conditions
+  //
+  let whereClauseUpdate = ``
+  if (whereClause !== '') {
+    whereClauseUpdate = `WHERE ${whereClause.slice(0, -5)}`
+  }
+  return whereClauseUpdate
+}
+//---------------------------------------------------------------------
+//  questions totals
+//---------------------------------------------------------------------
+export async function fetchQuestionsTotalPages(query: string) {
+  const functionName = 'fetchQuestionsTotalPages'
+  noStore()
+  try {
+    //
+    //  Build Where clause
+    //
+    let sqlWhere = await buildWhere_questions(query)
+    //
+    //  Build Query Statement
+    //
+    const sqlQuery = `SELECT COUNT(*)
+    FROM questions
+    ${sqlWhere}`
+    //
+    //  Run SQL
+    //
+    const client = await db.connect()
+    const result = await client.query(sqlQuery)
+    client.release()
+    //
+    //  Return results
+    //
+    const count = result.rows[0].count
+    const totalPages = Math.ceil(count / MAINT_ITEMS_PER_PAGE)
+    return totalPages
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  Write questions
+//---------------------------------------------------------------------
+export async function writeowner(qowner: string, qgroup: string) {
+  const functionName = 'writeowner'
+  try {
+    const { rows } = await sql`
+    INSERT INTO questions (
+      qowner,
+      qgroup
+    ) VALUES (
+      ${qowner},
+      ${qgroup}
+    )
+    RETURNING *
+  `
+    return rows[0]
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  Update questions
+//---------------------------------------------------------------------
+export async function updatequestions(qqid: number, qowner: string, qgroup: string) {
+  const functionName = 'updatequestions'
+  try {
+    const { rows } = await sql`
+    UPDATE questions
+    SET
+      qowner = ${qowner},
+      qgroup = ${qgroup}
+    WHERE qqid = ${qqid}
+    RETURNING *
+  `
+    return rows[0]
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  questions data by ID
+//---------------------------------------------------------------------
+export async function fetchquestionsByID(qqid: number) {
+  const functionName = 'fetchquestionsByID'
+  // noStore()
+  try {
+    const data = await sql<table_Questions>`
+      SELECT *
+      FROM questions
+      WHERE qqid = ${qqid};
+    `
+    const row = data.rows[0]
+    return row
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  questions data
+//---------------------------------------------------------------------
+export async function fetchquestionsByowner(qowner: string) {
+  const functionName = 'fetchquestionsByowner'
+  // noStore()
+  try {
+    const data = await sql<table_Questions>`
+      SELECT *
+      FROM questions
+      WHERE qowner = ${qowner};
+    `
+    const row = data.rows[0]
+    return row
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  Get next qseq
+//---------------------------------------------------------------------
+export async function getNextSeq(qowner: string, qgroup: string) {
+  const functionName = 'getNextSeq'
+  try {
+    const { rows } = await sql`
+    SELECT COALESCE(MAX(qseq) + 1, 1) AS next_qseq
+    FROM questions
+    WHERE qowner = ${qowner}
+      AND qgroup = ${qgroup}
+  ;
+  `
+    console.log(rows)
+    const next_qseq = rows[0].next_qseq
+    return next_qseq
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

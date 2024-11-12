@@ -2,12 +2,14 @@
 
 import { lusitana } from '@/src/fonts'
 import { useState, useEffect } from 'react'
-import MaintPopup_Ownergroup from '@/src/ui/admin/ownergroup/maintPopup'
-import MaintPopup_Library from '@/src/ui/admin/library/tablePopup'
-import MaintPopup_Questions from '@/src/ui/admin/questions/tablePopup'
+import MaintPopup from '@/src/ui/admin/reftype/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
-import { table_Ownergroup } from '@/src/lib/tables/definitions'
-import { deleteById, fetchFiltered, fetchPages } from '@/src/lib/tables/ownergroup'
+import { table_Reftype } from '@/src/lib/tables/definitions'
+import {
+  deleteReftypeById,
+  fetchReftypeFiltered,
+  fetchReftypeTotalPages
+} from '@/src/lib/tables/reftype'
 import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
@@ -21,16 +23,14 @@ export default function Table() {
   const query = searchParams.get('query') || ''
   const currentPage = Number(searchParams.get('page')) || 1
 
-  const [row, setRow] = useState<table_Ownergroup[]>([])
+  const [record, setrecord] = useState<table_Reftype[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
   const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
-  const [isModelOpenEdit_ownergroup, setIsModelOpenEdit_ownergroup] = useState(false)
-  const [isModelOpenEdit_library, setIsModelOpenEdit_library] = useState(false)
-  const [isModelOpenEdit_questions, setIsModelOpenEdit_questions] = useState(false)
-  const [isModelOpenAdd_ownergroup, setIsModelOpenAdd_ownergroup] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<table_Ownergroup | null>(null)
+  const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
+  const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
+  const [selectedRow, setSelectedRow] = useState<table_Reftype | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -39,15 +39,15 @@ export default function Table() {
     onConfirm: () => {}
   })
   //----------------------------------------------------------------------------------------------
-  // Fetch data on mount and when shouldFetchData changes
+  // Fetch reftype on mount and when shouldFetchData changes
   //----------------------------------------------------------------------------------------------
   useEffect(() => {
     const fetchdata = async () => {
       try {
-        const data = await fetchFiltered(query, currentPage)
-        setRow(data)
+        const data = await fetchReftypeFiltered(query, currentPage)
+        setrecord(data)
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('Error fetching reftype:', error)
       }
     }
     fetchdata()
@@ -59,7 +59,7 @@ export default function Table() {
   useEffect(() => {
     const fetchTotalPages = async () => {
       try {
-        const fetchedTotalPages = await fetchPages(query)
+        const fetchedTotalPages = await fetchReftypeTotalPages(query)
         setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching total pages:', error)
@@ -71,70 +71,47 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
-  function handleClickEdit_ownergroup(row: table_Ownergroup) {
-    setSelectedRow(row)
-    setIsModelOpenEdit_ownergroup(true)
-  }
-  function handleClickEdit_library(row: table_Ownergroup) {
-    setSelectedRow(row)
-    setIsModelOpenEdit_library(true)
-  }
-  function handleClickEdit_questions(row: table_Ownergroup) {
-    setSelectedRow(row)
-    setIsModelOpenEdit_questions(true)
+  function handleClickEdit(reftype: table_Reftype) {
+    setSelectedRow(reftype)
+    setIsModelOpenEdit(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Add
   //----------------------------------------------------------------------------------------------
-  function handleClickAdd_ownergroup() {
-    setIsModelOpenAdd_ownergroup(true)
+  function handleClickAdd() {
+    setIsModelOpenAdd(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Close Modal Edit
   //----------------------------------------------------------------------------------------------
-  function handleModalCloseEdit_ownergroup() {
-    setIsModelOpenEdit_ownergroup(false)
-    setSelectedRow(null)
-    setShouldFetchData(true)
-  }
-  function handleModalCloseEdit_library() {
-    setIsModelOpenEdit_library(false)
-    setSelectedRow(null)
-    setShouldFetchData(true)
-  }
-  function handleModalCloseEdit_questions() {
-    setIsModelOpenEdit_questions(false)
+  function handleModalCloseEdit() {
+    setIsModelOpenEdit(false)
     setSelectedRow(null)
     setShouldFetchData(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Close Modal Add
   //----------------------------------------------------------------------------------------------
-  function handleModalCloseAdd_ownergroup() {
-    setIsModelOpenAdd_ownergroup(false)
+  function handleModalCloseAdd() {
+    setIsModelOpenAdd(false)
     setShouldFetchData(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Delete
   //----------------------------------------------------------------------------------------------
-  function handleDeleteClick_ownergroup(row: table_Ownergroup) {
+  function handleDeleteClick(reftype: table_Reftype) {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',
-      subTitle: `Are you sure you want to delete (${row.oggid}) : ${row.ogtitle}?`,
+      subTitle: `Are you sure you want to delete (${reftype.rtrid}) : ${reftype.rttitle}?`,
       onConfirm: async () => {
         //
-        // Check a list of tables if owner changes
+        // Check a list of tables if reftype changes
         //
-        const oggid_string = String(row.oggid)
         const tableColumnValuePairs = [
           {
             table: 'library',
-            columnValuePairs: [{ column: 'lrgid', value: oggid_string }]
-          },
-          {
-            table: 'questions',
-            columnValuePairs: [{ column: 'qgid', value: oggid_string }]
+            columnValuePairs: [{ column: 'lrtype', value: reftype.rttype }]
           }
         ]
         const exists = await table_check(tableColumnValuePairs)
@@ -149,9 +126,9 @@ export default function Table() {
           return
         }
         //
-        // Call the server function to delete the row
+        // Call the server function to delete the reftype
         //
-        const message = await deleteById(row.oggid)
+        const message = await deleteReftypeById(reftype.rtrid)
         //
         // Log the returned message
         //
@@ -172,17 +149,17 @@ export default function Table() {
   return (
     <>
       <div className='flex w-full items-center justify-between'>
-        <h1 className={`${lusitana.className} text-2xl`}>ownergroup</h1>
+        <h1 className={`${lusitana.className} text-2xl`}>reftype</h1>
         <h1 className='px-2 py-1 text-sm'>
           <button
-            onClick={() => handleClickAdd_ownergroup()}
+            onClick={() => handleClickAdd()}
             className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
           >
             Add
           </button>
         </h1>
       </div>
-      <Search placeholder='oid:1  ownergroup:Richard title:Richard' />
+      <Search placeholder='oid:1  type:Richard title:Richard' />
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>
@@ -190,19 +167,10 @@ export default function Table() {
               <thead className='rounded-lg text-left font-normal text-sm'>
                 <tr>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Owner
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Group
+                    Reftype
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     Title
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Library Count
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Questions Count
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     ID
@@ -216,34 +184,17 @@ export default function Table() {
                 </tr>
               </thead>
               <tbody className='bg-white'>
-                {row?.map(row => (
+                {record?.map(record => (
                   <tr
-                    key={row.oggid}
+                    key={record.rtrid}
                     className='w-full border-b py-2 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg'
                   >
-                    <td className='px-2 py-1 text-sm '>{row.ogowner}</td>
-                    <td className='px-2 py-1 text-sm '>{row.oggroup}</td>
-                    <td className='px-2 py-1 text-sm '>{row.ogtitle}</td>
-                    <td className='px-2 py-1 text-sm '>
-                      <button
-                        onClick={() => handleClickEdit_library(row)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
-                      >
-                        {row.ogcntlibrary}
-                      </button>
-                    </td>
-                    <td className='px-2 py-1 text-sm '>
-                      <button
-                        onClick={() => handleClickEdit_questions(row)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
-                      >
-                        {row.ogcntquestions}
-                      </button>
-                    </td>
-                    <td className='px-2 py-1 text-sm '>{row.oggid}</td>
+                    <td className='px-2 py-1 text-sm '>{record.rttype}</td>
+                    <td className='px-2 py-1 text-sm '>{record.rttitle}</td>
+                    <td className='px-2 py-1 text-sm '>{record.rtrid}</td>
                     <td className='px-2 py-1 text-sm'>
                       <button
-                        onClick={() => handleClickEdit_ownergroup(row)}
+                        onClick={() => handleClickEdit(record)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
@@ -251,7 +202,7 @@ export default function Table() {
                     </td>
                     <td className='px-2 py-1 text-sm'>
                       <button
-                        onClick={() => handleDeleteClick_ownergroup(row)}
+                        onClick={() => handleDeleteClick(record)}
                         className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
@@ -270,34 +221,16 @@ export default function Table() {
 
         {/* Edit Modal */}
         {selectedRow && (
-          <MaintPopup_Ownergroup
+          <MaintPopup
             record={selectedRow}
-            isOpen={isModelOpenEdit_ownergroup}
-            onClose={handleModalCloseEdit_ownergroup}
-          />
-        )}
-        {selectedRow && (
-          <MaintPopup_Library
-            gid={String(selectedRow.oggid)}
-            isOpen={isModelOpenEdit_library}
-            onClose={handleModalCloseEdit_library}
-          />
-        )}
-        {selectedRow && (
-          <MaintPopup_Questions
-            gid={String(selectedRow.oggid)}
-            isOpen={isModelOpenEdit_questions}
-            onClose={handleModalCloseEdit_questions}
+            isOpen={isModelOpenEdit}
+            onClose={handleModalCloseEdit}
           />
         )}
 
         {/* Add Modal */}
-        {isModelOpenAdd_ownergroup && (
-          <MaintPopup_Ownergroup
-            record={null}
-            isOpen={isModelOpenAdd_ownergroup}
-            onClose={handleModalCloseAdd_ownergroup}
-          />
+        {isModelOpenAdd && (
+          <MaintPopup record={null} isOpen={isModelOpenAdd} onClose={handleModalCloseAdd} />
         )}
 
         {/* Confirmation Dialog */}

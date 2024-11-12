@@ -1,5 +1,5 @@
 import { table_Ownergroup } from '@/src/lib/tables/definitions'
-import { checkKeysInTables } from '@/src/lib/checkKeysInTables'
+import { table_check } from '@/src/lib/tables/table_check'
 //
 //  Errors and Messages
 //
@@ -31,7 +31,7 @@ export default async function validateOwnergroup(record: table_Ownergroup): Prom
         ]
       }
     ]
-    const exists = await checkKeysInTables(tableColumnValuePairs)
+    const exists = await table_check(tableColumnValuePairs)
     if (exists) errors.oggroup = ['Owner/Group must be unique']
   }
   //

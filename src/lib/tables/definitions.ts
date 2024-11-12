@@ -36,7 +36,7 @@ export type table_Questions = {
   qdetail: string
   qgroup: string
   qpoints: number[]
-  qans: number[]
+  qans: string[]
   qseq: number
   qrounds: string[][] | null
   qnorth: string[] | null

@@ -1,27 +1,26 @@
 'use server'
 
 import { z } from 'zod'
-import { updateOwnergroup, writeOwnergroup } from '@/src/lib/tables/ownergroup'
-import validateOwnergroup from '@/src/ui/admin/ownergroup/action-validate'
+import { table_update } from '@/src/lib/tables/table_update'
+import { table_write } from '@/src/lib/tables/table_write'
+import validate from '@/src/ui/admin/who/maint-validate'
 // ----------------------------------------------------------------------
-//  Update Owner Setup
+//  Update Setup
 // ----------------------------------------------------------------------
 //
 //  Form Schema for validation
 //
 const FormSchemaSetup = z.object({
-  ogowner: z.string(),
-  oggroup: z.string(),
-  ogtitle: z.string()
+  wwho: z.string(),
+  wtitle: z.string()
 })
 //
 //  Errors and Messages
 //
 export type StateSetup = {
   errors?: {
-    ogowner?: string[]
-    oggroup?: string[]
-    ogtitle?: string[]
+    wwho?: string[]
+    wtitle?: string[]
   }
   message?: string | null
   databaseUpdated?: boolean
@@ -34,11 +33,9 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
   //  Validate form data
   //
   const validatedFields = Setup.safeParse({
-    ogowner: formData.get('ogowner'),
-    oggroup: formData.get('oggroup'),
-    ogtitle: formData.get('ogtitle')
+    wwho: formData.get('wwho'),
+    wtitle: formData.get('wtitle')
   })
-  // console.log('formData', formData)
   //
   // If form validation fails, return errors early. Otherwise, continue.
   //
@@ -51,23 +48,20 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
   //
   // Unpack form data
   //
-  const { ogowner, oggroup, ogtitle } = validatedFields.data
+  const { wwho, wtitle } = validatedFields.data
   //
   //  Convert hidden fields value to numeric
   //
-  const oggid = Number(formData.get('oggid'))
+  const wwid = Number(formData.get('wwid'))
   //
   // Validate fields
   //
-  const table_Ownergroup = {
-    oggid: oggid,
-    ogowner: ogowner,
-    oggroup: oggroup,
-    ogcntquestions: 0,
-    ogcntlibrary: 0,
-    ogtitle: ogtitle
+  const Table = {
+    wwid: wwid,
+    wwho: wwho,
+    wtitle: wtitle
   }
-  const errorMessages = await validateOwnergroup(table_Ownergroup)
+  const errorMessages = await validate(Table)
   if (errorMessages.message) {
     return {
       errors: errorMessages.errors,
@@ -80,11 +74,22 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
   //
   try {
     //
-    //  Write/Update the owner
+    //  Write/Update
     //
-    await (oggid === 0
-      ? writeOwnergroup(ogowner, oggroup, ogtitle)
-      : updateOwnergroup(oggid, ogowner, oggroup, ogtitle))
+    const updateParams = {
+      table: 'reftype',
+      columnValuePairs: [{ column: 'wtitle', value: wtitle }],
+      whereColumnValuePairs: [{ column: 'wwho', value: wwho }]
+    }
+    const writeParams = {
+      table: 'reftype',
+      columnValuePairs: [
+        { column: 'wwho', value: wwho },
+        { column: 'wtitle', value: wtitle }
+      ]
+    }
+    const data = await (wwid === 0 ? table_write(writeParams) : table_update(updateParams))
+    // console.log('data:', data)
 
     return {
       message: `Database updated successfully.`,
@@ -93,7 +98,7 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
     }
   } catch (error) {
     return {
-      message: 'Database Error: Failed to Update Owner.',
+      message: 'Database Error: Failed to Update.',
       errors: undefined,
       databaseUpdated: false
     }

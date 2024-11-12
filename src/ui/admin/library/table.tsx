@@ -10,18 +10,18 @@ import {
   fetchLibraryFiltered,
   fetchLibraryTotalPages
 } from '@/src/lib/tables/library'
-import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
+import SearchWithState from '@/src/ui/utils/search/search-withState'
+import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 
-export default function Table() {
-  //
-  //  URL updated with search paramenters (Search)
-  //
-  const searchParams = useSearchParams()
-  const query = searchParams.get('query') || ''
-  const currentPage = Number(searchParams.get('page')) || 1
+interface FormProps {
+  gid?: string | null
+}
+export default function Table({ gid }: FormProps) {
+  console.log('gid:', gid)
 
+  const [searchValue, setSearchValue] = useState(gid ? `gid:${gid}` : '')
   const [library, setLibrary] = useState<table_Library[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
@@ -36,36 +36,63 @@ export default function Table() {
     subTitle: '',
     onConfirm: () => {}
   })
+
+  const placeholder =
+    'lid:123  ref:leb desc: leb who:hugger type:youtube  owner:richard  group:leb  gid:123'
+  //
+  //  URL updated with search paramenters (Search)
+  //
+  const searchParams = useSearchParams()
+  //
+  //  Update search with Props or URL
+  //
+  const query = gid ? searchValue : searchParams.get('query') || ''
+  const currentPage = gid ? 1 : parseInt(searchParams.get('page') || '1', 10)
+  console.log('query', query)
+  console.log('currentPage', currentPage)
   //----------------------------------------------------------------------------------------------
   // Fetch library on mount and when shouldFetchData changes
-  //----------------------------------------------------------------------------------------------
+  //
   useEffect(() => {
-    const fetchdata = async () => {
-      try {
-        const data = await fetchLibraryFiltered(query, currentPage)
-        setLibrary(data)
-      } catch (error) {
-        console.error('Error fetching library:', error)
-      }
-    }
+    console.log('fetchdata on change')
     fetchdata()
     setShouldFetchData(false)
-  }, [query, currentPage, shouldFetchData])
+    // eslint-disable-next-line
+  }, [currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
   // Fetch total pages on mount and when shouldFetchTotalPages changes
-  //----------------------------------------------------------------------------------------------
+  //
   useEffect(() => {
-    const fetchTotalPages = async () => {
-      try {
-        const fetchedTotalPages = await fetchLibraryTotalPages(query)
-        setTotalPages(fetchedTotalPages)
-      } catch (error) {
-        console.error('Error fetching total pages:', error)
-      }
-    }
+    console.log('fetchTotalPages')
     fetchTotalPages()
     setShouldFetchTotalPages(false)
-  }, [query, shouldFetchTotalPages])
+    // eslint-disable-next-line
+  }, [shouldFetchTotalPages])
+
+  //----------------------------------------------------------------------------------------------
+  // fetchdata
+  //----------------------------------------------------------------------------------------------
+  async function fetchdata() {
+    try {
+      console.log('query', query)
+      const data = await fetchLibraryFiltered(query, currentPage)
+      console.log('data', data)
+      setLibrary(data)
+    } catch (error) {
+      console.error('Error fetching library:', error)
+    }
+  }
+  //----------------------------------------------------------------------------------------------
+  // Fetch total pages
+  //----------------------------------------------------------------------------------------------
+  async function fetchTotalPages() {
+    try {
+      const fetchedTotalPages = await fetchLibraryTotalPages(query)
+      setTotalPages(fetchedTotalPages)
+    } catch (error) {
+      console.error('Error fetching total pages:', error)
+    }
+  }
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -124,6 +151,12 @@ export default function Table() {
     })
   }
   //----------------------------------------------------------------------------------------------
+  // This will be passed down to SearchWithState to update the parent component's state
+  //----------------------------------------------------------------------------------------------
+  const handleSearch = (value: string) => {
+    setSearchValue(value)
+  }
+  //----------------------------------------------------------------------------------------------
   return (
     <>
       <div className='flex w-full items-center justify-between'>
@@ -137,7 +170,16 @@ export default function Table() {
           </button>
         </h1>
       </div>
-      <Search placeholder='lid:123  ref:leb desc: leb who:hugger type:youtube  owner:richard  group:leb  gid:123' />
+      {gid ? (
+        <SearchWithState
+          placeholder={placeholder}
+          searchValue={searchValue}
+          setsearchValue={handleSearch}
+          setShouldFetchData={setShouldFetchData}
+        />
+      ) : (
+        <SearchWithURL placeholder={placeholder} setShouldFetchData={setShouldFetchData} />
+      )}
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>
