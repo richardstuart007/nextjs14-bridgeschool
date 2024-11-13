@@ -13,7 +13,8 @@ import {
   fetchQuestionsFiltered,
   fetchQuestionsTotalPages
 } from '@/src/lib/tables/questions'
-import Search from '@/src/ui/utils/search'
+import SearchWithState from '@/src/ui/utils/search/search-withState'
+import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
 
@@ -29,6 +30,7 @@ export default function Table({ gid }: FormProps) {
   const query = searchParams.get('query') || ''
   const currentPage = Number(searchParams.get('page')) || 1
 
+  const [searchValue, setSearchValue] = useState(gid ? `gid:${gid}` : '')
   const [record, setrecord] = useState<table_Questions[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
@@ -51,6 +53,7 @@ export default function Table({ gid }: FormProps) {
     subTitle: '',
     onConfirm: () => {}
   })
+  const placeholder = 'qid:1  owner:Richard group:BergenRaises'
   //----------------------------------------------------------------------------------------------
   // Fetch questions on mount and when shouldFetchData changes
   //----------------------------------------------------------------------------------------------
@@ -65,7 +68,8 @@ export default function Table({ gid }: FormProps) {
     }
     fetchdata()
     setShouldFetchData(false)
-  }, [query, currentPage, shouldFetchData])
+    // eslint-disable-next-line
+  }, [currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
   // Fetch total pages on mount and when shouldFetchTotalPages changes
   //----------------------------------------------------------------------------------------------
@@ -79,8 +83,10 @@ export default function Table({ gid }: FormProps) {
       }
     }
     fetchTotalPages()
+
     setShouldFetchTotalPages(false)
-  }, [query, shouldFetchTotalPages])
+    // eslint-disable-next-line
+  }, [shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -100,7 +106,6 @@ export default function Table({ gid }: FormProps) {
     setSelectedRow(questions)
     setIsModelOpenEdit_bidding(true)
   }
-
   //----------------------------------------------------------------------------------------------
   //  Close Modal close
   //----------------------------------------------------------------------------------------------
@@ -168,6 +173,12 @@ export default function Table({ gid }: FormProps) {
     })
   }
   //----------------------------------------------------------------------------------------------
+  // This will be passed down to SearchWithState to update the parent component's state
+  //----------------------------------------------------------------------------------------------
+  const handleSearch = (value: string) => {
+    setSearchValue(value)
+  }
+  //----------------------------------------------------------------------------------------------
   return (
     <>
       <div className='flex w-full items-center justify-between'>
@@ -181,7 +192,16 @@ export default function Table({ gid }: FormProps) {
           </button>
         </h1>
       </div>
-      <Search placeholder='qid:1  owner:Richard group:BergenRaises' />
+      {gid ? (
+        <SearchWithState
+          placeholder={placeholder}
+          searchValue={searchValue}
+          setsearchValue={handleSearch}
+          setShouldFetchData={setShouldFetchData}
+        />
+      ) : (
+        <SearchWithURL placeholder={placeholder} setShouldFetchData={setShouldFetchData} />
+      )}
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>

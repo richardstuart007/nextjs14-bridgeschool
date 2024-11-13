@@ -68,7 +68,6 @@ export default function Table({ gid }: FormProps) {
     setShouldFetchTotalPages(false)
     // eslint-disable-next-line
   }, [shouldFetchTotalPages])
-
   //----------------------------------------------------------------------------------------------
   // fetchdata
   //----------------------------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useDebouncedCallback } from 'use-debounce'
+import { WAIT_DEBOUNCE } from '@/src/constants'
 
 interface SearchInputProps {
   placeholder: string
@@ -16,7 +17,6 @@ export default function SearchInput({
   setsearchValue,
   setShouldFetchData
 }: SearchInputProps) {
-  const wait = 500
   //-----------------------------------------------------------------------
   //  Debounce logic for updating state
   //-----------------------------------------------------------------------
@@ -25,9 +25,8 @@ export default function SearchInput({
     debounce(value)
   }
   const debounce = useDebouncedCallback((value: string) => {
-    console.log('wait')
     setShouldFetchData(true)
-  }, wait)
+  }, WAIT_DEBOUNCE)
   //-----------------------------------------------------------------------
   return (
     <div className='mt-2 relative flex flex-1 flex-shrink-0'>

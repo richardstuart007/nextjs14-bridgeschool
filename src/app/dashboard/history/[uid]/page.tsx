@@ -1,5 +1,5 @@
 import Pagination from '@/src/ui/utils/pagination'
-import Search from '@/src/ui/utils/search'
+import Search from '@/src/ui/utils/search/search-URL_simple'
 import Table from '@/src/ui/dashboard/history/table'
 import { lusitana } from '@/src/fonts'
 import { TableSkeleton } from '@/src/ui/dashboard/history/skeleton'

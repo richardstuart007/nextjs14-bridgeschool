@@ -10,12 +10,13 @@ import {
   fetchReftypeFiltered,
   fetchReftypeTotalPages
 } from '@/src/lib/tables/reftype'
-import Search from '@/src/ui/utils/search'
+import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
 import { table_check } from '@/src/lib/tables/table_check'
 
 export default function Table() {
+  const placeholder = 'rid:1  type:Richard title:Richard'
   //
   //  URL updated with search paramenters (Search)
   //
@@ -52,7 +53,8 @@ export default function Table() {
     }
     fetchdata()
     setShouldFetchData(false)
-  }, [query, currentPage, shouldFetchData])
+    // eslint-disable-next-line
+  }, [currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
   // Fetch total pages on mount and when shouldFetchTotalPages changes
   //----------------------------------------------------------------------------------------------
@@ -67,7 +69,8 @@ export default function Table() {
     }
     fetchTotalPages()
     setShouldFetchTotalPages(false)
-  }, [query, shouldFetchTotalPages])
+    // eslint-disable-next-line
+  }, [shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -159,7 +162,7 @@ export default function Table() {
           </button>
         </h1>
       </div>
-      <Search placeholder='oid:1  type:Richard title:Richard' />
+      <SearchWithURL placeholder={placeholder} setShouldFetchData={setShouldFetchData} />
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>

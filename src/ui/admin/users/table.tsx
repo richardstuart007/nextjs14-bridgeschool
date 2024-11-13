@@ -7,11 +7,12 @@ import PwdEditPopup from '@/src/ui/admin/users/pwdedit/pwdEditPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Users } from '@/src/lib/tables/definitions'
 import { deleteByUid, fetchUsersFiltered, fetchUsersTotalPages } from '@/src/lib/tables/users'
-import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
+import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 
 export default function Table() {
+  const placeholder = 'uid:23 name:richard email:richardstuart007@hotmail.com fedid:1234'
   //
   //  URL updated with search paramenters (Search)
   //
@@ -21,7 +22,7 @@ export default function Table() {
 
   const [users, setUsers] = useState<table_Users[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
-  const [shouldFetchUsers, setShouldFetchUsers] = useState(true)
+  const [shouldFetchData, setShouldFetchData] = useState(true)
   const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -34,7 +35,7 @@ export default function Table() {
     onConfirm: () => {}
   })
   //----------------------------------------------------------------------------------------------
-  // Fetch users on mount and when shouldFetchUsers changes
+  // Fetch users on mount and when shouldFetchData changes
   //----------------------------------------------------------------------------------------------
   useEffect(() => {
     const fetchUsers = async () => {
@@ -46,8 +47,8 @@ export default function Table() {
       }
     }
     fetchUsers()
-    setShouldFetchUsers(false)
-  }, [query, currentPage, shouldFetchUsers])
+    setShouldFetchData(false)
+  }, [query, currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
   // Fetch total pages on mount and when shouldFetchTotalPages changes
   //----------------------------------------------------------------------------------------------
@@ -84,7 +85,7 @@ export default function Table() {
     setIsModalOpen(false)
     setSelectedUser(null)
     setSelectedPwd(null)
-    setShouldFetchUsers(true)
+    setShouldFetchData(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Delete
@@ -106,7 +107,7 @@ export default function Table() {
         //
         //  Reload the page
         //
-        setShouldFetchUsers(true)
+        setShouldFetchData(true)
         setShouldFetchTotalPages(true)
         //
         //  Reset dialog
@@ -121,7 +122,7 @@ export default function Table() {
       <div className='flex w-full items-center justify-between'>
         <h1 className={`${lusitana.className} text-2xl`}>Users</h1>
       </div>
-      <Search placeholder='uid:23 name:richard email:richardstuart007@hotmail.com fedid:1234' />
+      <SearchWithURL placeholder={placeholder} setShouldFetchData={setShouldFetchData} />
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>

@@ -6,12 +6,13 @@ import MaintPopup from '@/src/ui/admin/who/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Who } from '@/src/lib/tables/definitions'
 import { deleteWhoById, fetchWhoFiltered, fetchWhoTotalPages } from '@/src/lib/tables/who'
-import Search from '@/src/ui/utils/search'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
 import { table_check } from '@/src/lib/tables/table_check'
+import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 
 export default function Table() {
+  const placeholder = 'oid:1 who:Richard title:Richard'
   //
   //  URL updated with search paramenters (Search)
   //
@@ -48,7 +49,8 @@ export default function Table() {
     }
     fetchdata()
     setShouldFetchData(false)
-  }, [query, currentPage, shouldFetchData])
+    // eslint-disable-next-line
+  }, [currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
   // Fetch total pages on mount and when shouldFetchTotalPages changes
   //----------------------------------------------------------------------------------------------
@@ -63,7 +65,8 @@ export default function Table() {
     }
     fetchTotalPages()
     setShouldFetchTotalPages(false)
-  }, [query, shouldFetchTotalPages])
+    // eslint-disable-next-line
+  }, [shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -155,7 +158,7 @@ export default function Table() {
           </button>
         </h1>
       </div>
-      <Search placeholder='oid:1  who:Richard title:Richard' />
+      <SearchWithURL placeholder={placeholder} setShouldFetchData={setShouldFetchData} />
       <div className='mt-2 md:mt-6 flow-root'>
         <div className='inline-block min-w-full align-middle'>
           <div className='rounded-lg bg-gray-50 p-2 md:pt-0'>
