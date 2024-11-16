@@ -1,155 +1,301 @@
 'use server'
 
-import { z } from 'zod'
 import { table_update } from '@/src/lib/tables/table_update'
-import { table_write } from '@/src/lib/tables/table_write'
-import { table_fetch } from '@/src/lib/tables/table_fetch'
-import validate from '@/src/ui/admin/questions/detail/validate'
-import { getNextSeq } from '@/src/lib/tables/questions'
-// ----------------------------------------------------------------------
-//  Update Setup
-// ----------------------------------------------------------------------
-//
-//  Form Schema for validation
-//
-const FormSchemaSetup = z.object({
-  qowner: z.string(),
-  qgroup: z.string(),
-  qdetail: z.string()
-})
 //
 //  Errors and Messages
 //
 export type StateSetup = {
-  errors?: {
-    qowner?: string[]
-    qgroup?: string[]
-    qdetail?: string[]
-  }
   message?: string | null
+  errors: {
+    NS?: string | null
+    NH?: string | null
+    ND?: string | null
+    NC?: string | null
+    ES?: string | null
+    EH?: string | null
+    ED?: string | null
+    EC?: string | null
+    SS?: string | null
+    SH?: string | null
+    SD?: string | null
+    SC?: string | null
+    WS?: string | null
+    WH?: string | null
+    WD?: string | null
+    WC?: string | null
+  }
   databaseUpdated?: boolean
 }
-
-const Setup = FormSchemaSetup
+//
+//  hand names
+//
+const hand_name = [
+  'NS',
+  'NH',
+  'ND',
+  'NC',
+  'ES',
+  'EH',
+  'ED',
+  'EC',
+  'SS',
+  'SH',
+  'SD',
+  'SC',
+  'WS',
+  'WH',
+  'WD',
+  'WC'
+]
 
 export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
-  //  Validate form data
+  // Retrieve values from formData and store them in an array
   //
-  const validatedFields = Setup.safeParse({
-    qowner: formData.get('qowner'),
-    qgroup: formData.get('qgroup'),
-    qdetail: formData.get('qdetail')
-  })
+  const values = hand_name.map(name => formData.get(name) as string | null)
   //
-  // If form validation fails, return errors early. Otherwise, continue.
+  // Initialize an errors object to accumulate any validation errors
   //
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Invalid or missing fields'
+  const errors: StateSetup['errors'] = {
+    NS: null,
+    NH: null,
+    ND: null,
+    NC: null,
+    ES: null,
+    EH: null,
+    ED: null,
+    EC: null,
+    SS: null,
+    SH: null,
+    SD: null,
+    SC: null,
+    WS: null,
+    WH: null,
+    WD: null,
+    WC: null
+  }
+  //
+  // initialise return values
+  //
+  let message = ''
+  let databaseUpdated = false
+  let ok = true
+  //
+  // Check for duplicate cards across hands
+  //
+  let availableSpades = 'AKQJT987654321'
+  let availableHearts = 'AKQJT987654321'
+  let availableDiamonds = 'AKQJT987654321'
+  let availableClubs = 'AKQJT987654321'
+  checkDuplicates()
+  //
+  // Check not too many cards
+  //
+  if (ok) checkCardCount()
+  //
+  //  Update message
+  //
+  if (ok) await updateDatabase()
+  //
+  //  return values
+  //
+  return {
+    errors: errors,
+    message: message,
+    databaseUpdated: databaseUpdated
+  }
+  // ----------------------------------------------------------------------
+  // Check for duplicates
+  // ----------------------------------------------------------------------
+  function checkDuplicates() {
+    //
+    // Step 3: Check each hand for available cards
+    //
+    hand_name.forEach((hand, index) => {
+      const handValue = values[index] || ''
+      const handCards = handValue.split('')
+      //
+      // Loop through cards of the current hand
+      //
+      handCards.forEach(card => {
+        //
+        //  Suit is the second character of hand (NS = North, Spades)
+        //
+        const suit = hand[1] as 'S' | 'H' | 'D' | 'C'
+        //
+        // Call the helper function to handle card availability and update the errors array
+        //
+        checkCardAvailability(suit, card, hand as keyof StateSetup['errors'], errors)
+      })
+    })
+  }
+  // ----------------------------------------------------------------------
+  // check availability and update any duplicate errors
+  // ----------------------------------------------------------------------
+  function checkCardAvailability(
+    suit: 'S' | 'H' | 'D' | 'C',
+    card: string,
+    hand: keyof StateSetup['errors'],
+    errors: StateSetup['errors']
+  ) {
+    let availableCards: string
+    //
+    // Determine the available cards based on the suit
+    //
+    switch (suit) {
+      case 'S':
+        availableCards = availableSpades
+        break
+      case 'H':
+        availableCards = availableHearts
+        break
+      case 'D':
+        availableCards = availableDiamonds
+        break
+      case 'C':
+        availableCards = availableClubs
+        break
+      default:
+        return
+    }
+    //
+    // Duplicates
+    //
+    if (!availableCards.includes(card)) {
+      if (errors && errors[hand] === null) {
+        errors[hand] = `Duplicates: ${card}`
+      } else if (errors && errors[hand] !== null) {
+        errors[hand] = `${errors[hand]} , ${card}`
+      }
+      message = 'Duplicates'
+      ok = false
+    } else {
+      //
+      // Remove the used card from the available set of cards
+      //
+      switch (suit) {
+        case 'S':
+          availableSpades = availableSpades.replace(card, '')
+          break
+        case 'H':
+          availableHearts = availableHearts.replace(card, '')
+          break
+        case 'D':
+          availableDiamonds = availableDiamonds.replace(card, '')
+          break
+        case 'C':
+          availableClubs = availableClubs.replace(card, '')
+          break
+      }
     }
   }
-  //
-  // Unpack form data
-  //
-  const { qowner, qgroup, qdetail } = validatedFields.data
-  //
-  //  Convert hidden fields value to numeric
-  //
-  const qqid = formData.get('qqid') as string | null
-  const qqidString = qqid || ''
-  const qqidNumber = qqid ? Number(qqid) : 0
-
-  const qseq = formData.get('qseq')
-  const qseqNumber = qseq ? Number(qseq) : 0
-  //
-  // Validate fields
-  //
-  const Table = {
-    qqid: qqidNumber,
-    qowner: qowner,
-    qgroup: qgroup,
-    qseq: qseqNumber
-  }
-  const errorMessages = await validate(Table)
-  if (errorMessages.message) {
-    return {
-      errors: errorMessages.errors,
-      message: errorMessages.message,
-      databaseUpdated: false
+  // ----------------------------------------------------------------------
+  //  Check that no hand has more than 13 cards
+  // ----------------------------------------------------------------------
+  function checkCardCount() {
+    //
+    //  Hand ranges N,E,S,W
+    //
+    const handRanges = [
+      { start: 0, end: 3 },
+      { start: 4, end: 7 },
+      { start: 8, end: 11 },
+      { start: 12, end: 15 }
+    ]
+    //
+    //  Process each hand
+    //
+    for (let i = 0; i < handRanges.length; i++) {
+      const { start, end } = handRanges[i]
+      //
+      // Count cards for each hand within the specified range
+      //
+      let totalCardsForHand = 0
+      for (let i = start; i <= end; i++) {
+        const handValue = values[i] || ''
+        totalCardsForHand += handValue.length
+        //
+        // Check if the total card count exceeds 13
+        //
+        if (totalCardsForHand > 13) {
+          const handName = hand_name[i]
+          errors[handName as keyof StateSetup['errors']] = `Too many cards in hand`
+          ok = false
+          break
+        }
+      }
     }
   }
-  //
-  // Update data into the database
-  //
-  try {
+  // ----------------------------------------------------------------------
+  // Update the database
+  // ----------------------------------------------------------------------
+  async function updateDatabase() {
     //
-    //  Update
+    //  Convert hidden fields value to numeric
     //
-    if (qqidNumber !== 0) {
+    const qqid = formData.get('qqid') as string
+    //
+    // Update data into the database
+    //
+    try {
+      //
+      //  Create the hand strings
+      //
+      const northString = formatHand(values[0], values[1], values[2], values[3])
+      const eastString = formatHand(values[4], values[5], values[6], values[7])
+      const southString = formatHand(values[8], values[9], values[10], values[11])
+      const westString = formatHand(values[12], values[13], values[14], values[15])
       //
       //  update parameters
       //
       const updateParams = {
         table: 'questions',
-        columnValuePairs: [{ column: 'qdetail', value: qdetail }],
-        whereColumnValuePairs: [{ column: 'qqid', value: qqidString }]
+        columnValuePairs: [
+          { column: 'qnorth', value: northString },
+          { column: 'qeast', value: eastString },
+          { column: 'qsouth', value: southString },
+          { column: 'qwest', value: westString }
+        ],
+        whereColumnValuePairs: [{ column: 'qqid', value: qqid }]
       }
+      //
+      //  Update the database
+      //
       const data = await table_update(updateParams)
-    }
-    //
-    //  Write
-    //
-    else {
-      //
-      //  Get next sequence if Add
-      //
-      let qseqString = ''
-      if (qqidNumber === 0) {
-        const nextSeq = await getNextSeq(qowner, qgroup)
-        qseqString = String(nextSeq)
-      }
-      //
-      //  Get group id - qgid
-      //
-      const fetchParams = {
-        table: 'ownergroup',
-        columnValuePairs: [
-          { column: 'ogowner', value: qowner },
-          { column: 'oggroup', value: qgroup }
-        ]
-      }
-      const rows = await table_fetch(fetchParams)
-      // console.log('rows:', rows)
-      const row = rows[0]
-      const qgidString = String(row.oggid)
-      //
-      //  Write Parameters
-      //
-      const writeParams = {
-        table: 'questions',
-        columnValuePairs: [
-          { column: 'qowner', value: qowner },
-          { column: 'qgroup', value: qgroup },
-          { column: 'qseq', value: String(qseqString) },
-          { column: 'qdetail', value: qdetail },
-          { column: 'qgid', value: qgidString }
-        ]
-      }
-      const data = await table_write(writeParams)
-      // console.log('data:', data)
-    }
-    return {
-      message: `Database updated successfully.`,
-      errors: undefined,
-      databaseUpdated: true
-    }
-  } catch (error) {
-    return {
-      message: 'Database Error: Failed to Update.',
-      errors: undefined,
-      databaseUpdated: false
+      message = `Database updated successfully.`
+      databaseUpdated = true
+    } catch (error) {
+      ok = false
+      message = 'Database Error: Failed to Update.'
     }
   }
+  // ----------------------------------------------------------------------
+  //  Format Hand
+  // ----------------------------------------------------------------------
+  function formatHand(
+    spades: string | null,
+    hearts: string | null,
+    diamonds: string | null,
+    clubs: string | null
+  ): string {
+    //
+    // If the suit is empty, return 'n', otherwise return the suit value
+    //
+    const formatSuit = (suit: string | null): string => {
+      return suit === null || suit.length === 0 ? 'n' : suit
+    }
+    //
+    // Format each suit
+    //
+    const formattedSpades = formatSuit(spades)
+    const formattedHearts = formatSuit(hearts)
+    const formattedDiamonds = formatSuit(diamonds)
+    const formattedClubs = formatSuit(clubs)
+    //
+    // Return the whole hand in the desired format, with commas between suits
+    //
+    const sqlString = `{${formattedSpades},${formattedHearts},${formattedDiamonds},${formattedClubs}}`
+    return sqlString
+  }
+  // ----------------------------------------------------------------------
 }

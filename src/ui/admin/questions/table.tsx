@@ -22,7 +22,6 @@ interface FormProps {
   gid?: string | null
 }
 export default function Table({ gid }: FormProps) {
-  console.log('gid:', gid)
   //
   //  URL updated with search paramenters (Search)
   //
@@ -39,11 +38,8 @@ export default function Table({ gid }: FormProps) {
   const [isModelOpenEdit_detail, setIsModelOpenEdit_detail] = useState(false)
   const [isModelOpenAdd_detail, setIsModelOpenAdd_detail] = useState(false)
   const [isModelOpenEdit_answers, setIsModelOpenEdit_answers] = useState(false)
-  const [isModelOpenAdd_answers, setIsModelOpenAdd_answers] = useState(false)
   const [isModelOpenEdit_hands, setIsModelOpenEdit_hands] = useState(false)
-  const [isModelOpenAdd_hands, setIsModelOpenAdd_hands] = useState(false)
   const [isModelOpenEdit_bidding, setIsModelOpenEdit_bidding] = useState(false)
-  const [isModelOpenAdd_bidding, setIsModelOpenAdd_bidding] = useState(false)
 
   const [selectedRow, setSelectedRow] = useState<table_Questions | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -224,10 +220,10 @@ export default function Table({ gid }: FormProps) {
                     Answers
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Bidding
+                    Hands
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Hands
+                    Bidding
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     ID
@@ -246,6 +242,9 @@ export default function Table({ gid }: FormProps) {
                     <td className='px-2 py-1 text-sm '>{record.qowner}</td>
                     <td className='px-2 py-1 text-sm '>{record.qgroup}</td>
                     <td className='px-2 py-1 text-sm '>{record.qseq}</td>
+                    {/* --------------------------------------------------------------------- */}
+                    {/* Detail                                                               */}
+                    {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm '>
                       <button
                         onClick={() => handleClickEdit_detail(record)}
@@ -256,6 +255,9 @@ export default function Table({ gid }: FormProps) {
                           : record.qdetail}
                       </button>
                     </td>
+                    {/* --------------------------------------------------------------------- */}
+                    {/* Answers                                                               */}
+                    {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm '>
                       <button
                         onClick={() => handleClickEdit_answers(record)}
@@ -264,6 +266,9 @@ export default function Table({ gid }: FormProps) {
                         {record.qans && record.qans.length > 0 ? 'Y' : 'N'}
                       </button>
                     </td>
+                    {/* --------------------------------------------------------------------- */}
+                    {/* Hands                                                               */}
+                    {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm'>
                       <button
                         onClick={() => handleClickEdit_hands(record)}
@@ -277,7 +282,9 @@ export default function Table({ gid }: FormProps) {
                           : 'N'}
                       </button>
                     </td>
-
+                    {/* --------------------------------------------------------------------- */}
+                    {/* Bidding                                                               */}
+                    {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm'>
                       <button
                         onClick={() => handleClickEdit_bidding(record)}
@@ -286,8 +293,13 @@ export default function Table({ gid }: FormProps) {
                         {record.qrounds && record.qrounds.length > 0 ? 'Y' : 'N'}
                       </button>
                     </td>
+                    {/* --------------------------------------------------------------------- */}
+                    {/* ID                                                               */}
+                    {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm '>{record.qqid}</td>
-
+                    {/* --------------------------------------------------------------------- */}
+                    {/* Delete                                                               */}
+                    {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm'>
                       <button
                         onClick={() => handleDeleteClick(record)}
@@ -296,6 +308,7 @@ export default function Table({ gid }: FormProps) {
                         Delete
                       </button>
                     </td>
+                    {/* --------------------------------------------------------------------- */}
                   </tr>
                 ))}
               </tbody>
