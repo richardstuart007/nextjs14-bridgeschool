@@ -1,155 +1,309 @@
 'use server'
 
-import { z } from 'zod'
 import { table_update } from '@/src/lib/tables/table_update'
-import { table_write } from '@/src/lib/tables/table_write'
-import { table_fetch } from '@/src/lib/tables/table_fetch'
-import validate from '@/src/ui/admin/questions/detail/validate'
-import { getNextSeq } from '@/src/lib/tables/questions'
-// ----------------------------------------------------------------------
-//  Update Setup
-// ----------------------------------------------------------------------
-//
-//  Form Schema for validation
-//
-const FormSchemaSetup = z.object({
-  qowner: z.string(),
-  qgroup: z.string(),
-  qdetail: z.string()
-})
 //
 //  Errors and Messages
 //
 export type StateSetup = {
-  errors?: {
-    qowner?: string[]
-    qgroup?: string[]
-    qdetail?: string[]
-  }
   message?: string | null
+  errors: {
+    R1B1?: string | null
+    R1B2?: string | null
+    R1B3?: string | null
+    R1B4?: string | null
+    R2B1?: string | null
+    R2B2?: string | null
+    R2B3?: string | null
+    R2B4?: string | null
+    R3B1?: string | null
+    R3B2?: string | null
+    R3B3?: string | null
+    R3B4?: string | null
+    R4B1?: string | null
+    R4B2?: string | null
+    R4B3?: string | null
+    R4B4?: string | null
+    R5B1?: string | null
+    R5B2?: string | null
+    R5B3?: string | null
+    R5B4?: string | null
+    R6B1?: string | null
+    R6B2?: string | null
+    R6B3?: string | null
+    R6B4?: string | null
+    R7B1?: string | null
+    R7B2?: string | null
+    R7B3?: string | null
+    R7B4?: string | null
+  }
   databaseUpdated?: boolean
 }
-
-const Setup = FormSchemaSetup
+//
+//  hand names
+//
+const bidding_names = [
+  'R1B1',
+  'R1B2',
+  'R1B3',
+  'R1B4',
+  'R2B1',
+  'R2B2',
+  'R2B3',
+  'R2B4',
+  'R3B1',
+  'R3B2',
+  'R3B3',
+  'R3B4',
+  'R4B1',
+  'R4B2',
+  'R4B3',
+  'R4B4',
+  'R5B1',
+  'R5B2',
+  'R5B3',
+  'R5B4',
+  'R6B1',
+  'R6B2',
+  'R6B3',
+  'R6B4',
+  'R7B1',
+  'R7B2',
+  'R7B3',
+  'R7B4'
+]
+//
+// Valid Values
+//
+const VALIDVALUES = [
+  '1C',
+  '1D',
+  '1H',
+  '1S',
+  '1NT',
+  '2C',
+  '2D',
+  '2H',
+  '2S',
+  '2NT',
+  '3C',
+  '3D',
+  '3H',
+  '3S',
+  '3NT',
+  '4C',
+  '4D',
+  '4H',
+  '4S',
+  '4NT',
+  '5C',
+  '5D',
+  '5H',
+  '5S',
+  '5NT',
+  '6C',
+  '6D',
+  '6H',
+  '6S',
+  '6NT',
+  '7C',
+  '7D',
+  '7H',
+  '7S',
+  '7NT'
+]
+const SPECIALBIDS = ['PASS', 'X', 'XX', '?']
 
 export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
-  //
-  //  Validate form data
-  //
-  const validatedFields = Setup.safeParse({
-    qowner: formData.get('qowner'),
-    qgroup: formData.get('qgroup'),
-    qdetail: formData.get('qdetail')
-  })
-  //
-  // If form validation fails, return errors early. Otherwise, continue.
-  //
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Invalid or missing fields'
-    }
-  }
-  //
-  // Unpack form data
-  //
-  const { qowner, qgroup, qdetail } = validatedFields.data
-  //
-  //  Convert hidden fields value to numeric
-  //
-  const qqid = formData.get('qqid') as string | null
-  const qqidString = qqid || ''
-  const qqidNumber = qqid ? Number(qqid) : 0
+  console.log('formData', formData)
 
-  const qseq = formData.get('qseq')
-  const qseqNumber = qseq ? Number(qseq) : 0
   //
-  // Validate fields
+  // Retrieve values from formData and store them in an array
   //
-  const Table = {
-    qqid: qqidNumber,
-    qowner: qowner,
-    qgroup: qgroup,
-    qseq: qseqNumber
+  const values = bidding_names.map(name => formData.get(name) as string | null)
+  console.log('values', values)
+  //
+  // Initialize an errors object to accumulate any validation errors
+  //
+  const errors: StateSetup['errors'] = {
+    R1B1: null,
+    R1B2: null,
+    R1B3: null,
+    R1B4: null,
+    R2B1: null,
+    R2B2: null,
+    R2B3: null,
+    R2B4: null,
+    R3B1: null,
+    R3B2: null,
+    R3B3: null,
+    R3B4: null,
+    R4B1: null,
+    R4B2: null,
+    R4B3: null,
+    R4B4: null,
+    R5B1: null,
+    R5B2: null,
+    R5B3: null,
+    R5B4: null,
+    R6B1: null,
+    R6B2: null,
+    R6B3: null,
+    R6B4: null,
+    R7B1: null,
+    R7B2: null,
+    R7B3: null,
+    R7B4: null
   }
-  const errorMessages = await validate(Table)
-  if (errorMessages.message) {
-    return {
-      errors: errorMessages.errors,
-      message: errorMessages.message,
-      databaseUpdated: false
-    }
+  //
+  // initialise return values
+  //
+  let message = ''
+  let databaseUpdated = false
+  let ok = true
+  //
+  //  Check values are valid
+  //
+  checkValidValues()
+  //
+  //  Update Database
+  //
+  if (ok) await updateDatabase()
+  //
+  //  return values
+  //
+  return {
+    errors: errors,
+    message: message,
+    databaseUpdated: databaseUpdated
   }
-  //
-  // Update data into the database
-  //
-  try {
+
+  // ----------------------------------------------------------------------
+  // Check for valid bidding
+  // ----------------------------------------------------------------------
+  function checkValidValues() {
     //
-    //  Update
+    // Counts
     //
-    if (qqidNumber !== 0) {
+    let highestValidIndex = -1
+    let noMoreBids = false
+    let consecutivePasses = 0
+    //
+    //  Lop through all values
+    //
+    values.forEach((bid, index) => {
+      //
+      //  Get the bidding name
+      //
+      const biddingName = bidding_names[index] as keyof StateSetup['errors']
+      //
+      // PASS counts
+      //
+      if (bid === 'PASS') {
+        consecutivePasses++
+      } else {
+        consecutivePasses = 0
+      }
+      console.log('consecutivePasses', consecutivePasses)
+      //
+      //  Ignore empty bid
+      //
+      if (bid === '' || !bid || consecutivePasses === 3) {
+        noMoreBids = true
+        return
+      }
+      //
+      // If an empty bid has been encountered, no further bids can be made
+      //
+      if (noMoreBids && bid !== '') {
+        errors[biddingName] = 'No further bids'
+        message = 'Bids stopped after an empty bid'
+        ok = false
+        return
+      }
+      //
+      // If three consecutive passes have been encountered
+      //
+      if (consecutivePasses > 3) {
+        errors[biddingName] = '3 passes already'
+        message = 'Cannot bid after three consecutive passes'
+        ok = false
+        return
+      }
+      //
+      // Check if the bid is in SPECIALBIDS
+      //
+      if (SPECIALBIDS.includes(bid)) return
+      //
+      // Check if the bid is in VALIDVALUES
+      //
+      const validIndex = VALIDVALUES.indexOf(bid)
+      if (validIndex === -1) {
+        errors[biddingName] = `Invalid bid`
+        message = 'Invalid bids'
+        ok = false
+        return
+      }
+      //
+      // Ensure bids are non-descending
+      //
+      if (validIndex <= highestValidIndex) {
+        errors[biddingName] = `Bid out of sequence`
+        message = 'Bids out of sequence'
+        ok = false
+        return
+      }
+
+      //
+      // Update the highest valid index
+      //
+      highestValidIndex = validIndex
+    })
+  }
+
+  // ----------------------------------------------------------------------
+  // Update the database
+  // ----------------------------------------------------------------------
+  async function updateDatabase() {
+    //
+    //  Convert hidden fields value to numeric
+    //
+    const qqid = formData.get('qqid') as string
+    //
+    // Update data into the database
+    //
+    try {
+      //
+      //  Create the hand strings
+      //
+      const rounds = []
+      for (let i = 0; i < values.length; i += 4) {
+        const round = values.slice(i, i + 4).map(bid => bid || 'N')
+        if (round.some(bid => bid !== 'N')) {
+          rounds.push(round)
+        }
+      }
+
+      // Format the rounds as a string
+      const qrounds = `{${rounds.map(round => `{${round.join(',')}}`).join(',')}}`
+      console.log(qrounds)
       //
       //  update parameters
       //
       const updateParams = {
         table: 'questions',
-        columnValuePairs: [{ column: 'qdetail', value: qdetail }],
-        whereColumnValuePairs: [{ column: 'qqid', value: qqidString }]
+        columnValuePairs: [{ column: 'qrounds', value: qrounds }],
+        whereColumnValuePairs: [{ column: 'qqid', value: qqid }]
       }
+      //
+      //  Update the database
+      //
       const data = await table_update(updateParams)
-    }
-    //
-    //  Write
-    //
-    else {
-      //
-      //  Get next sequence if Add
-      //
-      let qseqString = ''
-      if (qqidNumber === 0) {
-        const nextSeq = await getNextSeq(qowner, qgroup)
-        qseqString = String(nextSeq)
-      }
-      //
-      //  Get group id - qgid
-      //
-      const fetchParams = {
-        table: 'ownergroup',
-        columnValuePairs: [
-          { column: 'ogowner', value: qowner },
-          { column: 'oggroup', value: qgroup }
-        ]
-      }
-      const rows = await table_fetch(fetchParams)
-      // console.log('rows:', rows)
-      const row = rows[0]
-      const qgidString = String(row.oggid)
-      //
-      //  Write Parameters
-      //
-      const writeParams = {
-        table: 'questions',
-        columnValuePairs: [
-          { column: 'qowner', value: qowner },
-          { column: 'qgroup', value: qgroup },
-          { column: 'qseq', value: String(qseqString) },
-          { column: 'qdetail', value: qdetail },
-          { column: 'qgid', value: qgidString }
-        ]
-      }
-      const data = await table_write(writeParams)
-      // console.log('data:', data)
-    }
-    return {
-      message: `Database updated successfully.`,
-      errors: undefined,
-      databaseUpdated: true
-    }
-  } catch (error) {
-    return {
-      message: 'Database Error: Failed to Update.',
-      errors: undefined,
-      databaseUpdated: false
+      message = `Database updated successfully.`
+      databaseUpdated = true
+    } catch (error) {
+      ok = false
+      message = 'Database Error: Failed to Update.'
     }
   }
+  // ----------------------------------------------------------------------
 }
