@@ -6,26 +6,6 @@ import { table_Who } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/logging'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Fetch who table
-//---------------------------------------------------------------------
-export async function fetch_who() {
-  const functionName = 'fetch_who'
-  // noStore()
-  try {
-    const data = await sql<table_Who>`
-      SELECT *
-      FROM who
-      ;
-    `
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Delete who and related tables rows by ID
 //---------------------------------------------------------------------
 export async function deleteWhoById(wwid: number): Promise<string> {
@@ -61,7 +41,7 @@ export async function deleteWhoById(wwid: number): Promise<string> {
 //---------------------------------------------------------------------
 export async function fetchWhoFiltered(query: string, currentPage: number) {
   const functionName = 'fetchWhoFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
@@ -169,7 +149,7 @@ export async function buildWhere_Who(query: string) {
 //---------------------------------------------------------------------
 export async function fetchWhoTotalPages(query: string) {
   const functionName = 'fetchWhoTotalPages'
-  // noStore()
+  noStore()
   try {
     //
     //  Build Where clause
@@ -237,46 +217,6 @@ export async function updateWho(wwid: number, wwho: string, wtitle: string) {
     RETURNING *
   `
     return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Who data by ID
-//---------------------------------------------------------------------
-export async function fetchWhoByID(wwid: number) {
-  const functionName = 'fetchWhoByID'
-  // noStore()
-  try {
-    const data = await sql<table_Who>`
-      SELECT *
-      FROM who
-      WHERE wwid = ${wwid};
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Who data by Who
-//---------------------------------------------------------------------
-export async function fetchWhoByWho(wwho: string) {
-  const functionName = 'fetchWhoByWho'
-  // noStore()
-  try {
-    const data = await sql<table_Who>`
-      SELECT *
-      FROM who
-      WHERE wwho = ${wwho};
-    `
-    const row = data.rows[0]
-    return row
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

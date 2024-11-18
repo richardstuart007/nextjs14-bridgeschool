@@ -42,7 +42,7 @@ export async function fetchHistoryTotalPages(query: string) {
 //---------------------------------------------------------------------
 export async function fetchHistoryFiltered(query: string, currentPage: number) {
   const functionName = 'fetchHistoryFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * HISTORY_ITEMS_PER_PAGE
   try {
     let sqlWhere = await buildWhere_History(query)
@@ -169,7 +169,7 @@ export async function buildWhere_History(query: string) {
 //---------------------------------------------------------------------
 export async function fetchHistoryById(r_hid: number) {
   const functionName = 'fetchHistoryById'
-  // noStore()
+  noStore()
   try {
     const data = await sql<table_Usershistory>`
       SELECT *
@@ -192,7 +192,7 @@ export async function fetchHistoryById(r_hid: number) {
 //---------------------------------------------------------------------
 export async function fetchTopResultsData() {
   const functionName = 'fetchTopResultsData'
-  // noStore()
+  noStore()
   // ????????????
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
@@ -235,7 +235,7 @@ export async function fetchTopResultsData() {
 //---------------------------------------------------------------------
 export async function fetchRecentResultsData1() {
   const functionName = 'fetchRecentResultsData1'
-  // noStore()
+  noStore()
   // ????????????
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
@@ -278,7 +278,7 @@ export async function fetchRecentResultsData1() {
 //---------------------------------------------------------------------
 export async function fetchRecentResultsData5(userIds: number[]) {
   const functionName = 'fetchRecentResultsData5'
-  // noStore()
+  noStore()
   // ????????????
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {

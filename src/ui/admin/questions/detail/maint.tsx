@@ -87,7 +87,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
         {/*  ...................................................................................*/}
         {/*   Owner Group */}
         {/*  ...................................................................................*/}
-        {qgroup === '' ? (
+        {qqid === 0 ? (
           <DropdownOwnerGroup
             selectedOption={qgroup}
             setSelectedOption={setqgroup}

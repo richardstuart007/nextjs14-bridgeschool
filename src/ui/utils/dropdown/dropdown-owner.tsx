@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DropdownSearch from '@/src/ui/utils/dropdown/dropdown'
-import { fetch_owner } from '@/src/lib/tables/owner'
+import { table_fetch } from '@/src/lib/tables/table_fetch'
 
 type DropdownProps = {
   selectedOption: string
@@ -29,7 +29,10 @@ export default function DropdownOwner({ selectedOption, setSelectedOption, name 
       //
       //  Get the data
       //
-      const rows = await fetch_owner()
+      const fetchParams = {
+        table: 'owner'
+      }
+      const rows = await table_fetch(fetchParams)
       //
       // Map rows into the structure expected by DropdownSearch
       //
@@ -37,8 +40,9 @@ export default function DropdownOwner({ selectedOption, setSelectedOption, name 
         value: row.oowner,
         label: row.otitle
       }))
-
+      //
       // Set the mapped options to the state
+      //
       setDropdownOptions(options)
     } catch (error) {
       console.error('Error fetching dropdown options:', error)

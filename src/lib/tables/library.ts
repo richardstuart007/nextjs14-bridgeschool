@@ -2,7 +2,7 @@
 
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { table_Library, table_LibraryGroup } from '@/src/lib/tables/definitions'
+import { table_LibraryGroup } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/logging'
 const LIBRARY_ITEMS_PER_PAGE = 10
 const MAINT_ITEMS_PER_PAGE = 15
@@ -11,7 +11,7 @@ const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
 export async function fetchLibraryUserTotalPages(query: string, uid: number) {
   const functionName = 'fetchLibraryUserTotalPages'
-  // noStore()
+  noStore()
   try {
     //
     //  Build Where clause
@@ -48,7 +48,7 @@ export async function fetchLibraryUserTotalPages(query: string, uid: number) {
 //---------------------------------------------------------------------
 export async function fetchLibraryUserFiltered(query: string, currentPage: number, uid: number) {
   const functionName = 'fetchLibraryUserFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * LIBRARY_ITEMS_PER_PAGE
   try {
     //
@@ -192,7 +192,7 @@ export async function buildWhere_LibraryUser(query: string, uid: number) {
 //---------------------------------------------------------------------
 export async function fetchLibraryTotalPages(query: string) {
   const functionName = 'fetchLibraryTotalPages'
-  // noStore()
+  noStore()
   try {
     //
     //  Build Where clause
@@ -227,7 +227,7 @@ export async function fetchLibraryTotalPages(query: string) {
 //---------------------------------------------------------------------
 export async function fetchLibraryFiltered(query: string, currentPage: number) {
   const functionName = 'fetchLibraryFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
@@ -356,49 +356,6 @@ export async function buildWhere_Library(query: string) {
     whereClauseUpdate = `WHERE ${whereClause.slice(0, -5)}`
   }
   return whereClauseUpdate
-}
-//---------------------------------------------------------------------
-//  Library data by ID
-//---------------------------------------------------------------------
-export async function fetchLibraryById(lrlid: number) {
-  const functionName = 'fetchLibraryById'
-  // noStore()
-  try {
-    const data = await sql<table_Library>`
-      SELECT *
-      FROM library
-      WHERE lrlid = ${lrlid};
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Library data by ref/group/owner - unique
-//---------------------------------------------------------------------
-export async function fetchLibraryByRefGroupOwner(lrref: string, lrgroup: string, lrowner: string) {
-  const functionName = 'fetchLibraryByRefGroupOwner'
-  // noStore()
-  try {
-    const data = await sql<table_Library>`
-      SELECT *
-      FROM library
-      WHERE
-        lrref = ${lrref} and
-        lrgroup = ${lrgroup} and
-        lrowner = ${lrowner};
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
 }
 //---------------------------------------------------------------------
 //  Delete Library and related tables rows by ID

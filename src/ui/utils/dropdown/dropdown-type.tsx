@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DropdownSearch from '@/src/ui/utils/dropdown/dropdown'
-import { fetch_reftype } from '@/src/lib/tables/reftype'
+import { table_fetch } from '@/src/lib/tables/table_fetch'
 
 type DropdownProps = {
   selectedOption: string
@@ -29,7 +29,11 @@ export default function DropdownType({ selectedOption, setSelectedOption, name }
       //
       //  Get the data
       //
-      const rows = await fetch_reftype()
+      const fetchParams = {
+        table: 'reftype'
+      }
+      const rows = await table_fetch(fetchParams)
+
       //
       // Map rows into the structure expected by DropdownSearch
       //

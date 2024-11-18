@@ -71,26 +71,6 @@ export async function SessionsSignoutAll() {
   }
 }
 //---------------------------------------------------------------------
-//  sessions data by ID
-//---------------------------------------------------------------------
-export async function fetchSessionsById(s_id: number) {
-  const functionName = 'fetchSessionsById'
-  noStore()
-  try {
-    const data = await sql<table_Sessions>`
-      SELECT *
-      FROM sessions
-      WHERE s_id = ${s_id};
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Update Sessions to signed out
 //---------------------------------------------------------------------
 export async function UpdateSessions(
@@ -122,7 +102,7 @@ export async function UpdateSessions(
 //---------------------------------------------------------------------
 export async function fetchSessionInfo(sessionId: number) {
   const functionName = 'fetchSessionInfo'
-  // noStore()
+  noStore()
   try {
     const data = await sql`
       SELECT

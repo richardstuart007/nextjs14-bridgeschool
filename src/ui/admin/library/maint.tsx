@@ -23,13 +23,14 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
   //  State and Initial values
   //
   const lrlid = libraryRecord?.lrlid || 0
-  const [lrowner, setLrowner] = useState(libraryRecord?.lrowner || 'Richard')
+  const [lrowner, setLrowner] = useState(libraryRecord?.lrowner || '')
   const [lrgroup, setLrgroup] = useState(libraryRecord?.lrgroup || '')
   const [lrref, setLrref] = useState(libraryRecord?.lrref || '')
   const [lrdesc, setLrdesc] = useState(libraryRecord?.lrdesc || '')
   const [lrwho, setLrwho] = useState(libraryRecord?.lrwho || '')
   const [lrtype, setLrtype] = useState(libraryRecord?.lrtype || '')
   const [lrlink, setLrlink] = useState(libraryRecord?.lrlink || '')
+  console.log('lrowner', lrowner)
   //-------------------------------------------------------------------------
   //  Update Button
   //-------------------------------------------------------------------------
@@ -157,7 +158,6 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
               </p>
             ))}
         </div>
-
         {/*  ...................................................................................*/}
         {/*  Description */}
         {/*  ...................................................................................*/}
@@ -184,7 +184,6 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
               </p>
             ))}
         </div>
-
         {/*  ...................................................................................*/}
         {/*  Who  */}
         {/*  ...................................................................................*/}

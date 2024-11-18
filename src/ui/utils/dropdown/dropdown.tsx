@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type DropdownProps = {
   label: string
@@ -24,7 +24,14 @@ export default function DropdownSearch({
   const filteredOptions = options.filter(option =>
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
   )
-
+  //
+  // Set default value to the first filtered option when options are available or change
+  //
+  useEffect(() => {
+    if (!selectedOption && filteredOptions.length > 0) {
+      setSelectedOption(filteredOptions[0].value)
+    }
+  }, [filteredOptions, selectedOption, setSelectedOption])
   return (
     <div className='mt-2'>
       {/*  ...................................................................................*/}

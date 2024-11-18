@@ -6,26 +6,6 @@ import { table_Reftype } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/logging'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Fetch reftype
-//---------------------------------------------------------------------
-export async function fetch_reftype() {
-  const functionName = 'fetch_reftype'
-  // noStore()
-  try {
-    const data = await sql<table_Reftype>`
-      SELECT *
-      FROM reftype
-      ;
-    `
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Delete  and related tables rows by ID
 //---------------------------------------------------------------------
 export async function deleteReftypeById(rtrid: number): Promise<string> {
@@ -61,7 +41,7 @@ export async function deleteReftypeById(rtrid: number): Promise<string> {
 //---------------------------------------------------------------------
 export async function fetchReftypeFiltered(query: string, currentPage: number) {
   const functionName = 'fetchReftypeFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
@@ -169,7 +149,7 @@ export async function buildWhere_reftype(query: string) {
 //---------------------------------------------------------------------
 export async function fetchReftypeTotalPages(query: string) {
   const functionName = 'fetchReftypeTotalPages'
-  // noStore()
+  noStore()
   try {
     //
     //  Build Where clause
@@ -237,46 +217,6 @@ export async function updatereftype(rtrid: number, rttype: string, rttitle: stri
     RETURNING *
   `
     return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  reftype data by ID
-//---------------------------------------------------------------------
-export async function fetchreftypeByID(rtrid: number) {
-  const functionName = 'fetchreftypeByID'
-  // noStore()
-  try {
-    const data = await sql<table_Reftype>`
-      SELECT *
-      FROM reftype
-      WHERE rtrid = ${rtrid};
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  reftype data
-//---------------------------------------------------------------------
-export async function fetchreftypeBytype(rttype: string) {
-  const functionName = 'fetchreftypeBytype'
-  // noStore()
-  try {
-    const data = await sql<table_Reftype>`
-      SELECT *
-      FROM reftype
-      WHERE rttype = ${rttype};
-    `
-    const row = data.rows[0]
-    return row
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

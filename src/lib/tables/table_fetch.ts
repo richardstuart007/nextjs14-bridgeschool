@@ -15,7 +15,7 @@ interface ColumnValuePair {
 //
 interface Props {
   table: string
-  columnValuePairs: ColumnValuePair[]
+  columnValuePairs?: ColumnValuePair[]
 }
 
 export async function table_fetch({ table, columnValuePairs }: Props): Promise<any[]> {
@@ -29,17 +29,22 @@ export async function table_fetch({ table, columnValuePairs }: Props): Promise<a
     //
     // Build the WHERE clause from key pair/values
     //
-    const conditions = columnValuePairs.map(({ column, value }) => {
-      return `${column} = '${value}'`
-    })
-    //
-    // "AND" between conditions
-    //
-    const whereClause = conditions.join(' AND ')
-    //
-    // Build sql
-    //
-    const sqlQuery = `SELECT * FROM ${table} WHERE ${whereClause}`
+    let sqlQuery
+    if (columnValuePairs) {
+      const conditions = columnValuePairs.map(({ column, value }) => {
+        return `${column} = '${value}'`
+      })
+      //
+      // "AND" between conditions
+      //
+      const whereClause = conditions.join(' AND ')
+      //
+      // Build sql
+      //
+      sqlQuery = `SELECT * FROM ${table} WHERE ${whereClause}`
+    } else {
+      sqlQuery = `SELECT * FROM ${table}`
+    }
     //
     // Run query
     //

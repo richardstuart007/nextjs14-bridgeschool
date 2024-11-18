@@ -6,35 +6,11 @@ import { table_Questions } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/logging'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Questions data by Owner/Group
-//---------------------------------------------------------------------
-export async function fetchQuestionsByOwnerGroup(qowner: string, qgroup: string) {
-  const functionName = 'fetchQuestionsByOwnerGroup'
-  // noStore()
-  try {
-    const data = await sql<table_Questions>`
-      SELECT *
-      FROM questions
-      WHERE qowner = ${qowner} and qgroup = ${qgroup}
-      ORDER BY qowner, qgroup, qseq;
-    `
-    //
-    //  Return rows
-    //
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Questions data by ID
 //---------------------------------------------------------------------
 export async function fetchQuestionsByGid(qgid: number) {
   const functionName = 'fetchQuestionsByGid'
-  // noStore()
+  noStore()
   try {
     const data = await sql<table_Questions>`
       SELECT *
@@ -45,26 +21,6 @@ export async function fetchQuestionsByGid(qgid: number) {
     //
     //  Return rows
     //
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Fetch questions
-//---------------------------------------------------------------------
-export async function fetch_questions() {
-  const functionName = 'fetch_questions'
-  // noStore()
-  try {
-    const data = await sql<table_Questions>`
-      SELECT *
-      FROM questions
-      ;
-    `
     const rows = data.rows
     return rows
   } catch (error) {
@@ -285,46 +241,6 @@ export async function updatequestions(qqid: number, qowner: string, qgroup: stri
     RETURNING *
   `
     return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  questions data by ID
-//---------------------------------------------------------------------
-export async function fetchquestionsByID(qqid: number) {
-  const functionName = 'fetchquestionsByID'
-  // noStore()
-  try {
-    const data = await sql<table_Questions>`
-      SELECT *
-      FROM questions
-      WHERE qqid = ${qqid};
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  questions data
-//---------------------------------------------------------------------
-export async function fetchquestionsByowner(qowner: string) {
-  const functionName = 'fetchquestionsByowner'
-  // noStore()
-  try {
-    const data = await sql<table_Questions>`
-      SELECT *
-      FROM questions
-      WHERE qowner = ${qowner};
-    `
-    const row = data.rows[0]
-    return row
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

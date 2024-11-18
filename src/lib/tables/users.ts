@@ -202,7 +202,7 @@ export async function updateUsersPwd(userid: number, userpwd: string) {
 //---------------------------------------------------------------------
 export async function fetchUsersFiltered(query: string, currentPage: number) {
   const functionName = 'fetchUsersFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * USERS_ITEMS_PER_PAGE
   try {
     //
@@ -240,7 +240,7 @@ export async function fetchUsersFiltered(query: string, currentPage: number) {
 //---------------------------------------------------------------------
 export async function fetchUsersTotalPages(query: string) {
   const functionName = 'fetchUsersTotalPages'
-  // noStore()
+  noStore()
   try {
     //
     //  Build Where clause

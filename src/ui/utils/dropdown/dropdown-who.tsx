@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DropdownSearch from '@/src/ui/utils/dropdown/dropdown'
-import { fetch_who } from '@/src/lib/tables/who'
+import { table_fetch } from '@/src/lib/tables/table_fetch'
 
 type DropdownProps = {
   selectedOption: string
@@ -29,7 +29,10 @@ export default function DropdownWho({ selectedOption, setSelectedOption, name }:
       //
       //  Get the data
       //
-      const rows = await fetch_who()
+      const fetchParams = {
+        table: 'who'
+      }
+      const rows = await table_fetch(fetchParams)
       //
       // Map rows into the structure expected by DropdownSearch
       //

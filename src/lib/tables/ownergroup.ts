@@ -10,7 +10,7 @@ const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
 export async function fetch_ownergroup1(ogowner: string, oggroup: string) {
   const functionName = 'fetch_ownergroup1'
-  // noStore()
+  noStore()
   try {
     const data = await sql<table_Ownergroup>`
       SELECT *
@@ -18,49 +18,6 @@ export async function fetch_ownergroup1(ogowner: string, oggroup: string) {
       WHERE
         ogowner = ${ogowner} AND
         oggroup = ${oggroup}
-      ;
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Fetch owner group table
-//---------------------------------------------------------------------
-export async function fetch_ownergroup(ogowner: string) {
-  const functionName = 'fetch_ownergroup'
-  // noStore()
-  try {
-    const data = await sql<table_Ownergroup>`
-      SELECT *
-      FROM ownergroup
-      WHERE ogowner = ${ogowner}
-      ORDER BY ogowner, oggroup
-      ;
-    `
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Fetch owner group table by ID
-//---------------------------------------------------------------------
-export async function fetch_ownergroupID(oggid: number) {
-  const functionName = 'fetch_ownergroupID'
-  // noStore()
-  try {
-    const data = await sql<table_Ownergroup>`
-      SELECT *
-      FROM ownergroup
-      WHERE oggid = ${oggid}
       ;
     `
     const row = data.rows[0]
@@ -107,7 +64,7 @@ export async function deleteById(oggid: number): Promise<string> {
 //---------------------------------------------------------------------
 export async function fetchFiltered(query: string, currentPage: number) {
   const functionName = 'fetchFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
@@ -220,7 +177,7 @@ export async function buildWhere_Ownergroup(query: string) {
 //---------------------------------------------------------------------
 export async function fetchPages(query: string) {
   const functionName = 'fetchPages'
-  // noStore()
+  noStore()
   try {
     //
     //  Build Where clause
@@ -296,26 +253,6 @@ export async function updateOwnergroup(
     RETURNING *
   `
     return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Ownergroup data by ID
-//---------------------------------------------------------------------
-export async function fetchOwnergroupByID(oggid: number) {
-  const functionName = 'fetchOwnergroupByID'
-  // noStore()
-  try {
-    const data = await sql<table_Ownergroup>`
-      SELECT *
-      FROM ownergroup
-      WHERE oggid = ${oggid};
-    `
-    const row = data.rows[0]
-    return row
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

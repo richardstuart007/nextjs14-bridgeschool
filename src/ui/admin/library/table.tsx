@@ -19,8 +19,6 @@ interface FormProps {
   gid?: string | null
 }
 export default function Table({ gid }: FormProps) {
-  console.log('gid:', gid)
-
   const [searchValue, setSearchValue] = useState(gid ? `gid:${gid}` : '')
   const [library, setLibrary] = useState<table_Library[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
@@ -48,13 +46,10 @@ export default function Table({ gid }: FormProps) {
   //
   const query = gid ? searchValue : searchParams.get('query') || ''
   const currentPage = gid ? 1 : parseInt(searchParams.get('page') || '1', 10)
-  console.log('query', query)
-  console.log('currentPage', currentPage)
   //----------------------------------------------------------------------------------------------
   // Fetch library on mount and when shouldFetchData changes
   //
   useEffect(() => {
-    console.log('fetchdata on change')
     fetchdata()
     setShouldFetchData(false)
     // eslint-disable-next-line
@@ -63,7 +58,6 @@ export default function Table({ gid }: FormProps) {
   // Fetch total pages on mount and when shouldFetchTotalPages changes
   //
   useEffect(() => {
-    console.log('fetchTotalPages')
     fetchTotalPages()
     setShouldFetchTotalPages(false)
     // eslint-disable-next-line
@@ -73,9 +67,7 @@ export default function Table({ gid }: FormProps) {
   //----------------------------------------------------------------------------------------------
   async function fetchdata() {
     try {
-      console.log('query', query)
       const data = await fetchLibraryFiltered(query, currentPage)
-      console.log('data', data)
       setLibrary(data)
     } catch (error) {
       console.error('Error fetching library:', error)

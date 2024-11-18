@@ -6,26 +6,6 @@ import { writeLogging } from '@/src/lib/tables/logging'
 import { table_Owner } from '@/src/lib/tables/definitions'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Fetch owner table
-//---------------------------------------------------------------------
-export async function fetch_owner() {
-  const functionName = 'fetch_owner'
-  // noStore()
-  try {
-    const data = await sql<table_Owner>`
-      SELECT *
-      FROM owner
-      ;
-    `
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Delete owner and related tables rows by ID
 //---------------------------------------------------------------------
 export async function deleteOwnerById(ooid: number): Promise<string> {
@@ -61,7 +41,7 @@ export async function deleteOwnerById(ooid: number): Promise<string> {
 //---------------------------------------------------------------------
 export async function fetchOwnerFiltered(query: string, currentPage: number) {
   const functionName = 'fetchOwnerFiltered'
-  // noStore()
+  noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
@@ -169,7 +149,7 @@ export async function buildWhere_Owner(query: string) {
 //---------------------------------------------------------------------
 export async function fetchOwnerTotalPages(query: string) {
   const functionName = 'fetchOwnerTotalPages'
-  // noStore()
+  noStore()
   try {
     //
     //  Build Where clause
@@ -237,46 +217,6 @@ export async function updateOwner(ooid: number, oowner: string, otitle: string) 
     RETURNING *
   `
     return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Owner data by ID
-//---------------------------------------------------------------------
-export async function fetchOwnerByID(ooid: number) {
-  const functionName = 'fetchOwnerByID'
-  // noStore()
-  try {
-    const data = await sql<table_Owner>`
-      SELECT *
-      FROM owner
-      WHERE ooid = ${ooid};
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Owner data by Owner
-//---------------------------------------------------------------------
-export async function fetchOwnerByOwner(oowner: string) {
-  const functionName = 'fetchOwnerByOwner'
-  // noStore()
-  try {
-    const data = await sql<table_Owner>`
-      SELECT *
-      FROM owner
-      WHERE oowner = ${oowner};
-    `
-    const row = data.rows[0]
-    return row
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

@@ -10,7 +10,7 @@ interface Props {
 
 export default function MaintPopup({ gid, isOpen, onClose }: Props) {
   return (
-    <Popup isOpen={isOpen} onClose={onClose}>
+    <Popup isOpen={isOpen} onClose={onClose} maxWidth='max-w-screen-2xl'>
       <Form gid={gid} />
     </Popup>
   )

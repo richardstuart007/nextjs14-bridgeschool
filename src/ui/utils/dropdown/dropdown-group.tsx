@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DropdownSearch from '@/src/ui/utils/dropdown/dropdown'
-import { fetch_ownergroup } from '@/src/lib/tables/ownergroup'
+import { table_fetch } from '@/src/lib/tables/table_fetch'
 
 type DropdownProps = {
   selectedOption: string
@@ -21,6 +21,7 @@ export default function DropdownOwnerGroup({
   // Options for the dropdown
   //
   const label = 'Owner Groups'
+  console.log('owner', owner)
   //
   // Fetch options from the database
   //
@@ -36,7 +37,11 @@ export default function DropdownOwnerGroup({
       //
       //  Get the data
       //
-      const rows = await fetch_ownergroup(owner)
+      const fetchParams = {
+        table: 'ownergroup',
+        columnValuePairs: [{ column: 'ogowner', value: owner }]
+      }
+      const rows = await table_fetch(fetchParams)
       //
       // Map rows into the structure expected by DropdownSearch
       //

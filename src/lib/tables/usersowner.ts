@@ -1,6 +1,7 @@
 'use server'
 
 import { sql } from '@vercel/postgres'
+import { unstable_noStore as noStore } from 'next/cache'
 import { table_Usersowner } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/logging'
 
@@ -9,6 +10,7 @@ import { writeLogging } from '@/src/lib/tables/logging'
 // ----------------------------------------------------------------------
 export async function writeUsersOwner(userid: number) {
   const functionName = 'writeUsersOwner'
+  noStore()
   //
   // Insert data into the database
   //
@@ -39,7 +41,7 @@ export async function writeUsersOwner(userid: number) {
 //---------------------------------------------------------------------
 export async function fetch_usersowner(uouid: number) {
   const functionName = 'fetch_usersowner'
-  // noStore()
+  noStore()
   try {
     const data = await sql<table_Usersowner>`
       SELECT *
