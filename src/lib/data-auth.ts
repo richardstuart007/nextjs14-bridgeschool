@@ -6,7 +6,8 @@ import { writeSessions } from '@/src/lib/tables/tableSpecific/sessions'
 import { fetchUserByEmail, writeUser } from '@/src/lib/tables/tableSpecific/users'
 import { writeUsersOwner } from '@/src/lib/tables/tableSpecific/usersowner'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
-import { table_Users, structure_ProviderSignInParams } from '@/src/lib/tables/definitions'
+import { table_Users } from '@/src/lib/tables/definitions'
+import { structure_ProviderSignInParams } from '@/src/lib/tables/structures'
 
 // ----------------------------------------------------------------------
 //  Google Provider

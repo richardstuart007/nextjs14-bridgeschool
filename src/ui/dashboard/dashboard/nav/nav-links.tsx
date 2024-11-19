@@ -11,7 +11,7 @@ import {
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
-import { structure_SessionsInfo } from '@/src/lib/tables/definitions'
+import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 
 interface FormProps {
   sessionInfo: structure_SessionsInfo

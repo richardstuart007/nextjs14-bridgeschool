@@ -5,7 +5,7 @@ import { z } from 'zod'
 import type {
   structure_UserAuth,
   structure_ProviderSignInParams
-} from '@/src/lib/tables/definitions'
+} from '@/src/lib/tables/structures'
 import bcrypt from 'bcryptjs'
 import { fetchUserByEmail, fetchUserPwdByEmail } from '@/src/lib/tables/tableSpecific/users'
 import { providerSignIn } from '@/src/lib/data-auth'

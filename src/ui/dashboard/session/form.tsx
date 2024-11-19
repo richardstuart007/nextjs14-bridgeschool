@@ -5,7 +5,7 @@ import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { sessionUser } from '@/src/ui/dashboard/session/action-session-edit'
 import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
-import { structure_SessionsInfo } from '@/src/lib/tables/definitions'
+import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 
 export default function SessionForm({ id }: { id: number }): JSX.Element {
   //

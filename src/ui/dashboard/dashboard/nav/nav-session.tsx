@@ -1,5 +1,5 @@
 'use client'
-import { structure_SessionsInfo } from '@/src/lib/tables/definitions'
+import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 interface FormProps {
   sessionInfo: structure_SessionsInfo
 }

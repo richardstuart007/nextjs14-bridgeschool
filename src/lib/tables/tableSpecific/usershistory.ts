@@ -3,14 +3,14 @@
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import {
-  table_Usershistory,
   structure_HistoryGroup,
   structure_UsershistoryTopResults,
-  structure_UsershistoryRecentResults,
-  table_Usershistory_New
-} from '@/src/lib/tables/definitions'
+  structure_UsershistoryRecentResults
+} from '@/src/lib/tables/structures'
+import { table_Usershistory } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const HISTORY_ITEMS_PER_PAGE = 10
+
 //---------------------------------------------------------------------
 //  History totals
 //---------------------------------------------------------------------
@@ -311,6 +311,7 @@ ORDER BY r_uid;
 //---------------------------------------------------------------------
 //  Write User History
 //---------------------------------------------------------------------
+type table_Usershistory_New = Omit<table_Usershistory, 'r_hid'>
 export async function writeUsershistory(table_Usershistory_New: table_Usershistory_New) {
   const functionName = 'writeUsershistory'
   try {

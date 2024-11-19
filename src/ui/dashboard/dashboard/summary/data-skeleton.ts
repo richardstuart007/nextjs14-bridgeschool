@@ -1,7 +1,7 @@
 import {
   structure_UsershistoryTopResults,
   structure_UsershistoryRecentResults
-} from '@/src/lib/tables/definitions'
+} from '@/src/lib/tables/structures'
 //---------------------------------------------------------------------
 //  Top results data
 //---------------------------------------------------------------------

@@ -7,7 +7,7 @@ import { StackedBarChart } from './graphs'
 import {
   structure_UsershistoryTopResults,
   structure_UsershistoryRecentResults
-} from '@/src/lib/tables/definitions'
+} from '@/src/lib/tables/structures'
 //
 //  Graph Interfaces
 //

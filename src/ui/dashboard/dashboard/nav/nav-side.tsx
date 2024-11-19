@@ -8,7 +8,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useUserContext } from '@/UserContext'
 import { getAuthSession } from '@/src/lib/data-auth'
 import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
-import { structure_SessionsInfo } from '@/src/lib/tables/definitions'
+import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 import { logout } from '@/src/ui/utils/user-logout'
 
 export default function NavSide() {

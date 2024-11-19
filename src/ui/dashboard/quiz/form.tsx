@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { table_Questions, table_Usershistory_New } from '@/src/lib/tables/definitions'
+import { table_Questions, table_Usershistory } from '@/src/lib/tables/definitions'
 import QuizQuestion from '@/src/ui/dashboard/quiz-question/quiz-question'
 import QuizBidding from '@/src/ui/dashboard/quiz-question/quiz-bidding/QuizBidding'
 import QuizHands from '@/src/ui/dashboard/quiz-question/quiz-hands/QuizHands'
@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation'
 import { writeUsershistory } from '@/src/lib/tables/tableSpecific/usershistory'
 import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
 import { useUserContext } from '@/UserContext'
+
+type table_Usershistory_New = Omit<table_Usershistory, 'r_hid'>
 
 interface QuestionsFormProps {
   questions: table_Questions[]
@@ -149,6 +151,7 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
     //
     // Create a NewUsersHistoryTable object
     //
+
     const table_Usershistory_New: table_Usershistory_New = {
       r_datetime: new Date().toISOString().replace('T', ' ').replace('Z', '').substring(0, 23),
       r_owner: question.qowner,

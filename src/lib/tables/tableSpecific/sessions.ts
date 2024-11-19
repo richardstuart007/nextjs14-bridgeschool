@@ -2,7 +2,7 @@
 
 import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { table_Sessions, structure_SessionsInfo } from '@/src/lib/tables/definitions'
+import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import { deleteCookie, getCookieSessionId } from '@/src/lib/data-cookie'
 //---------------------------------------------------------------------

@@ -4,7 +4,7 @@ import {
   fetchRecentResultsData5
 } from '@/src/ui/dashboard/dashboard/summary/data-skeleton'
 import { StackedBarChart } from './graphs'
-import { structure_UsershistoryRecentResults } from '@/src/lib/tables/definitions'
+import { structure_UsershistoryRecentResults } from '@/src/lib/tables/structures'
 //-----------------------------------------------------------------------------
 //  Graph skeleton
 //--------------------------------------------------------------------------------

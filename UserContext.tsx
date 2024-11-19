@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useState, useContext, ReactNode } from 'react'
-import { structure_ContextInfo } from '@/src/lib/tables/definitions'
+import { structure_ContextInfo } from '@/src/lib/tables/structures'
 //
 // Define the context type
 //
