@@ -3,7 +3,7 @@
 import { table_Ownergroup } from '@/src/lib/tables/definitions'
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
 //  Fetch owner group table
@@ -22,37 +22,6 @@ export async function fetch_ownergroup1(ogowner: string, oggroup: string) {
     `
     const row = data.rows[0]
     return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Delete ownergroup and related tables rows by ID
-//---------------------------------------------------------------------
-export async function deleteById(oggid: number): Promise<string> {
-  const functionName = 'deleteById'
-  noStore()
-  //
-  //  Counts
-  //
-  const deletedCounts = {
-    ownergroup: 0
-  }
-
-  try {
-    const userDeleteResult = await sql`DELETE FROM ownergroup WHERE oggid=${oggid}`
-    deletedCounts.ownergroup = userDeleteResult.rowCount ?? 0
-    //
-    // Prepare a summary message
-    //
-    const summaryMessage = `
-      Deleted Records:
-      ownergroup: ${deletedCounts.ownergroup}
-    `
-    console.log(summaryMessage)
-    return summaryMessage
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

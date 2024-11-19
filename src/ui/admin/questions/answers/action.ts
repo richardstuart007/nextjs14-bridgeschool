@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { table_update } from '@/src/lib/tables/table_update'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 // ----------------------------------------------------------------------
 //  Update Setup
 // ----------------------------------------------------------------------

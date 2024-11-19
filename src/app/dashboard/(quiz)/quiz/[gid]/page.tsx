@@ -1,6 +1,6 @@
 import Form from '@/src/ui/dashboard/quiz/form'
 import Breadcrumbs from '@/src/ui/utils/breadcrumbs'
-import { fetchQuestionsByGid } from '@/src/lib/tables/questions'
+import { fetchQuestionsByGid } from '@/src/lib/tables/tableSpecific/questions'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { table_Questions } from '@/src/lib/tables/definitions'

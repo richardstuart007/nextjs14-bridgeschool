@@ -6,10 +6,11 @@ import UserEditPopup from '@/src/ui/admin/users/useredit/userEditPopup'
 import PwdEditPopup from '@/src/ui/admin/users/pwdedit/pwdEditPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Users } from '@/src/lib/tables/definitions'
-import { deleteByUid, fetchUsersFiltered, fetchUsersTotalPages } from '@/src/lib/tables/users'
+import { fetchUsersFiltered, fetchUsersTotalPages } from '@/src/lib/tables/tableSpecific/users'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
+import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 
 export default function Table() {
   const placeholder = 'uid:23 name:richard email:richardstuart007@hotmail.com fedid:1234'
@@ -23,7 +24,6 @@ export default function Table() {
   const [users, setUsers] = useState<table_Users[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
-  const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<table_Users | null>(null)
@@ -42,6 +42,8 @@ export default function Table() {
       try {
         const fetchedUsers = await fetchUsersFiltered(query, currentPage)
         setUsers(fetchedUsers)
+        const fetchedTotalPages = await fetchUsersTotalPages(query)
+        setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching users:', error)
       }
@@ -49,21 +51,6 @@ export default function Table() {
     fetchUsers()
     setShouldFetchData(false)
   }, [query, currentPage, shouldFetchData])
-  //----------------------------------------------------------------------------------------------
-  // Fetch total pages on mount and when shouldFetchTotalPages changes
-  //----------------------------------------------------------------------------------------------
-  useEffect(() => {
-    const fetchTotalPages = async () => {
-      try {
-        const fetchedTotalPages = await fetchUsersTotalPages(query)
-        setTotalPages(fetchedTotalPages)
-      } catch (error) {
-        console.error('Error fetching total pages:', error)
-      }
-    }
-    fetchTotalPages()
-    setShouldFetchTotalPages(false)
-  }, [query, shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit User
   //----------------------------------------------------------------------------------------------
@@ -97,18 +84,36 @@ export default function Table() {
       subTitle: `Are you sure you want to delete (${user.u_uid}) : ${user.u_name}?`,
       onConfirm: async () => {
         //
-        // Call the server function to delete the user
+        //  User ID
         //
-        const message = await deleteByUid(user.u_uid)
+        const uid = user.u_uid
         //
-        // Log the returned message
+        // Call the server function to delete
         //
-        console.log(message)
+        const data_usershistory = await table_delete({
+          table: 'usershistory',
+          whereColumnValuePairs: [{ column: 'r_uid', value: String(uid) }]
+        })
+        const data_sessions = await table_delete({
+          table: 'sessions',
+          whereColumnValuePairs: [{ column: 's_uid', value: String(uid) }]
+        })
+        const data_usersowner = await table_delete({
+          table: 'usersowner',
+          whereColumnValuePairs: [{ column: 'uouid', value: String(uid) }]
+        })
+        const data_userspwd = await table_delete({
+          table: 'userspwd',
+          whereColumnValuePairs: [{ column: 'upuid', value: String(uid) }]
+        })
+        const data_users = await table_delete({
+          table: 'users',
+          whereColumnValuePairs: [{ column: 'u_uid', value: String(uid) }]
+        })
         //
         //  Reload the page
         //
         setShouldFetchData(true)
-        setShouldFetchTotalPages(true)
         //
         //  Reset dialog
         //

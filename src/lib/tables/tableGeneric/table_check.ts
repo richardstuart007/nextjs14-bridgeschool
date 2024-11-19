@@ -2,7 +2,7 @@
 
 import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 // Define a type for the column-value pair
 //
@@ -44,7 +44,6 @@ export async function table_check(
       // Construct and run the query with the dynamically built WHERE clause
       //
       const sqlQuery = `SELECT 1 FROM ${table} WHERE ${whereClause} LIMIT 1`
-      // console.log('sqlQuery', sqlQuery)
       const data = await client.query(sqlQuery)
       //
       // Check if the keys exist
@@ -53,8 +52,7 @@ export async function table_check(
         console.log(`Keys exist in ${table} with conditions: ${whereClause}`)
         return true
       }
-
-      console.log(`Keys do not exist in ${table} with conditions: ${whereClause}`)
+      // console.log(`Keys do not exist in ${table} with conditions: ${whereClause}`)
     }
 
     console.log(`None of the keys exist as foreign keys in any table`)

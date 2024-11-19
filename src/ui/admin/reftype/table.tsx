@@ -6,14 +6,14 @@ import MaintPopup from '@/src/ui/admin/reftype/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Reftype } from '@/src/lib/tables/definitions'
 import {
-  deleteReftypeById,
   fetchReftypeFiltered,
   fetchReftypeTotalPages
-} from '@/src/lib/tables/reftype'
+} from '@/src/lib/tables/tableSpecific/reftype'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { table_check } from '@/src/lib/tables/table_check'
+import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
+import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 
 export default function Table() {
   const placeholder = 'rid:1  type:Richard title:Richard'
@@ -27,7 +27,6 @@ export default function Table() {
   const [record, setrecord] = useState<table_Reftype[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
-  const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
@@ -47,6 +46,8 @@ export default function Table() {
       try {
         const data = await fetchReftypeFiltered(query, currentPage)
         setrecord(data)
+        const fetchedTotalPages = await fetchReftypeTotalPages(query)
+        setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching reftype:', error)
       }
@@ -55,22 +56,6 @@ export default function Table() {
     setShouldFetchData(false)
     // eslint-disable-next-line
   }, [currentPage, shouldFetchData])
-  //----------------------------------------------------------------------------------------------
-  // Fetch total pages on mount and when shouldFetchTotalPages changes
-  //----------------------------------------------------------------------------------------------
-  useEffect(() => {
-    const fetchTotalPages = async () => {
-      try {
-        const fetchedTotalPages = await fetchReftypeTotalPages(query)
-        setTotalPages(fetchedTotalPages)
-      } catch (error) {
-        console.error('Error fetching total pages:', error)
-      }
-    }
-    fetchTotalPages()
-    setShouldFetchTotalPages(false)
-    // eslint-disable-next-line
-  }, [shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -129,18 +114,17 @@ export default function Table() {
           return
         }
         //
-        // Call the server function to delete the reftype
+        // Call the server function to delete
         //
-        const message = await deleteReftypeById(reftype.rtrid)
-        //
-        // Log the returned message
-        //
-        console.log(message)
+        const Params = {
+          table: 'reftype',
+          whereColumnValuePairs: [{ column: 'rtrid', value: String(reftype.rtrid) }]
+        }
+        const data = await table_delete(Params)
         //
         //  Reload the page
         //
         setShouldFetchData(true)
-        setShouldFetchTotalPages(true)
         //
         //  Reset dialog
         //

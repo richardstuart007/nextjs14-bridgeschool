@@ -4,7 +4,7 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { sessionUser } from '@/src/ui/dashboard/session/action-session-edit'
-import { fetchSessionInfo } from '@/src/lib/tables/sessions'
+import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
 import { structure_SessionsInfo } from '@/src/lib/tables/definitions'
 
 export default function SessionForm({ id }: { id: number }): JSX.Element {

@@ -5,11 +5,12 @@ import { useState, useEffect } from 'react'
 import MaintPopup from '@/src/ui/admin/who/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Who } from '@/src/lib/tables/definitions'
-import { deleteWhoById, fetchWhoFiltered, fetchWhoTotalPages } from '@/src/lib/tables/who'
+import { fetchWhoFiltered, fetchWhoTotalPages } from '@/src/lib/tables/tableSpecific/who'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { table_check } from '@/src/lib/tables/table_check'
+import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
+import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 
 export default function Table() {
   const placeholder = 'oid:1 who:Richard title:Richard'
@@ -23,7 +24,6 @@ export default function Table() {
   const [who, setwho] = useState<table_Who[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
-  const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
@@ -43,6 +43,8 @@ export default function Table() {
       try {
         const data = await fetchWhoFiltered(query, currentPage)
         setwho(data)
+        const fetchedTotalPages = await fetchWhoTotalPages(query)
+        setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching who:', error)
       }
@@ -51,22 +53,6 @@ export default function Table() {
     setShouldFetchData(false)
     // eslint-disable-next-line
   }, [currentPage, shouldFetchData])
-  //----------------------------------------------------------------------------------------------
-  // Fetch total pages on mount and when shouldFetchTotalPages changes
-  //----------------------------------------------------------------------------------------------
-  useEffect(() => {
-    const fetchTotalPages = async () => {
-      try {
-        const fetchedTotalPages = await fetchWhoTotalPages(query)
-        setTotalPages(fetchedTotalPages)
-      } catch (error) {
-        console.error('Error fetching total pages:', error)
-      }
-    }
-    fetchTotalPages()
-    setShouldFetchTotalPages(false)
-    // eslint-disable-next-line
-  }, [shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -125,18 +111,17 @@ export default function Table() {
           return
         }
         //
-        // Call the server function to delete the who
+        // Call the server function to delete
         //
-        const message = await deleteWhoById(who.wwid)
-        //
-        // Log the returned message
-        //
-        console.log(message)
+        const Params = {
+          table: 'who',
+          whereColumnValuePairs: [{ column: 'wwid', value: String(who.wwid) }]
+        }
+        const data = await table_delete(Params)
         //
         //  Reload the page
         //
         setShouldFetchData(true)
-        setShouldFetchTotalPages(true)
         //
         //  Reset dialog
         //

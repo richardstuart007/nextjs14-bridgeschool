@@ -2,34 +2,27 @@
 
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { table_Who } from '@/src/lib/tables/definitions'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { table_Questions } from '@/src/lib/tables/definitions'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Delete who and related tables rows by ID
+//  Questions data by ID
 //---------------------------------------------------------------------
-export async function deleteWhoById(wwid: number): Promise<string> {
-  const functionName = 'deleteWhoById'
+export async function fetchQuestionsByGid(qgid: number) {
+  const functionName = 'fetchQuestionsByGid'
   noStore()
-  //
-  //  Counts
-  //
-  const deletedCounts = {
-    who: 0
-  }
-
   try {
-    const userDeleteResult = await sql`DELETE FROM who WHERE wwid=${wwid}`
-    deletedCounts.who = userDeleteResult.rowCount ?? 0
-    //
-    // Prepare a summary message
-    //
-    const summaryMessage = `
-      Deleted Records:
-      who: ${deletedCounts.who}
+    const data = await sql<table_Questions>`
+      SELECT *
+      FROM questions
+      WHERE qgid = ${qgid}
+      ORDER BY qgid, qseq;
     `
-    console.log(summaryMessage)
-    return summaryMessage
+    //
+    //  Return rows
+    //
+    const rows = data.rows
+    return rows
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
@@ -37,31 +30,31 @@ export async function deleteWhoById(wwid: number): Promise<string> {
   }
 }
 //---------------------------------------------------------------------
-//  Who data
+//  questions data
 //---------------------------------------------------------------------
-export async function fetchWhoFiltered(query: string, currentPage: number) {
-  const functionName = 'fetchWhoFiltered'
+export async function fetchQuestionsFiltered(query: string, currentPage: number) {
+  const functionName = 'fetchQuestionsFiltered'
   noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
     //  Build Where clause
     //
-    let sqlWhere = await buildWhere_Who(query)
+    let sqlWhere = await buildWhere_questions(query)
     //
     //  Build Query Statement
     //
     const sqlQuery = `SELECT *
-    FROM who
+    FROM questions
      ${sqlWhere}
-      ORDER BY wwho
+      ORDER BY qowner, qgroup, qseq
       LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
      `
     //
     //  Run SQL
     //
     const client = await db.connect()
-    const data = await client.query<table_Who>(sqlQuery)
+    const data = await client.query<table_Questions>(sqlQuery)
     client.release()
     //
     //  Return results
@@ -75,9 +68,9 @@ export async function fetchWhoFiltered(query: string, currentPage: number) {
   }
 }
 //---------------------------------------------------------------------
-//  Who where clause
+//  questions where clause
 //---------------------------------------------------------------------
-export async function buildWhere_Who(query: string) {
+export async function buildWhere_questions(query: string) {
   //
   //  Empty search
   //
@@ -85,9 +78,9 @@ export async function buildWhere_Who(query: string) {
   //
   // Initialize variables
   //
-  let wid = 0
-  let title = ''
-  let who = ''
+  let qid = 0
+  let group = ''
+  let owner = ''
   //
   // Split the search query into parts based on spaces
   //
@@ -106,25 +99,25 @@ export async function buildWhere_Who(query: string) {
       // Process each part
       //
       switch (key) {
-        case 'wid':
+        case 'qid':
           if (!isNaN(Number(value))) {
-            wid = parseInt(value, 10)
+            qid = parseInt(value, 10)
           }
           break
-        case 'title':
-          title = value
+        case 'group':
+          group = value
           break
-        case 'who':
-          who = value
+        case 'owner':
+          owner = value
           break
         default:
-          who = value
+          owner = value
           break
       }
     } else {
-      // Default to 'who' if no key is provided
-      if (who === '') {
-        who = part
+      // Default to 'owner' if no key is provided
+      if (owner === '') {
+        owner = part
       }
     }
   })
@@ -132,9 +125,9 @@ export async function buildWhere_Who(query: string) {
   // Add conditions for each variable if not empty or zero
   //
   let whereClause = ''
-  if (wid !== 0) whereClause += `wwid = ${wid} AND `
-  if (title !== '') whereClause += `wtitle ILIKE '%${title}%' AND `
-  if (who !== '') whereClause += `wwho ILIKE '%${who}%' AND `
+  if (qid !== 0) whereClause += `qqid = ${qid} AND `
+  if (group !== '') whereClause += `qgroup ILIKE '%${group}%' AND `
+  if (owner !== '') whereClause += `qowner ILIKE '%${owner}%' AND `
   //
   // Remove the trailing 'AND' if there are conditions
   //
@@ -145,21 +138,21 @@ export async function buildWhere_Who(query: string) {
   return whereClauseUpdate
 }
 //---------------------------------------------------------------------
-//  Who totals
+//  questions totals
 //---------------------------------------------------------------------
-export async function fetchWhoTotalPages(query: string) {
-  const functionName = 'fetchWhoTotalPages'
+export async function fetchQuestionsTotalPages(query: string) {
+  const functionName = 'fetchQuestionsTotalPages'
   noStore()
   try {
     //
     //  Build Where clause
     //
-    let sqlWhere = await buildWhere_Who(query)
+    let sqlWhere = await buildWhere_questions(query)
     //
     //  Build Query Statement
     //
     const sqlQuery = `SELECT COUNT(*)
-    FROM who
+    FROM questions
     ${sqlWhere}`
     //
     //  Run SQL
@@ -180,18 +173,18 @@ export async function fetchWhoTotalPages(query: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Write Who
+//  Write questions
 //---------------------------------------------------------------------
-export async function writeWho(wwho: string, wtitle: string) {
-  const functionName = 'writeWho'
+export async function writeowner(qowner: string, qgroup: string) {
+  const functionName = 'writeowner'
   try {
     const { rows } = await sql`
-    INSERT INTO who (
-      wwho,
-      wtitle
+    INSERT INTO questions (
+      qowner,
+      qgroup
     ) VALUES (
-      ${wwho},
-      ${wtitle}
+      ${qowner},
+      ${qgroup}
     )
     RETURNING *
   `
@@ -203,20 +196,42 @@ export async function writeWho(wwho: string, wtitle: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Update Who
+//  Update questions
 //---------------------------------------------------------------------
-export async function updateWho(wwid: number, wwho: string, wtitle: string) {
-  const functionName = 'updateWho'
+export async function updatequestions(qqid: number, qowner: string, qgroup: string) {
+  const functionName = 'updatequestions'
   try {
     const { rows } = await sql`
-    UPDATE who
+    UPDATE questions
     SET
-      wwho = ${wwho},
-      wtitle = ${wtitle}
-    WHERE wwid = ${wwid}
+      qowner = ${qowner},
+      qgroup = ${qgroup}
+    WHERE qqid = ${qqid}
     RETURNING *
   `
     return rows[0]
+  } catch (error) {
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
+}
+//---------------------------------------------------------------------
+//  Get next qseq
+//---------------------------------------------------------------------
+export async function getNextSeq(qowner: string, qgroup: string) {
+  const functionName = 'getNextSeq'
+  try {
+    const { rows } = await sql`
+    SELECT COALESCE(MAX(qseq) + 1, 1) AS next_qseq
+    FROM questions
+    WHERE qowner = ${qowner}
+      AND qgroup = ${qgroup}
+  ;
+  `
+    console.log(rows)
+    const next_qseq = rows[0].next_qseq
+    return next_qseq
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

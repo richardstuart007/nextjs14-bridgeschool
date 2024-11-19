@@ -3,7 +3,7 @@
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_LibraryGroup } from '@/src/lib/tables/definitions'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const LIBRARY_ITEMS_PER_PAGE = 10
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
@@ -356,37 +356,6 @@ export async function buildWhere_Library(query: string) {
     whereClauseUpdate = `WHERE ${whereClause.slice(0, -5)}`
   }
   return whereClauseUpdate
-}
-//---------------------------------------------------------------------
-//  Delete Library and related tables rows by ID
-//---------------------------------------------------------------------
-export async function deleteLibraryById(lrlid: number): Promise<string> {
-  const functionName = 'deleteLibraryById'
-  noStore()
-  //
-  //  Counts
-  //
-  const deletedCounts = {
-    library: 0
-  }
-
-  try {
-    const userDeleteResult = await sql`DELETE FROM library WHERE lrlid=${lrlid}`
-    deletedCounts.library = userDeleteResult.rowCount ?? 0
-    //
-    // Prepare a summary message
-    //
-    const summaryMessage = `
-      Deleted Records:
-      Library: ${deletedCounts.library}
-    `
-    console.log(summaryMessage)
-    return summaryMessage
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
 }
 //---------------------------------------------------------------------
 //  Write Library

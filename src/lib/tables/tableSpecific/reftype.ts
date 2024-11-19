@@ -3,39 +3,8 @@
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_Reftype } from '@/src/lib/tables/definitions'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const MAINT_ITEMS_PER_PAGE = 15
-//---------------------------------------------------------------------
-//  Delete  and related tables rows by ID
-//---------------------------------------------------------------------
-export async function deleteReftypeById(rtrid: number): Promise<string> {
-  const functionName = 'deleteReftypeById'
-  noStore()
-  //
-  //  Counts
-  //
-  const deletedCounts = {
-    reftype: 0
-  }
-
-  try {
-    const userDeleteResult = await sql`DELETE FROM reftype WHERE rtrid=${rtrid}`
-    deletedCounts.reftype = userDeleteResult.rowCount ?? 0
-    //
-    // Prepare a summary message
-    //
-    const summaryMessage = `
-      Deleted Records:
-      reftype: ${deletedCounts.reftype}
-    `
-    console.log(summaryMessage)
-    return summaryMessage
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
 //---------------------------------------------------------------------
 //  reftype data
 //---------------------------------------------------------------------

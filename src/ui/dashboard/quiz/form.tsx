@@ -7,8 +7,8 @@ import QuizHands from '@/src/ui/dashboard/quiz-question/quiz-hands/QuizHands'
 import QuizChoice from './quiz-choice'
 import { QuizSubmit } from '@/src/ui/dashboard/quiz/buttons'
 import { useRouter } from 'next/navigation'
-import { writeUsershistory } from '@/src/lib/tables/usershistory'
-import { fetchSessionInfo } from '@/src/lib/tables/sessions'
+import { writeUsershistory } from '@/src/lib/tables/tableSpecific/usershistory'
+import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
 import { useUserContext } from '@/UserContext'
 
 interface QuestionsFormProps {

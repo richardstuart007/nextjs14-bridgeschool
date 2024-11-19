@@ -6,14 +6,14 @@ import MaintPopup from '@/src/ui/admin/library/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Library } from '@/src/lib/tables/definitions'
 import {
-  deleteLibraryById,
   fetchLibraryFiltered,
   fetchLibraryTotalPages
-} from '@/src/lib/tables/library'
+} from '@/src/lib/tables/tableSpecific/library'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
 import SearchWithState from '@/src/ui/utils/search/search-withState'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
+import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 
 interface FormProps {
   gid?: string | null
@@ -23,7 +23,6 @@ export default function Table({ gid }: FormProps) {
   const [library, setLibrary] = useState<table_Library[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
-  const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
@@ -55,33 +54,16 @@ export default function Table({ gid }: FormProps) {
     // eslint-disable-next-line
   }, [currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
-  // Fetch total pages on mount and when shouldFetchTotalPages changes
-  //
-  useEffect(() => {
-    fetchTotalPages()
-    setShouldFetchTotalPages(false)
-    // eslint-disable-next-line
-  }, [shouldFetchTotalPages])
-  //----------------------------------------------------------------------------------------------
   // fetchdata
   //----------------------------------------------------------------------------------------------
   async function fetchdata() {
     try {
       const data = await fetchLibraryFiltered(query, currentPage)
       setLibrary(data)
-    } catch (error) {
-      console.error('Error fetching library:', error)
-    }
-  }
-  //----------------------------------------------------------------------------------------------
-  // Fetch total pages
-  //----------------------------------------------------------------------------------------------
-  async function fetchTotalPages() {
-    try {
       const fetchedTotalPages = await fetchLibraryTotalPages(query)
       setTotalPages(fetchedTotalPages)
     } catch (error) {
-      console.error('Error fetching total pages:', error)
+      console.error('Error fetching library:', error)
     }
   }
   //----------------------------------------------------------------------------------------------
@@ -122,18 +104,18 @@ export default function Table({ gid }: FormProps) {
       subTitle: `Are you sure you want to delete (${library.lrlid}) : ${library.lrdesc}?`,
       onConfirm: async () => {
         //
-        // Call the server function to delete the library
+        // Call the server function to delete
         //
-        const message = await deleteLibraryById(library.lrlid)
-        //
-        // Log the returned message
-        //
-        console.log(message)
+        const lrlidString = String(library.lrlid)
+        const Params = {
+          table: 'library',
+          whereColumnValuePairs: [{ column: 'lrlid', value: lrlidString }]
+        }
+        const data = await table_delete(Params)
         //
         //  Reload the page
         //
         setShouldFetchData(true)
-        setShouldFetchTotalPages(true)
         //
         //  Reset dialog
         //

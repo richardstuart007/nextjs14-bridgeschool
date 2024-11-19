@@ -4,7 +4,7 @@ import Table from '@/src/ui/dashboard/history/table'
 import { lusitana } from '@/src/fonts'
 import { TableSkeleton } from '@/src/ui/dashboard/history/skeleton'
 import { Suspense } from 'react'
-import { fetchHistoryTotalPages } from '@/src/lib/tables/usershistory'
+import { fetchHistoryTotalPages } from '@/src/lib/tables/tableSpecific/usershistory'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {

@@ -2,66 +2,35 @@
 
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { writeLogging } from '@/src/lib/tables/logging'
-import { table_Owner } from '@/src/lib/tables/definitions'
+import { table_Who } from '@/src/lib/tables/definitions'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Delete owner and related tables rows by ID
+//  Who data
 //---------------------------------------------------------------------
-export async function deleteOwnerById(ooid: number): Promise<string> {
-  const functionName = 'deleteOwnerById'
-  noStore()
-  //
-  //  Counts
-  //
-  const deletedCounts = {
-    owner: 0
-  }
-
-  try {
-    const userDeleteResult = await sql`DELETE FROM owner WHERE ooid=${ooid}`
-    deletedCounts.owner = userDeleteResult.rowCount ?? 0
-    //
-    // Prepare a summary message
-    //
-    const summaryMessage = `
-      Deleted Records:
-      owner: ${deletedCounts.owner}
-    `
-    console.log(summaryMessage)
-    return summaryMessage
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Owner data
-//---------------------------------------------------------------------
-export async function fetchOwnerFiltered(query: string, currentPage: number) {
-  const functionName = 'fetchOwnerFiltered'
+export async function fetchWhoFiltered(query: string, currentPage: number) {
+  const functionName = 'fetchWhoFiltered'
   noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
     //  Build Where clause
     //
-    let sqlWhere = await buildWhere_Owner(query)
+    let sqlWhere = await buildWhere_Who(query)
     //
     //  Build Query Statement
     //
     const sqlQuery = `SELECT *
-    FROM owner
+    FROM who
      ${sqlWhere}
-      ORDER BY oowner
+      ORDER BY wwho
       LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
      `
     //
     //  Run SQL
     //
     const client = await db.connect()
-    const data = await client.query<table_Owner>(sqlQuery)
+    const data = await client.query<table_Who>(sqlQuery)
     client.release()
     //
     //  Return results
@@ -75,9 +44,9 @@ export async function fetchOwnerFiltered(query: string, currentPage: number) {
   }
 }
 //---------------------------------------------------------------------
-//  Owner where clause
+//  Who where clause
 //---------------------------------------------------------------------
-export async function buildWhere_Owner(query: string) {
+export async function buildWhere_Who(query: string) {
   //
   //  Empty search
   //
@@ -85,9 +54,9 @@ export async function buildWhere_Owner(query: string) {
   //
   // Initialize variables
   //
-  let oid = 0
+  let wid = 0
   let title = ''
-  let owner = ''
+  let who = ''
   //
   // Split the search query into parts based on spaces
   //
@@ -106,25 +75,25 @@ export async function buildWhere_Owner(query: string) {
       // Process each part
       //
       switch (key) {
-        case 'oid':
+        case 'wid':
           if (!isNaN(Number(value))) {
-            oid = parseInt(value, 10)
+            wid = parseInt(value, 10)
           }
           break
         case 'title':
           title = value
           break
-        case 'owner':
-          owner = value
+        case 'who':
+          who = value
           break
         default:
-          owner = value
+          who = value
           break
       }
     } else {
-      // Default to 'owner' if no key is provided
-      if (owner === '') {
-        owner = part
+      // Default to 'who' if no key is provided
+      if (who === '') {
+        who = part
       }
     }
   })
@@ -132,9 +101,9 @@ export async function buildWhere_Owner(query: string) {
   // Add conditions for each variable if not empty or zero
   //
   let whereClause = ''
-  if (oid !== 0) whereClause += `ooid = ${oid} AND `
-  if (title !== '') whereClause += `otitle ILIKE '%${title}%' AND `
-  if (owner !== '') whereClause += `oowner ILIKE '%${owner}%' AND `
+  if (wid !== 0) whereClause += `wwid = ${wid} AND `
+  if (title !== '') whereClause += `wtitle ILIKE '%${title}%' AND `
+  if (who !== '') whereClause += `wwho ILIKE '%${who}%' AND `
   //
   // Remove the trailing 'AND' if there are conditions
   //
@@ -145,21 +114,21 @@ export async function buildWhere_Owner(query: string) {
   return whereClauseUpdate
 }
 //---------------------------------------------------------------------
-//  Owner totals
+//  Who totals
 //---------------------------------------------------------------------
-export async function fetchOwnerTotalPages(query: string) {
-  const functionName = 'fetchOwnerTotalPages'
+export async function fetchWhoTotalPages(query: string) {
+  const functionName = 'fetchWhoTotalPages'
   noStore()
   try {
     //
     //  Build Where clause
     //
-    let sqlWhere = await buildWhere_Owner(query)
+    let sqlWhere = await buildWhere_Who(query)
     //
     //  Build Query Statement
     //
     const sqlQuery = `SELECT COUNT(*)
-    FROM owner
+    FROM who
     ${sqlWhere}`
     //
     //  Run SQL
@@ -180,18 +149,18 @@ export async function fetchOwnerTotalPages(query: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Write Owner
+//  Write Who
 //---------------------------------------------------------------------
-export async function writeOwner(oowner: string, otitle: string) {
-  const functionName = 'writeOwner'
+export async function writeWho(wwho: string, wtitle: string) {
+  const functionName = 'writeWho'
   try {
     const { rows } = await sql`
-    INSERT INTO owner (
-      oowner,
-      otitle
+    INSERT INTO who (
+      wwho,
+      wtitle
     ) VALUES (
-      ${oowner},
-      ${otitle}
+      ${wwho},
+      ${wtitle}
     )
     RETURNING *
   `
@@ -203,17 +172,17 @@ export async function writeOwner(oowner: string, otitle: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Update Owner
+//  Update Who
 //---------------------------------------------------------------------
-export async function updateOwner(ooid: number, oowner: string, otitle: string) {
-  const functionName = 'updateOwner'
+export async function updateWho(wwid: number, wwho: string, wtitle: string) {
+  const functionName = 'updateWho'
   try {
     const { rows } = await sql`
-    UPDATE owner
+    UPDATE who
     SET
-      oowner = ${oowner},
-      otitle = ${otitle}
-    WHERE ooid = ${ooid}
+      wwho = ${wwho},
+      wtitle = ${wtitle}
+    WHERE wwid = ${wwid}
     RETURNING *
   `
     return rows[0]

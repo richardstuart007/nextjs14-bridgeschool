@@ -9,7 +9,7 @@ import {
   structure_UsershistoryRecentResults,
   table_Usershistory_New
 } from '@/src/lib/tables/definitions'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const HISTORY_ITEMS_PER_PAGE = 10
 //---------------------------------------------------------------------
 //  History totals

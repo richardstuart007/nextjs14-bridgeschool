@@ -1,5 +1,5 @@
 import { BookQuiz, QuizReview } from '@/src/ui/utils/link-buttons'
-import { fetchHistoryFiltered } from '@/src/lib/tables/usershistory'
+import { fetchHistoryFiltered } from '@/src/lib/tables/tableSpecific/usershistory'
 
 export default async function HistoryTable({
   query,

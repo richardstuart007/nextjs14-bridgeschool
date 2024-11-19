@@ -3,7 +3,7 @@
 import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_Usersowner } from '@/src/lib/tables/definitions'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 
 // ----------------------------------------------------------------------
 //  Write UserOwner records

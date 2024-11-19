@@ -1,6 +1,6 @@
 'use server'
 
-import { table_update } from '@/src/lib/tables/table_update'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 //
 //  Errors and Messages
 //

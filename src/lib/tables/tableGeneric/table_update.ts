@@ -2,7 +2,7 @@
 
 import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 // Column-value pairs
 //
@@ -30,34 +30,32 @@ export async function table_update({
   // Connect to the database
   //
   const client = await db.connect()
-
+  //
+  // Create the SET clause for the update statement
+  //
+  const setClause = columnValuePairs
+    .map(({ column, value }) => {
+      return `${column} = '${value}'`
+    })
+    .join(', ')
+  //
+  // Create the WHERE clause from the key-value pairs
+  //
+  const whereClause = whereColumnValuePairs
+    .map(({ column, value }) => {
+      return `${column} = '${value}'`
+    })
+    .join(' AND ')
+  //
+  // Construct the SQL UPDATE query
+  //
   try {
-    //
-    // Create the SET clause for the update statement
-    //
-    const setClause = columnValuePairs
-      .map(({ column, value }) => {
-        return `${column} = '${value}'`
-      })
-      .join(', ')
-    //
-    // Create the WHERE clause from the key-value pairs
-    //
-    const whereClause = whereColumnValuePairs
-      .map(({ column, value }) => {
-        return `${column} = '${value}'`
-      })
-      .join(' AND ')
-    //
-    // Construct the SQL UPDATE query
-    //
     const sqlQuery = `
       UPDATE ${table}
       SET ${setClause}
       WHERE ${whereClause}
       RETURNING *;
     `
-    // console.log('sqlQuery', sqlQuery)
     //
     // Run the query
     //
@@ -67,11 +65,11 @@ export async function table_update({
     //
     return data.rows
   } catch (error) {
-    console.error(`${functionName}: ${table}`, error)
-    writeLogging(functionName, `${table} Function failed`)
-    throw new Error(`${functionName}: Function failed`)
+    const errorMessage = `Table(${table}) WHERE(${whereClause}) FAILED`
+    console.error(`${functionName}: ${errorMessage}`, error)
+    writeLogging(functionName, errorMessage)
+    throw new Error(`functionName, ${errorMessage}`)
   } finally {
-    // Release the database connection
     client.release()
   }
 }

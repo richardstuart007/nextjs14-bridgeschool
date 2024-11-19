@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { updateOwnergroup, writeOwnergroup } from '@/src/lib/tables/ownergroup'
+import { updateOwnergroup, writeOwnergroup } from '@/src/lib/tables/tableSpecific/ownergroup'
 import validateOwnergroup from '@/src/ui/admin/ownergroup/maint-validate'
 // ----------------------------------------------------------------------
 //  Update Owner Setup

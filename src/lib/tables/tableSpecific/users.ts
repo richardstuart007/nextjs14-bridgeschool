@@ -3,7 +3,7 @@
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_Users, table_Userspwd } from '@/src/lib/tables/definitions'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import bcrypt from 'bcryptjs'
 
 const USERS_ITEMS_PER_PAGE = 15
@@ -356,66 +356,4 @@ export async function buildWhere_Users(query: string) {
   //
   const whereClauseUpdate = `WHERE ${whereClause.slice(0, -5)}`
   return whereClauseUpdate
-}
-//---------------------------------------------------------------------
-//  Delete by a User and related tables rows by UID - users, sessions, usershistory,usersowner, userspwd
-//---------------------------------------------------------------------
-export async function deleteByUid(uid: number): Promise<string> {
-  const functionName = 'deleteByUid'
-  noStore()
-  //
-  //  Counts
-  //
-  const deletedCounts = {
-    users: 0,
-    sessions: 0,
-    usersHistory: 0,
-    usersOwner: 0,
-    usersPwd: 0
-  }
-
-  try {
-    //
-    // usershistory
-    //
-    const usersHistoryDeleteResult = await sql`DELETE FROM usershistory WHERE r_uid=${uid}`
-    deletedCounts.usersHistory = usersHistoryDeleteResult.rowCount ?? 0
-    //
-    // sessions
-    //
-    const sessionDeleteResult = await sql`DELETE FROM sessions WHERE s_uid=${uid}`
-    deletedCounts.sessions = sessionDeleteResult.rowCount ?? 0
-    //
-    // usersowner
-    //
-    const usersOwnerDeleteResult = await sql`DELETE FROM usersowner WHERE uouid=${uid}`
-    deletedCounts.usersOwner = usersOwnerDeleteResult.rowCount ?? 0
-    //
-    // userspwd
-    //
-    const usersPwdDeleteResult = await sql`DELETE FROM userspwd WHERE upuid=${uid}`
-    deletedCounts.usersPwd = usersPwdDeleteResult.rowCount ?? 0
-    //
-    // users
-    //
-    const userDeleteResult = await sql`DELETE FROM users WHERE u_uid=${uid}`
-    deletedCounts.users = userDeleteResult.rowCount ?? 0
-    //
-    // Prepare a summary message
-    //
-    const summaryMessage = `
-      Deleted Records:
-      Users: ${deletedCounts.users}
-      Sessions: ${deletedCounts.sessions}
-      Users History: ${deletedCounts.usersHistory}
-      Users Owner: ${deletedCounts.usersOwner}
-      Users Passwords: ${deletedCounts.usersPwd}
-    `
-    console.log(summaryMessage)
-    return summaryMessage
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
 }

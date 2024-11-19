@@ -7,11 +7,12 @@ import MaintPopup_Library from '@/src/ui/admin/library/tablePopup'
 import MaintPopup_Questions from '@/src/ui/admin/questions/tablePopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Ownergroup } from '@/src/lib/tables/definitions'
-import { deleteById, fetchFiltered, fetchPages } from '@/src/lib/tables/ownergroup'
+import { fetchFiltered, fetchPages } from '@/src/lib/tables/tableSpecific/ownergroup'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { table_check } from '@/src/lib/tables/table_check'
+import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
+import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 
 export default function Table() {
   const placeholder = 'oid:1  ownergroup:Richard title:Richard'
@@ -137,13 +138,13 @@ export default function Table() {
           return
         }
         //
-        // Call the server function to delete the row
+        // Call the server function to delete
         //
-        const message = await deleteById(row.oggid)
-        //
-        // Log the returned message
-        //
-        console.log(message)
+        const Params = {
+          table: 'ownergroup',
+          whereColumnValuePairs: [{ column: 'oggid', value: String(row.oggid) }]
+        }
+        const data = await table_delete(Params)
         //
         //  Reload the page
         //

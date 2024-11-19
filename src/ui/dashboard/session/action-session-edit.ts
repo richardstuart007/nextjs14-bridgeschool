@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { getCookieSessionId } from '@/src/lib/data-cookie'
-import { UpdateSessions } from '@/src/lib/tables/sessions'
+import { UpdateSessions } from '@/src/lib/tables/tableSpecific/sessions'
 // ----------------------------------------------------------------------
 //  Update Session
 // ----------------------------------------------------------------------

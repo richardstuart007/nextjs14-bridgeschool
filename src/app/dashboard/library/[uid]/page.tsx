@@ -4,7 +4,7 @@ import Table from '@/src/ui/dashboard/library/table'
 import { lusitana } from '@/src/fonts'
 import { TableSkeleton } from '@/src/ui/dashboard/library/skeleton'
 import { Suspense } from 'react'
-import { fetchLibraryUserTotalPages } from '@/src/lib/tables/library'
+import { fetchLibraryUserTotalPages } from '@/src/lib/tables/tableSpecific/library'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {

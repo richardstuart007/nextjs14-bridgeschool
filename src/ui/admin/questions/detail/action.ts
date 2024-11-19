@@ -1,11 +1,11 @@
 'use server'
 
 import { z } from 'zod'
-import { table_update } from '@/src/lib/tables/table_update'
-import { table_write } from '@/src/lib/tables/table_write'
-import { table_fetch } from '@/src/lib/tables/table_fetch'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 import validate from '@/src/ui/admin/questions/detail/validate'
-import { getNextSeq } from '@/src/lib/tables/questions'
+import { getNextSeq } from '@/src/lib/tables/tableSpecific/questions'
 // ----------------------------------------------------------------------
 //  Update Setup
 // ----------------------------------------------------------------------

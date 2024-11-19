@@ -2,10 +2,10 @@
 
 import { auth } from '@/auth'
 import { updateCookieSessionId } from '@/src/lib/data-cookie'
-import { writeSessions } from '@/src/lib/tables/sessions'
-import { fetchUserByEmail, writeUser } from '@/src/lib/tables/users'
-import { writeUsersOwner } from '@/src/lib/tables/usersowner'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeSessions } from '@/src/lib/tables/tableSpecific/sessions'
+import { fetchUserByEmail, writeUser } from '@/src/lib/tables/tableSpecific/users'
+import { writeUsersOwner } from '@/src/lib/tables/tableSpecific/usersowner'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import { table_Users, structure_ProviderSignInParams } from '@/src/lib/tables/definitions'
 
 // ----------------------------------------------------------------------

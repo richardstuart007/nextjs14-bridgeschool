@@ -9,14 +9,14 @@ import MaintPopup_bidding from '@/src/ui/admin/questions/bidding/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Questions } from '@/src/lib/tables/definitions'
 import {
-  deleteQuestionsById,
   fetchQuestionsFiltered,
   fetchQuestionsTotalPages
-} from '@/src/lib/tables/questions'
+} from '@/src/lib/tables/tableSpecific/questions'
 import SearchWithState from '@/src/ui/utils/search/search-withState'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
+import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 
 interface FormProps {
   gid?: string | null
@@ -33,7 +33,6 @@ export default function Table({ gid }: FormProps) {
   const [record, setrecord] = useState<table_Questions[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
-  const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModelOpenEdit_detail, setIsModelOpenEdit_detail] = useState(false)
   const [isModelOpenAdd_detail, setIsModelOpenAdd_detail] = useState(false)
@@ -58,6 +57,8 @@ export default function Table({ gid }: FormProps) {
       try {
         const data = await fetchQuestionsFiltered(query, currentPage)
         setrecord(data)
+        const fetchedTotalPages = await fetchQuestionsTotalPages(query)
+        setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching questions:', error)
       }
@@ -66,23 +67,6 @@ export default function Table({ gid }: FormProps) {
     setShouldFetchData(false)
     // eslint-disable-next-line
   }, [currentPage, shouldFetchData])
-  //----------------------------------------------------------------------------------------------
-  // Fetch total pages on mount and when shouldFetchTotalPages changes
-  //----------------------------------------------------------------------------------------------
-  useEffect(() => {
-    const fetchTotalPages = async () => {
-      try {
-        const fetchedTotalPages = await fetchQuestionsTotalPages(query)
-        setTotalPages(fetchedTotalPages)
-      } catch (error) {
-        console.error('Error fetching total pages:', error)
-      }
-    }
-    fetchTotalPages()
-
-    setShouldFetchTotalPages(false)
-    // eslint-disable-next-line
-  }, [shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -149,18 +133,17 @@ export default function Table({ gid }: FormProps) {
       subTitle: `Are you sure you want to delete (${questions.qqid}) : ${questions.qgroup}?`,
       onConfirm: async () => {
         //
-        // Call the server function to delete the questions
+        // Call the server function to delete
         //
-        const message = await deleteQuestionsById(questions.qqid)
-        //
-        // Log the returned message
-        //
-        console.log(message)
+        const Params = {
+          table: 'questions',
+          whereColumnValuePairs: [{ column: 'qqid', value: String(questions.qqid) }]
+        }
+        const data = await table_delete(Params)
         //
         //  Reload the page
         //
         setShouldFetchData(true)
-        setShouldFetchTotalPages(true)
         //
         //  Reset dialog
         //

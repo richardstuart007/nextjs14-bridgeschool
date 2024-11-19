@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DropdownSearch from '@/src/ui/utils/dropdown/dropdown'
-import { table_fetch } from '@/src/lib/tables/table_fetch'
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 
 type DropdownProps = {
   selectedOption: string

@@ -2,90 +2,35 @@
 
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { table_Questions } from '@/src/lib/tables/definitions'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
+import { table_Owner } from '@/src/lib/tables/definitions'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Questions data by ID
+//  Owner data
 //---------------------------------------------------------------------
-export async function fetchQuestionsByGid(qgid: number) {
-  const functionName = 'fetchQuestionsByGid'
-  noStore()
-  try {
-    const data = await sql<table_Questions>`
-      SELECT *
-      FROM questions
-      WHERE qgid = ${qgid}
-      ORDER BY qgid, qseq;
-    `
-    //
-    //  Return rows
-    //
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Delete  and related tables rows by ID
-//---------------------------------------------------------------------
-export async function deleteQuestionsById(qqid: number): Promise<string> {
-  const functionName = 'deleteQuestionsById'
-  noStore()
-  //
-  //  Counts
-  //
-  const deletedCounts = {
-    questions: 0
-  }
-
-  try {
-    const userDeleteResult = await sql`DELETE FROM questions WHERE qqid=${qqid}`
-    deletedCounts.questions = userDeleteResult.rowCount ?? 0
-    //
-    // Prepare a summary message
-    //
-    const summaryMessage = `
-      Deleted Records:
-      questions: ${deletedCounts.questions}
-    `
-    console.log(summaryMessage)
-    return summaryMessage
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  questions data
-//---------------------------------------------------------------------
-export async function fetchQuestionsFiltered(query: string, currentPage: number) {
-  const functionName = 'fetchQuestionsFiltered'
+export async function fetchOwnerFiltered(query: string, currentPage: number) {
+  const functionName = 'fetchOwnerFiltered'
   noStore()
   const offset = (currentPage - 1) * MAINT_ITEMS_PER_PAGE
   try {
     //
     //  Build Where clause
     //
-    let sqlWhere = await buildWhere_questions(query)
+    let sqlWhere = await buildWhere_Owner(query)
     //
     //  Build Query Statement
     //
     const sqlQuery = `SELECT *
-    FROM questions
+    FROM owner
      ${sqlWhere}
-      ORDER BY qowner, qgroup, qseq
+      ORDER BY oowner
       LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
      `
     //
     //  Run SQL
     //
     const client = await db.connect()
-    const data = await client.query<table_Questions>(sqlQuery)
+    const data = await client.query<table_Owner>(sqlQuery)
     client.release()
     //
     //  Return results
@@ -99,9 +44,9 @@ export async function fetchQuestionsFiltered(query: string, currentPage: number)
   }
 }
 //---------------------------------------------------------------------
-//  questions where clause
+//  Owner where clause
 //---------------------------------------------------------------------
-export async function buildWhere_questions(query: string) {
+export async function buildWhere_Owner(query: string) {
   //
   //  Empty search
   //
@@ -109,8 +54,8 @@ export async function buildWhere_questions(query: string) {
   //
   // Initialize variables
   //
-  let qid = 0
-  let group = ''
+  let oid = 0
+  let title = ''
   let owner = ''
   //
   // Split the search query into parts based on spaces
@@ -130,13 +75,13 @@ export async function buildWhere_questions(query: string) {
       // Process each part
       //
       switch (key) {
-        case 'qid':
+        case 'oid':
           if (!isNaN(Number(value))) {
-            qid = parseInt(value, 10)
+            oid = parseInt(value, 10)
           }
           break
-        case 'group':
-          group = value
+        case 'title':
+          title = value
           break
         case 'owner':
           owner = value
@@ -156,9 +101,9 @@ export async function buildWhere_questions(query: string) {
   // Add conditions for each variable if not empty or zero
   //
   let whereClause = ''
-  if (qid !== 0) whereClause += `qqid = ${qid} AND `
-  if (group !== '') whereClause += `qgroup ILIKE '%${group}%' AND `
-  if (owner !== '') whereClause += `qowner ILIKE '%${owner}%' AND `
+  if (oid !== 0) whereClause += `ooid = ${oid} AND `
+  if (title !== '') whereClause += `otitle ILIKE '%${title}%' AND `
+  if (owner !== '') whereClause += `oowner ILIKE '%${owner}%' AND `
   //
   // Remove the trailing 'AND' if there are conditions
   //
@@ -169,21 +114,21 @@ export async function buildWhere_questions(query: string) {
   return whereClauseUpdate
 }
 //---------------------------------------------------------------------
-//  questions totals
+//  Owner totals
 //---------------------------------------------------------------------
-export async function fetchQuestionsTotalPages(query: string) {
-  const functionName = 'fetchQuestionsTotalPages'
+export async function fetchOwnerTotalPages(query: string) {
+  const functionName = 'fetchOwnerTotalPages'
   noStore()
   try {
     //
     //  Build Where clause
     //
-    let sqlWhere = await buildWhere_questions(query)
+    let sqlWhere = await buildWhere_Owner(query)
     //
     //  Build Query Statement
     //
     const sqlQuery = `SELECT COUNT(*)
-    FROM questions
+    FROM owner
     ${sqlWhere}`
     //
     //  Run SQL
@@ -204,18 +149,18 @@ export async function fetchQuestionsTotalPages(query: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Write questions
+//  Write Owner
 //---------------------------------------------------------------------
-export async function writeowner(qowner: string, qgroup: string) {
-  const functionName = 'writeowner'
+export async function writeOwner(oowner: string, otitle: string) {
+  const functionName = 'writeOwner'
   try {
     const { rows } = await sql`
-    INSERT INTO questions (
-      qowner,
-      qgroup
+    INSERT INTO owner (
+      oowner,
+      otitle
     ) VALUES (
-      ${qowner},
-      ${qgroup}
+      ${oowner},
+      ${otitle}
     )
     RETURNING *
   `
@@ -227,42 +172,20 @@ export async function writeowner(qowner: string, qgroup: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Update questions
+//  Update Owner
 //---------------------------------------------------------------------
-export async function updatequestions(qqid: number, qowner: string, qgroup: string) {
-  const functionName = 'updatequestions'
+export async function updateOwner(ooid: number, oowner: string, otitle: string) {
+  const functionName = 'updateOwner'
   try {
     const { rows } = await sql`
-    UPDATE questions
+    UPDATE owner
     SET
-      qowner = ${qowner},
-      qgroup = ${qgroup}
-    WHERE qqid = ${qqid}
+      oowner = ${oowner},
+      otitle = ${otitle}
+    WHERE ooid = ${ooid}
     RETURNING *
   `
     return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Get next qseq
-//---------------------------------------------------------------------
-export async function getNextSeq(qowner: string, qgroup: string) {
-  const functionName = 'getNextSeq'
-  try {
-    const { rows } = await sql`
-    SELECT COALESCE(MAX(qseq) + 1, 1) AS next_qseq
-    FROM questions
-    WHERE qowner = ${qowner}
-      AND qgroup = ${qgroup}
-  ;
-  `
-    console.log(rows)
-    const next_qseq = rows[0].next_qseq
-    return next_qseq
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

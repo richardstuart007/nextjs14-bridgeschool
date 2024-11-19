@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { updateUsersPwd } from '@/src/lib/tables/users'
+import { updateUsersPwd } from '@/src/lib/tables/tableSpecific/users'
 // ----------------------------------------------------------------------
 //  Update User Setup
 // ----------------------------------------------------------------------

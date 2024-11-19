@@ -2,7 +2,7 @@
 
 import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { writeLogging } from '@/src/lib/tables/logging'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 // Define the column-value pair interface
 //
@@ -23,30 +23,34 @@ export async function table_write({ table, columnValuePairs }: Props): Promise<a
   noStore()
 
   const client = await db.connect()
-
+  //
+  // Prepare the columns and values for the INSERT statement
+  //
+  const columns = columnValuePairs.map(({ column }) => column).join(', ')
+  const values = columnValuePairs.map(({ value }) => `'${value}'`).join(', ')
+  //
+  // Build the SQL query
+  //
+  const sqlQuery = `
+    INSERT
+    INTO ${table}
+     (${columns})
+     VALUES (${values})
+     RETURNING *`
+  //
+  // Run the query
+  //
   try {
-    //
-    // Prepare the columns and values for the INSERT statement
-    //
-    const columns = columnValuePairs.map(({ column }) => column).join(', ')
-    const values = columnValuePairs.map(({ value }) => `'${value}'`).join(', ')
-    //
-    // Build the SQL query
-    //
-    const sqlQuery = `INSERT INTO ${table} (${columns}) VALUES (${values}) RETURNING *`
-    console.log('sqlQuery:', sqlQuery)
-    //
-    // Run the query
-    //
     const data = await client.query(sqlQuery)
     //
     // Return the inserted rows
     //
     return data.rows[0]
   } catch (error) {
-    console.error(`${functionName}: ${table}`, error)
-    writeLogging(functionName, `${table} Function failed`)
-    throw new Error(`${functionName}: ${table} Function failed`)
+    const errorMessage = `Table(${table}) SQL(${sqlQuery}) FAILED`
+    console.error(`${functionName}: ${errorMessage}`, error)
+    writeLogging(functionName, errorMessage)
+    throw new Error(`functionName, ${errorMessage}`)
   } finally {
     client.release()
   }

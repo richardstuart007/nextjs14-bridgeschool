@@ -5,11 +5,12 @@ import { useState, useEffect } from 'react'
 import MaintPopup from '@/src/ui/admin/owner/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Owner } from '@/src/lib/tables/definitions'
-import { deleteOwnerById, fetchOwnerFiltered, fetchOwnerTotalPages } from '@/src/lib/tables/owner'
+import { fetchOwnerFiltered, fetchOwnerTotalPages } from '@/src/lib/tables/tableSpecific/owner'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
-import { table_check } from '@/src/lib/tables/table_check'
+import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
+import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 
 export default function Table() {
   const placeholder = 'oid:1  owner:Richard title:Richard'
@@ -23,7 +24,6 @@ export default function Table() {
   const [owner, setowner] = useState<table_Owner[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
-  const [shouldFetchTotalPages, setShouldFetchTotalPages] = useState(true)
 
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
@@ -43,6 +43,8 @@ export default function Table() {
       try {
         const data = await fetchOwnerFiltered(query, currentPage)
         setowner(data)
+        const fetchedTotalPages = await fetchOwnerTotalPages(query)
+        setTotalPages(fetchedTotalPages)
       } catch (error) {
         console.error('Error fetching owner:', error)
       }
@@ -51,22 +53,6 @@ export default function Table() {
     setShouldFetchData(false)
     // eslint-disable-next-line
   }, [currentPage, shouldFetchData])
-  //----------------------------------------------------------------------------------------------
-  // Fetch total pages on mount and when shouldFetchTotalPages changes
-  //----------------------------------------------------------------------------------------------
-  useEffect(() => {
-    const fetchTotalPages = async () => {
-      try {
-        const fetchedTotalPages = await fetchOwnerTotalPages(query)
-        setTotalPages(fetchedTotalPages)
-      } catch (error) {
-        console.error('Error fetching total pages:', error)
-      }
-    }
-    fetchTotalPages()
-    setShouldFetchTotalPages(false)
-    // eslint-disable-next-line
-  }, [shouldFetchTotalPages])
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
@@ -129,18 +115,17 @@ export default function Table() {
           return
         }
         //
-        // Call the server function to delete the owner
+        // Call the server function to delete
         //
-        const message = await deleteOwnerById(owner.ooid)
-        //
-        // Log the returned message
-        //
-        console.log(message)
+        const Params = {
+          table: 'owner',
+          whereColumnValuePairs: [{ column: 'ooid', value: String(owner.ooid) }]
+        }
+        const data = await table_delete(Params)
         //
         //  Reload the page
         //
         setShouldFetchData(true)
-        setShouldFetchTotalPages(true)
         //
         //  Reset dialog
         //

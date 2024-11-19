@@ -7,7 +7,7 @@ import type {
   structure_ProviderSignInParams
 } from '@/src/lib/tables/definitions'
 import bcrypt from 'bcryptjs'
-import { fetchUserByEmail, fetchUserPwdByEmail } from '@/src/lib/tables/users'
+import { fetchUserByEmail, fetchUserPwdByEmail } from '@/src/lib/tables/tableSpecific/users'
 import { providerSignIn } from '@/src/lib/data-auth'
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'

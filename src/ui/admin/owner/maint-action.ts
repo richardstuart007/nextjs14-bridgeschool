@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { updateOwner, writeOwner } from '@/src/lib/tables/owner'
+import { updateOwner, writeOwner } from '@/src/lib/tables/tableSpecific/owner'
 import validateOwner from '@/src/ui/admin/owner/maint-validate'
 // ----------------------------------------------------------------------
 //  Update Owner Setup
