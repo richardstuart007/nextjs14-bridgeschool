@@ -3,12 +3,16 @@
 import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
-
+//
+// Define a type for the column-value pair
+//
 interface ColumnValuePair {
   column: string
-  value: string | number // Allow numeric values
+  value: string
 }
-
+//
+// Define a type for the table and its corresponding column-value pairs
+//
 interface TableColumnValuePairs {
   table: string
   whereColumnValuePairs: ColumnValuePair[]
@@ -19,9 +23,6 @@ export async function table_check(
 ): Promise<boolean> {
   const functionName = 'table_check'
   noStore()
-  //
-  //  Connect to database
-  //
   const client = await db.connect()
 
   try {
@@ -30,49 +31,37 @@ export async function table_check(
     //
     for (const { table, whereColumnValuePairs } of tableColumnValuePairs) {
       //
-      // Create WHERE clause with parameterized queries
+      // Construct the WHERE clause by pairing each column with its corresponding value
       //
-      const whereClause = whereColumnValuePairs
-        .map(({ column }, index) => `${column} = $${index + 1}`)
-        .join(' AND ')
-
+      const conditions = whereColumnValuePairs.map(({ column, value }) => {
+        return `${column} = '${value}'`
+      })
       //
-      // Gather values for the WHERE clause
+      // Build the WHERE clause with "AND" between conditions
       //
-      const values = whereColumnValuePairs.map(({ value }) => value)
-
+      const whereClause = conditions.join(' AND ')
       //
-      // Construct the SQL SELECT query
+      // Construct and run the query with the dynamically built WHERE clause
       //
       const sqlQuery = `SELECT 1 FROM ${table} WHERE ${whereClause} LIMIT 1`
-
+      const data = await client.query(sqlQuery)
       //
-      // Log and execute the query
-      //
-      writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
-      const data = await client.query(sqlQuery, values)
-      //
-      // Check if rows exist
+      // Check if the keys exist
       //
       if (data.rows.length > 0) {
-        console.log(
-          `Keys exist in ${table} with conditions: ${JSON.stringify(whereColumnValuePairs)}`
-        )
+        console.log(`Keys exist in ${table} with conditions: ${whereClause}`)
         return true
       }
+      // console.log(`Keys do not exist in ${table} with conditions: ${whereClause}`)
     }
-    //
-    // If no matches were found
-    //
+
+    // console.log(`None of the keys exist as foreign keys in any table`)
     return false
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
   } finally {
-    //
-    //  dis-Connect from database
-    //
     client.release()
   }
 }

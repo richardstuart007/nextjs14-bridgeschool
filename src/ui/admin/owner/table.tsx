@@ -96,11 +96,11 @@ export default function Table() {
         const tableColumnValuePairs = [
           {
             table: 'ownergroup',
-            columnValuePairs: [{ column: 'ogowner', value: owner.oowner }]
+            whereColumnValuePairs: [{ column: 'ogowner', value: owner.oowner }]
           },
           {
             table: 'usersowner',
-            columnValuePairs: [{ column: 'uoowner', value: owner.oowner }]
+            whereColumnValuePairs: [{ column: 'uoowner', value: owner.oowner }]
           }
         ]
         const exists = await table_check(tableColumnValuePairs)
@@ -119,7 +119,7 @@ export default function Table() {
         //
         const Params = {
           table: 'owner',
-          whereColumnValuePairs: [{ column: 'ooid', value: String(owner.ooid) }]
+          whereColumnValuePairs: [{ column: 'ooid', value: owner.ooid }]
         }
         const data = await table_delete(Params)
         //

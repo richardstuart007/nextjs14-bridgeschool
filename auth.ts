@@ -7,10 +7,10 @@ import type {
   structure_ProviderSignInParams
 } from '@/src/lib/tables/structures'
 import bcrypt from 'bcryptjs'
-import { fetchUserByEmail, fetchUserPwdByEmail } from '@/src/lib/tables/tableSpecific/users'
 import { providerSignIn } from '@/src/lib/data-auth'
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 // ----------------------------------------------------------------------
 //  Check User/Password
 // ----------------------------------------------------------------------
@@ -24,8 +24,6 @@ export const {
   trustHost: true,
   callbacks: {
     async signIn({ user, account }) {
-      // console.log('Auth callbacks: user:', user)
-      // console.log('Auth callbacks: account:', account)
       const { email, name } = user
       const provider = account?.provider
       //
@@ -40,10 +38,8 @@ export const {
         email: email,
         name: name
       }
-      // console.log('Auth callbacks: signInData:', signInData)
       try {
         sessionId = await providerSignIn(signInData)
-        // console.log('Auth callbacks: sessionId:', sessionId)
         return true
       } catch (error) {
         console.error('Provider signIn error:', error)
@@ -91,7 +87,6 @@ export const {
         //  Fail credentials then return
         //
         if (!parsedCredentials.success) {
-          // console.log('Auth: Credentials Failed')
           return null
         }
         //
@@ -99,31 +94,37 @@ export const {
         //
         try {
           const { email, password } = parsedCredentials.data
-          // console.log('Auth: email:', email)
-          // console.log('Auth: password:', password)
-          const userPwd = await fetchUserPwdByEmail(email)
+          //
+          //  Get User record
+          //
+          const pwdParams = {
+            table: 'userspwd',
+            whereColumnValuePairs: [{ column: 'upemail', value: email }]
+          }
+          const pwdRows = await table_fetch(pwdParams)
+          const userPwd = pwdRows[0]
           if (!userPwd) {
-            // console.log('Auth: User Password not found')
             return null
           }
-          // console.log('Auth: userPwd:', userPwd)
           //
           //  Check password if exists
           //
           const passwordsMatch = await bcrypt.compare(password, userPwd.uphash)
           if (!passwordsMatch) {
-            // console.log('Auth: Password match Failed')
             return null
           }
           //
           //  Get User record
           //
-          const userRecord = await fetchUserByEmail(email)
+          const fetchParams = {
+            table: 'users',
+            whereColumnValuePairs: [{ column: 'u_email', value: email }]
+          }
+          const rows = await table_fetch(fetchParams)
+          const userRecord = rows[0]
           if (!userRecord) {
-            // console.log('Auth: User Fetch failed')
             return null
           }
-          // console.log('Auth: userRecord:', userRecord)
           //
           //  Return in correct format
           //
@@ -133,7 +134,6 @@ export const {
             email: userRecord.u_email,
             password: userPwd.uphash
           }
-          // console.log('Auth: rtnData:', rtnData)
           return rtnData as structure_UserAuth
         } catch (error) {
           console.error('Authorization error:', error)

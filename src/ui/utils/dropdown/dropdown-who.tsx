@@ -30,7 +30,8 @@ export default function DropdownWho({ selectedOption, setSelectedOption, name }:
       //  Get the data
       //
       const fetchParams = {
-        table: 'who'
+        table: 'who',
+        orderBy: 'wwho'
       }
       const rows = await table_fetch(fetchParams)
       //

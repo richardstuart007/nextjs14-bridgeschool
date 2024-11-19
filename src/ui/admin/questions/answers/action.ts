@@ -76,15 +76,11 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       message: 'Validation failed.'
     }
   }
-  // return {
-  //   errors,
-  //   message: 'Validation OK.'
-  // }
   //
   //  Convert hidden fields value to numeric
   //
   const qqid = formData.get('qqid') as string | null
-  const qqidString = qqid || ''
+  const qqidNumber = qqid || 0
   //
   // Update data into the database
   //
@@ -117,7 +113,7 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
         { column: 'qans', value: qansValue },
         { column: 'qpoints', value: qpointsValue }
       ],
-      whereColumnValuePairs: [{ column: 'qqid', value: qqidString }]
+      whereColumnValuePairs: [{ column: 'qqid', value: qqidNumber }]
     }
     const data = await table_update(updateParams)
 

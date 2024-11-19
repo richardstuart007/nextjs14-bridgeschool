@@ -89,7 +89,6 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       ]
     }
     const data = await (rtrid === 0 ? table_write(writeParams) : table_update(updateParams))
-    // console.log('data:', data)
 
     return {
       message: `Database updated successfully.`,

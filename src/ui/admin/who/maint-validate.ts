@@ -23,7 +23,7 @@ export default async function validate(record: table_Who): Promise<StateSetup> {
     const tableColumnValuePairs = [
       {
         table: 'who',
-        columnValuePairs: [{ column: 'wwho', value: wwho }]
+        whereColumnValuePairs: [{ column: 'wwho', value: wwho }]
       }
     ]
     const exists = await table_check(tableColumnValuePairs)

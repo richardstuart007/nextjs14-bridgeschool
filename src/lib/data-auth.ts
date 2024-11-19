@@ -3,12 +3,12 @@
 import { auth } from '@/auth'
 import { updateCookieSessionId } from '@/src/lib/data-cookie'
 import { writeSessions } from '@/src/lib/tables/tableSpecific/sessions'
-import { fetchUserByEmail, writeUser } from '@/src/lib/tables/tableSpecific/users'
-import { writeUsersOwner } from '@/src/lib/tables/tableSpecific/usersowner'
+import { writeUser } from '@/src/lib/tables/tableSpecific/users'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import { table_Users } from '@/src/lib/tables/definitions'
 import { structure_ProviderSignInParams } from '@/src/lib/tables/structures'
-
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
+import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 // ----------------------------------------------------------------------
 //  Google Provider
 // ----------------------------------------------------------------------
@@ -19,7 +19,15 @@ export async function providerSignIn({ provider, email, name }: structure_Provid
     //  Get user from database
     //
     let userRecord: table_Users | undefined
-    userRecord = (await fetchUserByEmail(email)) as table_Users | undefined
+    //
+    //  Get User record
+    //
+    const fetchParams = {
+      table: 'users',
+      whereColumnValuePairs: [{ column: 'u_email', value: email }]
+    }
+    const rows = await table_fetch(fetchParams)
+    userRecord = rows[0]
     //
     //  Create user if does not exist
     //
@@ -31,8 +39,13 @@ export async function providerSignIn({ provider, email, name }: structure_Provid
       //
       //  Write the usersowner data
       //
-      const userid = userRecord.u_uid
-      await writeUsersOwner(userid)
+      const dataUserowner = await table_write({
+        table: 'usersowner',
+        columnValuePairs: [
+          { column: 'uouid', value: userRecord.u_uid },
+          { column: 'uoowner', value: 'Richard' }
+        ]
+      })
     }
     //
     // Write session information

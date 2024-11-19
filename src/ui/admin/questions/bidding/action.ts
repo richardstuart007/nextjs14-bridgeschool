@@ -114,13 +114,10 @@ const VALIDVALUES = [
 const SPECIALBIDS = ['PASS', 'X', 'XX', '?']
 
 export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
-  console.log('formData', formData)
-
   //
   // Retrieve values from formData and store them in an array
   //
   const values = bidding_names.map(name => formData.get(name) as string | null)
-  console.log('values', values)
   //
   // Initialize an errors object to accumulate any validation errors
   //
@@ -203,7 +200,6 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       } else {
         consecutivePasses = 0
       }
-      console.log('consecutivePasses', consecutivePasses)
       //
       //  Ignore empty bid
       //
@@ -285,7 +281,6 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
 
       // Format the rounds as a string
       const qrounds = `{${rounds.map(round => `{${round.join(',')}}`).join(',')}}`
-      console.log(qrounds)
       //
       //  update parameters
       //

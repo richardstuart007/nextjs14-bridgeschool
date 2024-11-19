@@ -115,15 +115,14 @@ export default function Table() {
         //
         // Check a list of tables if owner changes
         //
-        const oggid_string = String(row.oggid)
         const tableColumnValuePairs = [
           {
             table: 'library',
-            columnValuePairs: [{ column: 'lrgid', value: oggid_string }]
+            whereColumnValuePairs: [{ column: 'lrgid', value: row.oggid }]
           },
           {
             table: 'questions',
-            columnValuePairs: [{ column: 'qgid', value: oggid_string }]
+            whereColumnValuePairs: [{ column: 'qgid', value: row.oggid }]
           }
         ]
         const exists = await table_check(tableColumnValuePairs)
@@ -142,7 +141,7 @@ export default function Table() {
         //
         const Params = {
           table: 'ownergroup',
-          whereColumnValuePairs: [{ column: 'oggid', value: String(row.oggid) }]
+          whereColumnValuePairs: [{ column: 'oggid', value: row.oggid }]
         }
         const data = await table_delete(Params)
         //

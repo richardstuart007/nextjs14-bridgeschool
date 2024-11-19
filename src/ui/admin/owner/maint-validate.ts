@@ -23,7 +23,7 @@ export default async function validateOwner(record: table_Owner): Promise<StateS
     const tableColumnValuePairs = [
       {
         table: 'owner',
-        columnValuePairs: [{ column: 'oowner', value: oowner }]
+        whereColumnValuePairs: [{ column: 'oowner', value: oowner }]
       }
     ]
     const exists = await table_check(tableColumnValuePairs)

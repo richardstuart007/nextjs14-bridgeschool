@@ -96,7 +96,7 @@ export default function Table() {
         const tableColumnValuePairs = [
           {
             table: 'library',
-            columnValuePairs: [{ column: 'lrwho', value: who.wwho }]
+            whereColumnValuePairs: [{ column: 'lrwho', value: who.wwho }]
           }
         ]
         const exists = await table_check(tableColumnValuePairs)
@@ -115,7 +115,7 @@ export default function Table() {
         //
         const Params = {
           table: 'who',
-          whereColumnValuePairs: [{ column: 'wwid', value: String(who.wwid) }]
+          whereColumnValuePairs: [{ column: 'wwid', value: who.wwid }]
         }
         const data = await table_delete(Params)
         //

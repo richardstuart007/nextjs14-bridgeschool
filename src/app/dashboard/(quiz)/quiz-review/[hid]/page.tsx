@@ -1,10 +1,9 @@
 import ReviewForm from '@/src/ui/dashboard/quizreview/form'
 import Breadcrumbs from '@/src/ui/utils/breadcrumbs'
-import { fetchQuestionsByGid } from '@/src/lib/tables/tableSpecific/questions'
-import { fetchHistoryById } from '@/src/lib/tables/tableSpecific/usershistory'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
-import { table_Questions, table_Usershistory } from '@/src/lib/tables/definitions'
+import { table_Questions } from '@/src/lib/tables/definitions'
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 
 export const metadata: Metadata = {
   title: 'Quiz Review'
@@ -19,7 +18,11 @@ export default async function Page({ params }: { params: { hid: number } }) {
     //
     //  Get History
     //
-    const history: table_Usershistory = await fetchHistoryById(hid)
+    const rows = await table_fetch({
+      table: 'usershistory',
+      whereColumnValuePairs: [{ column: 'r_hid', value: hid }]
+    })
+    const history = rows[0]
     if (!history) {
       notFound()
     }
@@ -27,7 +30,10 @@ export default async function Page({ params }: { params: { hid: number } }) {
     //  Get Questions
     //
     const qgid = history.r_gid
-    const questions_gid: table_Questions[] = await fetchQuestionsByGid(qgid)
+    const questions_gid = await table_fetch({
+      table: 'questions',
+      whereColumnValuePairs: [{ column: 'qgid', value: qgid }]
+    })
     if (!questions_gid || questions_gid.length === 0) {
       notFound()
     }
@@ -35,8 +41,8 @@ export default async function Page({ params }: { params: { hid: number } }) {
     //  Strip out questions not answered
     //
     let questions: table_Questions[] = []
-    const qid = history.r_qid
-    qid.forEach(qid => {
+    const qidArray: number[] = history.r_qid
+    qidArray.forEach((qid: number) => {
       const questionIndex = questions_gid.findIndex(q => q.qqid === qid)
       questions.push(questions_gid[questionIndex])
     })

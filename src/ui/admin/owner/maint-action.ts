@@ -1,8 +1,10 @@
 'use server'
 
 import { z } from 'zod'
-import { updateOwner, writeOwner } from '@/src/lib/tables/tableSpecific/owner'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import validateOwner from '@/src/ui/admin/owner/maint-validate'
+
 // ----------------------------------------------------------------------
 //  Update Owner Setup
 // ----------------------------------------------------------------------
@@ -75,10 +77,19 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
   // Update data into the database
   //
   try {
-    //
-    //  Write/Update the owner
-    //
-    await (ooid === 0 ? writeOwner(oowner, otitle) : updateOwner(ooid, oowner, otitle))
+    const updateParams = {
+      table: 'owner',
+      columnValuePairs: [{ column: 'otitle', value: otitle }],
+      whereColumnValuePairs: [{ column: 'ooid', value: ooid }]
+    }
+    const writeParams = {
+      table: 'owner',
+      columnValuePairs: [
+        { column: 'oowner', value: oowner },
+        { column: 'otitle', value: otitle }
+      ]
+    }
+    const data = await (ooid === 0 ? table_write(writeParams) : table_update(updateParams))
 
     return {
       message: `Database updated successfully.`,

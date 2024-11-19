@@ -77,12 +77,13 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
           <input id='qqid' type='hidden' name='qqid' value={qqid} />
         </div>
         {/*  ...................................................................................*/}
+        {/*  Title */}
+        {/*  ...................................................................................*/}
+        <div className='mb-1 mt-5 block text-xl font-bold text-green-500'>Answers and Points</div>
+        {/*  ...................................................................................*/}
         {/*   Answer and Points Row */}
         {/*  ...................................................................................*/}
         <div className='mt-2'>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='qans'>
-            Answers and Points
-          </label>
           {[0, 1, 2, 3].map(index => (
             <div key={index} className='flex items-center space-x-4 mb-2'>
               {/* Answer Input */}

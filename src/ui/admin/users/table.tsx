@@ -92,23 +92,23 @@ export default function Table() {
         //
         const data_usershistory = await table_delete({
           table: 'usershistory',
-          whereColumnValuePairs: [{ column: 'r_uid', value: String(uid) }]
+          whereColumnValuePairs: [{ column: 'r_uid', value: uid }]
         })
         const data_sessions = await table_delete({
           table: 'sessions',
-          whereColumnValuePairs: [{ column: 's_uid', value: String(uid) }]
+          whereColumnValuePairs: [{ column: 's_uid', value: uid }]
         })
         const data_usersowner = await table_delete({
           table: 'usersowner',
-          whereColumnValuePairs: [{ column: 'uouid', value: String(uid) }]
+          whereColumnValuePairs: [{ column: 'uouid', value: uid }]
         })
         const data_userspwd = await table_delete({
           table: 'userspwd',
-          whereColumnValuePairs: [{ column: 'upuid', value: String(uid) }]
+          whereColumnValuePairs: [{ column: 'upuid', value: uid }]
         })
         const data_users = await table_delete({
           table: 'users',
-          whereColumnValuePairs: [{ column: 'u_uid', value: String(uid) }]
+          whereColumnValuePairs: [{ column: 'u_uid', value: uid }]
         })
         //
         //  Reload the page

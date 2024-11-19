@@ -1,9 +1,9 @@
 import Form from '@/src/ui/dashboard/quiz/form'
 import Breadcrumbs from '@/src/ui/utils/breadcrumbs'
-import { fetchQuestionsByGid } from '@/src/lib/tables/tableSpecific/questions'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { table_Questions } from '@/src/lib/tables/definitions'
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 
 export const metadata: Metadata = {
   title: 'Quiz'
@@ -19,7 +19,11 @@ export default async function Page({ params }: { params: { gid: number } }) {
     //
     //  Get Questions
     //
-    const questionsData = await fetchQuestionsByGid(gid)
+    const fetchParams = {
+      table: 'questions',
+      whereColumnValuePairs: [{ column: 'qgid', value: gid }]
+    }
+    const questionsData = await table_fetch(fetchParams)
     if (!questionsData) notFound()
     questions = questionsData
   } catch (error) {

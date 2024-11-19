@@ -3,15 +3,13 @@
 import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
-
 //
 // Column-value pairs
 //
 interface ColumnValuePair {
   column: string
-  value: string | number // Allow both string and numeric values
+  value: string
 }
-
 //
 // Props
 //
@@ -27,33 +25,30 @@ export async function table_delete({ table, whereColumnValuePairs }: Props): Pro
   //  Connect
   //
   const client = await db.connect()
-
+  //
+  // Build the WHERE clause from key pair/values
+  //
+  const conditions = whereColumnValuePairs.map(({ column, value }) => {
+    return `${column} = '${value}'`
+  })
+  //
+  // "AND" between conditions
+  //
+  const whereClause = conditions.join(' AND ')
   try {
     //
-    // Build the WHERE clause with parameterized values
+    // Build sql
     //
-    const conditions = whereColumnValuePairs.map(({ column }, index) => {
-      return `${column} = $${index + 1}` // Use parameterized placeholders
-    })
-    const whereClause = conditions.join(' AND ')
+    const sqlQuery = `
+    DELETE FROM ${table}
+    WHERE ${whereClause}
+    RETURNING *;`
     //
-    //  Collect Values
+    // Run query
     //
-    const values = whereColumnValuePairs.map(({ value }) => value)
+    const data = await client.query(sqlQuery)
     //
-    // Construct the DELETE query
-    //
-    const sqlQuery = `DELETE FROM ${table} WHERE ${whereClause} RETURNING *`
-    //
-    // Log the query and values
-    //
-    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
-    //
-    // Execute the query
-    //
-    const data = await client.query(sqlQuery, values)
-    //
-    // Check and return the deleted rows
+    // Return rows
     //
     const rowsNumber = data.rows.length
     if (rowsNumber > 0) {
@@ -61,18 +56,15 @@ export async function table_delete({ table, whereColumnValuePairs }: Props): Pro
       return data.rows
     }
     //
-    // No records were deleted
+    //  No records
     //
     return []
   } catch (error) {
-    const errorMessage = `Table(${table}) DELETE FAILED`
+    const errorMessage = `Table(${table}) WHERE(${whereClause}) FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)
-    throw new Error(`${functionName}, ${errorMessage}`)
+    throw new Error(`functionName, ${errorMessage}`)
   } finally {
-    //
-    //  Disconnect
-    //
     client.release()
   }
 }

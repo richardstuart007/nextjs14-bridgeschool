@@ -6,6 +6,7 @@ import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 import validate from '@/src/ui/admin/questions/detail/validate'
 import { getNextSeq } from '@/src/lib/tables/tableSpecific/questions'
+import { update_ogcntquestions } from '@/src/lib/tables/tableSpecific/ownergroup'
 // ----------------------------------------------------------------------
 //  Update Setup
 // ----------------------------------------------------------------------
@@ -58,11 +59,10 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
   //  Convert hidden fields value to numeric
   //
   const qqid = formData.get('qqid') as string | null
-  const qqidString = qqid || ''
   const qqidNumber = qqid ? Number(qqid) : 0
 
-  const qseq = formData.get('qseq')
-  const qseqNumber = qseq ? Number(qseq) : 0
+  const qseqChar = formData.get('qseq')
+  let qseqNumber = qseqChar ? Number(qseqChar) : 0
   //
   // Validate fields
   //
@@ -94,7 +94,7 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
       const updateParams = {
         table: 'questions',
         columnValuePairs: [{ column: 'qdetail', value: qdetail }],
-        whereColumnValuePairs: [{ column: 'qqid', value: qqidString }]
+        whereColumnValuePairs: [{ column: 'qqid', value: qqidNumber }]
       }
       const data = await table_update(updateParams)
     }
@@ -105,25 +105,18 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
       //
       //  Get next sequence if Add
       //
-      let qseqString = ''
-      if (qqidNumber === 0) {
-        const nextSeq = await getNextSeq(qowner, qgroup)
-        qseqString = String(nextSeq)
-      }
+      qseqNumber = await getNextSeq(qowner, qgroup)
       //
       //  Get group id - qgid
       //
-      const fetchParams = {
+      const rows = await table_fetch({
         table: 'ownergroup',
-        columnValuePairs: [
+        whereColumnValuePairs: [
           { column: 'ogowner', value: qowner },
           { column: 'oggroup', value: qgroup }
         ]
-      }
-      const rows = await table_fetch(fetchParams)
-      // console.log('rows:', rows)
-      const row = rows[0]
-      const qgidString = String(row.oggid)
+      })
+      const oggid = rows[0].oggid
       //
       //  Write Parameters
       //
@@ -132,13 +125,17 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
         columnValuePairs: [
           { column: 'qowner', value: qowner },
           { column: 'qgroup', value: qgroup },
-          { column: 'qseq', value: String(qseqString) },
+          { column: 'qseq', value: qseqNumber },
           { column: 'qdetail', value: qdetail },
-          { column: 'qgid', value: qgidString }
+          { column: 'qgid', value: oggid }
         ]
       }
       const data = await table_write(writeParams)
-      // console.log('data:', data)
+      //
+      //  update Questions counts in Ownergroup
+      //
+      const ogcntquestions = await update_ogcntquestions(oggid)
+      console.log('ogcntquestions', ogcntquestions)
     }
     return {
       message: `Database updated successfully.`,

@@ -10,8 +10,10 @@ import { getAuthSession } from '@/src/lib/data-auth'
 import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
 import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 import { logout } from '@/src/ui/utils/user-logout'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 
 export default function NavSide() {
+  const functionName = 'NavSide'
   //
   //  Router
   //
@@ -37,7 +39,9 @@ export default function NavSide() {
     //  Auth redirect error - fix ???
     //
     if (!pathname.includes('/dashboard')) {
-      console.log('nav-side: Auth redirect but not /dashboard')
+      const message = 'nav-side: Auth redirect but not /dashboard'
+      // console.log(message)
+      writeLogging(functionName, message)
       router.push(pathname)
       return
     }

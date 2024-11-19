@@ -10,7 +10,6 @@ import {
 import { table_Usershistory } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const HISTORY_ITEMS_PER_PAGE = 10
-
 //---------------------------------------------------------------------
 //  History totals
 //---------------------------------------------------------------------
@@ -165,35 +164,11 @@ export async function buildWhere_History(query: string) {
   return whereClause
 }
 //---------------------------------------------------------------------
-//  History data by ID
-//---------------------------------------------------------------------
-export async function fetchHistoryById(r_hid: number) {
-  const functionName = 'fetchHistoryById'
-  noStore()
-  try {
-    const data = await sql<table_Usershistory>`
-      SELECT *
-      FROM usershistory
-      WHERE r_hid = ${r_hid};
-    `
-    //
-    //  Return rows
-    //
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Top results data
 //---------------------------------------------------------------------
 export async function fetchTopResultsData() {
   const functionName = 'fetchTopResultsData'
   noStore()
-  // ????????????
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
     const data = await sql<structure_UsershistoryTopResults>`

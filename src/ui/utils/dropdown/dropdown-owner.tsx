@@ -30,7 +30,8 @@ export default function DropdownOwner({ selectedOption, setSelectedOption, name 
       //  Get the data
       //
       const fetchParams = {
-        table: 'owner'
+        table: 'owner',
+        orderBy: 'oowner'
       }
       const rows = await table_fetch(fetchParams)
       //

@@ -8,7 +8,7 @@ import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 interface ColumnValuePair {
   column: string
-  value: string
+  value: string | number
 }
 //
 // Define the props interface for the insert function
@@ -21,27 +21,26 @@ interface Props {
 export async function table_write({ table, columnValuePairs }: Props): Promise<any[]> {
   const functionName = 'table_write'
   noStore()
-
+  //
+  //  Connect
+  //
   const client = await db.connect()
   //
-  // Prepare the columns and values for the INSERT statement
+  // Prepare the columns and parameterized placeholders for the INSERT statement
   //
   const columns = columnValuePairs.map(({ column }) => column).join(', ')
-  const values = columnValuePairs.map(({ value }) => `'${value}'`).join(', ')
+  const values = columnValuePairs.map(({ value }) => value)
+  const placeholders = columnValuePairs.map((_, index) => `$${index + 1}`).join(', ')
   //
   // Build the SQL query
   //
-  const sqlQuery = `
-    INSERT
-    INTO ${table}
-     (${columns})
-     VALUES (${values})
-     RETURNING *`
+  const sqlQuery = `INSERT INTO ${table} (${columns}) VALUES (${placeholders}) RETURNING *`
   //
   // Run the query
   //
   try {
-    const data = await client.query(sqlQuery)
+    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
+    const data = await client.query(sqlQuery, values) // Use parameterized query to prevent SQL injection
     //
     // Return the inserted rows
     //
@@ -50,8 +49,11 @@ export async function table_write({ table, columnValuePairs }: Props): Promise<a
     const errorMessage = `Table(${table}) SQL(${sqlQuery}) FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)
-    throw new Error(`functionName, ${errorMessage}`)
+    throw new Error(`${functionName}, ${errorMessage}`)
   } finally {
+    //
+    //  Disconnect
+    //
     client.release()
   }
 }

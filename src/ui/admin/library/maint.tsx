@@ -30,7 +30,6 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
   const [lrwho, setLrwho] = useState(libraryRecord?.lrwho || '')
   const [lrtype, setLrtype] = useState(libraryRecord?.lrtype || '')
   const [lrlink, setLrlink] = useState(libraryRecord?.lrlink || '')
-  console.log('lrowner', lrowner)
   //-------------------------------------------------------------------------
   //  Update Button
   //-------------------------------------------------------------------------

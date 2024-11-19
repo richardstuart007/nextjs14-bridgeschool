@@ -1,9 +1,9 @@
 import Form from '@/src/ui/dashboard/user/form'
 import Breadcrumbs from '@/src/ui/utils/breadcrumbs'
-import { fetchUserById } from '@/src/lib/tables/tableSpecific/users'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { table_Users } from '@/src/lib/tables/definitions'
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 
 export const metadata: Metadata = {
   title: 'User'
@@ -18,7 +18,12 @@ export default async function Page({ params }: { params: { uid: number } }) {
   //  Get User Info
   //
   try {
-    const data = await fetchUserById(uid)
+    const fetchParams = {
+      table: 'users',
+      whereColumnValuePairs: [{ column: 'u_uid', value: uid }]
+    }
+    const rows = await table_fetch(fetchParams)
+    const data = rows[0]
     if (!data) notFound()
     UserRecord = data
   } catch (error) {

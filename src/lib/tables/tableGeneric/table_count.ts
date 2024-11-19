@@ -8,7 +8,7 @@ import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 interface ColumnValuePair {
   column: string
-  value: string | number // Allow both string and numeric values
+  value: string | number // Support both numeric and string values
 }
 //
 // Props
@@ -16,41 +16,32 @@ interface ColumnValuePair {
 interface Props {
   table: string
   whereColumnValuePairs?: ColumnValuePair[]
-  orderBy?: string
 }
-export async function table_fetch({
-  table,
-  whereColumnValuePairs,
-  orderBy
-}: Props): Promise<any[]> {
-  const functionName = 'table_fetch'
+
+export async function table_count({ table, whereColumnValuePairs }: Props): Promise<number> {
+  const functionName = 'table_count'
   noStore()
   //
   //  Connect
   //
   const client = await db.connect()
   //
-  // Start building the query
+  // Build the base SQL query
   //
-  let sqlQuery = `SELECT * FROM ${table}`
+  let sqlQuery = `SELECT COUNT(*) FROM ${table}`
   try {
     const values: (string | number)[] = []
     //
-    // Add WHERE clause
+    // Add WHERE clause if conditions are provided
     //
-    if (whereColumnValuePairs) {
-      const conditions = whereColumnValuePairs.map(({ column }, index) => {
-        values.push(whereColumnValuePairs[index].value) // Add value to array
-        return `${column} = $${index + 1}` // Use parameterized placeholders
-      })
-      const whereClause = conditions.join(' AND ')
+    if (whereColumnValuePairs && whereColumnValuePairs.length > 0) {
+      const whereClause = whereColumnValuePairs
+        .map(({ column }, index) => {
+          values.push(whereColumnValuePairs[index].value) // Add value to the array
+          return `${column} = $${index + 1}` // Use parameterized placeholders
+        })
+        .join(' AND ')
       sqlQuery += ` WHERE ${whereClause}`
-    }
-    //
-    // Add ORDER BY clause
-    //
-    if (orderBy) {
-      sqlQuery += ` ORDER BY ${orderBy}`
     }
     //
     // Log the query and values
@@ -61,9 +52,10 @@ export async function table_fetch({
     //
     const data = await client.query(sqlQuery, values)
     //
-    // Return rows
+    // Return the count
     //
-    return data.rows.length > 0 ? data.rows : []
+    const rowCount = parseInt(data.rows[0].count, 10)
+    return rowCount
   } catch (error) {
     const errorMessage = `Table(${table}) SQL(${sqlQuery}) FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)

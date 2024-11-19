@@ -8,7 +8,7 @@ import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 interface ColumnValuePair {
   column: string
-  value: string | number
+  value: string
 }
 //
 // Props
@@ -27,28 +27,25 @@ export async function table_update({
   const functionName = 'table_update'
   noStore()
   //
-  // Connect
+  // Connect to the database
   //
   const client = await db.connect()
   //
   // Create the SET clause for the update statement
   //
   const setClause = columnValuePairs
-    .map(({ column }, index) => `${column} = $${index + 1}`)
+    .map(({ column, value }) => {
+      return `${column} = '${value}'`
+    })
     .join(', ')
   //
   // Create the WHERE clause from the key-value pairs
   //
   const whereClause = whereColumnValuePairs
-    .map(({ column }, index) => `${column} = $${index + 1 + columnValuePairs.length}`)
+    .map(({ column, value }) => {
+      return `${column} = '${value}'`
+    })
     .join(' AND ')
-  //
-  // Combine values for SET and WHERE clauses
-  //
-  const values = [
-    ...columnValuePairs.map(({ value }) => value),
-    ...whereColumnValuePairs.map(({ value }) => value)
-  ]
   //
   // Construct the SQL UPDATE query
   //
@@ -57,9 +54,8 @@ export async function table_update({
     //
     // Run the query
     //
-    const lgmsg = `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`
-    writeLogging(functionName, lgmsg)
-    const data = await client.query(sqlQuery, values)
+    writeLogging(functionName, sqlQuery)
+    const data = await client.query(sqlQuery)
     //
     // Return rows updated
     //

@@ -14,6 +14,7 @@ import { useSearchParams } from 'next/navigation'
 import SearchWithState from '@/src/ui/utils/search/search-withState'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
+import { update_ogcntlibrary } from '@/src/lib/tables/tableSpecific/ownergroup'
 
 interface FormProps {
   gid?: string | null
@@ -106,12 +107,16 @@ export default function Table({ gid }: FormProps) {
         //
         // Call the server function to delete
         //
-        const lrlidString = String(library.lrlid)
         const Params = {
           table: 'library',
-          whereColumnValuePairs: [{ column: 'lrlid', value: lrlidString }]
+          whereColumnValuePairs: [{ column: 'lrlid', value: library.lrlid }]
         }
         const data = await table_delete(Params)
+        //
+        //  update Library counts in Ownergroup
+        //
+        const ogcntlibrary = await update_ogcntlibrary(library.lrgid)
+        console.log('ogcntlibrary', ogcntlibrary)
         //
         //  Reload the page
         //

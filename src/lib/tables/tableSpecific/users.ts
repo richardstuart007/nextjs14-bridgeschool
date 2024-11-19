@@ -2,87 +2,11 @@
 
 import { sql, db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import { table_Users, table_Userspwd } from '@/src/lib/tables/definitions'
+import { table_Users } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import bcrypt from 'bcryptjs'
 
 const USERS_ITEMS_PER_PAGE = 15
-
-//---------------------------------------------------------------------
-//  Fetch User by email
-//---------------------------------------------------------------------
-export async function fetchUserByEmail(email: string): Promise<table_Users | undefined> {
-  const functionName = 'fetchUserByEmail'
-  noStore()
-  try {
-    const userrecord = await sql<table_Users>`SELECT * FROM users WHERE u_email=${email}`
-    //
-    //  Not found
-    //
-    if (userrecord.rowCount === 0) {
-      return undefined
-    }
-    //
-    //  Return data
-    //
-    const row = userrecord.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Fetch Userpwd by email
-//---------------------------------------------------------------------
-export async function fetchUserPwdByEmail(email: string): Promise<table_Userspwd | undefined> {
-  const functionName = 'fetchUserPwdByEmail'
-  noStore()
-  try {
-    const data = await sql<table_Userspwd>`SELECT * FROM userspwd WHERE upemail=${email}`
-    //
-    //  Not found
-    //
-    if (data.rowCount === 0) {
-      return undefined
-    }
-    //
-    //  Return data
-    //
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Fetch User by ID
-//---------------------------------------------------------------------
-export async function fetchUserById(uid: number): Promise<table_Users | undefined> {
-  const functionName = 'fetchUserById'
-  noStore()
-  try {
-    const userrecord = await sql<table_Users>`SELECT * FROM users WHERE u_uid=${uid}`
-    //
-    //  Not found
-    //
-    if (userrecord.rowCount === 0) {
-      return undefined
-    }
-    //
-    //  Return data
-    //
-    const row = userrecord.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
 // ----------------------------------------------------------------------
 //  Write New User
 // ----------------------------------------------------------------------

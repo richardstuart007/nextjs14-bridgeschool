@@ -99,7 +99,7 @@ export default function Table() {
         const tableColumnValuePairs = [
           {
             table: 'library',
-            columnValuePairs: [{ column: 'lrtype', value: reftype.rttype }]
+            whereColumnValuePairs: [{ column: 'lrtype', value: reftype.rttype }]
           }
         ]
         const exists = await table_check(tableColumnValuePairs)
@@ -118,7 +118,7 @@ export default function Table() {
         //
         const Params = {
           table: 'reftype',
-          whereColumnValuePairs: [{ column: 'rtrid', value: String(reftype.rtrid) }]
+          whereColumnValuePairs: [{ column: 'rtrid', value: reftype.rtrid }]
         }
         const data = await table_delete(Params)
         //

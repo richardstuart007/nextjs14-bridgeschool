@@ -1,6 +1,6 @@
 'use server'
 
-import { sql, db } from '@vercel/postgres'
+import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import { table_Owner } from '@/src/lib/tables/definitions'
@@ -142,50 +142,6 @@ export async function fetchOwnerTotalPages(query: string) {
     const count = result.rows[0].count
     const totalPages = Math.ceil(count / MAINT_ITEMS_PER_PAGE)
     return totalPages
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Write Owner
-//---------------------------------------------------------------------
-export async function writeOwner(oowner: string, otitle: string) {
-  const functionName = 'writeOwner'
-  try {
-    const { rows } = await sql`
-    INSERT INTO owner (
-      oowner,
-      otitle
-    ) VALUES (
-      ${oowner},
-      ${otitle}
-    )
-    RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Update Owner
-//---------------------------------------------------------------------
-export async function updateOwner(ooid: number, oowner: string, otitle: string) {
-  const functionName = 'updateOwner'
-  try {
-    const { rows } = await sql`
-    UPDATE owner
-    SET
-      oowner = ${oowner},
-      otitle = ${otitle}
-    WHERE ooid = ${ooid}
-    RETURNING *
-  `
-    return rows[0]
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

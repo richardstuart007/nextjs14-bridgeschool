@@ -21,7 +21,6 @@ type Table = {
 }
 export default async function validate(record: Table): Promise<StateSetup> {
   const { qqid, qowner, qgroup, qseq } = record
-  const qseqString = String(qseq)
   //
   // Initialise errors return
   //
@@ -33,10 +32,10 @@ export default async function validate(record: Table): Promise<StateSetup> {
     const tableColumnValuePairs = [
       {
         table: 'questions',
-        columnValuePairs: [
+        whereColumnValuePairs: [
           { column: 'qowner', value: qowner },
           { column: 'qgroup', value: qgroup },
-          { column: 'qseq', value: qseqString }
+          { column: 'qseq', value: qseq }
         ]
       }
     ]

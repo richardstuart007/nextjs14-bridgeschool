@@ -1,10 +1,11 @@
 'use server'
 
 import { z } from 'zod'
-import { writeUser, writeUsersPwd, fetchUserByEmail } from '@/src/lib/tables/tableSpecific/users'
-import { writeUsersOwner } from '@/src/lib/tables/tableSpecific/usersowner'
+import { writeUser, writeUsersPwd } from '@/src/lib/tables/tableSpecific/users'
 import type { table_Users } from '@/src/lib/tables/definitions'
 import { signIn } from '@/auth'
+import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
+import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 // ----------------------------------------------------------------------
 //  Register
 // ----------------------------------------------------------------------
@@ -50,8 +51,14 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
   //
   // Check if email exists already
   //
-  const data = await fetchUserByEmail(email)
-  if (data) {
+  const tableColumnValuePairs = [
+    {
+      table: 'users',
+      whereColumnValuePairs: [{ column: 'u_email', value: email }]
+    }
+  ]
+  const exists = await table_check(tableColumnValuePairs)
+  if (exists) {
     return {
       message: 'Email already exists'
     }
@@ -75,7 +82,13 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
   //
   //  Write the usersowner data
   //
-  await writeUsersOwner(userid)
+  const dataUserowner = await table_write({
+    table: 'usersowner',
+    columnValuePairs: [
+      { column: 'uouid', value: userid },
+      { column: 'uoowner', value: 'Richard' }
+    ]
+  })
   //
   //  SignIn
   //

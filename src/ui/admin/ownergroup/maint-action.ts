@@ -1,8 +1,9 @@
 'use server'
 
 import { z } from 'zod'
-import { updateOwnergroup, writeOwnergroup } from '@/src/lib/tables/tableSpecific/ownergroup'
 import validateOwnergroup from '@/src/ui/admin/ownergroup/maint-validate'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 // ----------------------------------------------------------------------
 //  Update Owner Setup
 // ----------------------------------------------------------------------
@@ -79,12 +80,20 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
   // Update data into the database
   //
   try {
-    //
-    //  Write/Update the owner
-    //
-    await (oggid === 0
-      ? writeOwnergroup(ogowner, oggroup, ogtitle)
-      : updateOwnergroup(oggid, ogowner, oggroup, ogtitle))
+    const updateParams = {
+      table: 'ownergroup',
+      columnValuePairs: [{ column: 'ogtitle', value: ogtitle }],
+      whereColumnValuePairs: [{ column: 'oggid', value: oggid }]
+    }
+    const writeParams = {
+      table: 'ownergroup',
+      columnValuePairs: [
+        { column: 'ogowner', value: ogowner },
+        { column: 'oggroup', value: oggroup },
+        { column: 'ogtitle', value: ogtitle }
+      ]
+    }
+    const data = await (oggid === 0 ? table_write(writeParams) : table_update(updateParams))
 
     return {
       message: `Database updated successfully.`,

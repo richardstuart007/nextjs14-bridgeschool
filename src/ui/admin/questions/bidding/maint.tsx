@@ -158,6 +158,10 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
           <input id='qqid' type='hidden' name='qqid' value={qqid} />
         </div>
         {/*  ...................................................................................*/}
+        {/*  Title */}
+        {/*  ...................................................................................*/}
+        <div className='mb-1 mt-5 block text-xl font-bold text-green-500'>Bidding</div>
+        {/*  ...................................................................................*/}
         {/*  Header and Lines  */}
         {/*  ...................................................................................*/}
         <div className='grid grid-cols-5 gap-2'>

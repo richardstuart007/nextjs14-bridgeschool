@@ -27,7 +27,7 @@ export async function table_update({
   const functionName = 'table_update'
   noStore()
   //
-  // Connect
+  // Connect to the database
   //
   const client = await db.connect()
   //

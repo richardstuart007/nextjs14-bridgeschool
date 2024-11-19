@@ -21,7 +21,6 @@ export default function DropdownOwnerGroup({
   // Options for the dropdown
   //
   const label = 'Owner Groups'
-  console.log('owner', owner)
   //
   // Fetch options from the database
   //
@@ -39,7 +38,8 @@ export default function DropdownOwnerGroup({
       //
       const fetchParams = {
         table: 'ownergroup',
-        columnValuePairs: [{ column: 'ogowner', value: owner }]
+        whereColumnValuePairs: [{ column: 'ogowner', value: owner }],
+        orderBy: 'ogowner, oggroup'
       }
       const rows = await table_fetch(fetchParams)
       //

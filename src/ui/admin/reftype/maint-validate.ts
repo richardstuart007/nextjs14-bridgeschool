@@ -23,7 +23,7 @@ export default async function validate(record: table_Reftype): Promise<StateSetu
     const tableColumnValuePairs = [
       {
         table: 'reftype',
-        columnValuePairs: [{ column: 'rttype', value: rttype }]
+        whereColumnValuePairs: [{ column: 'rttype', value: rttype }]
       }
     ]
     const exists = await table_check(tableColumnValuePairs)

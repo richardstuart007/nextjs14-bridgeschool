@@ -1,33 +1,12 @@
 'use server'
 
 import { table_Ownergroup } from '@/src/lib/tables/definitions'
-import { sql, db } from '@vercel/postgres'
+import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
+import { table_count } from '@/src/lib/tables/tableGeneric/table_count'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 const MAINT_ITEMS_PER_PAGE = 15
-//---------------------------------------------------------------------
-//  Fetch owner group table
-//---------------------------------------------------------------------
-export async function fetch_ownergroup1(ogowner: string, oggroup: string) {
-  const functionName = 'fetch_ownergroup1'
-  noStore()
-  try {
-    const data = await sql<table_Ownergroup>`
-      SELECT *
-      FROM ownergroup
-      WHERE
-        ogowner = ${ogowner} AND
-        oggroup = ${oggroup}
-      ;
-    `
-    const row = data.rows[0]
-    return row
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
 //---------------------------------------------------------------------
 //  ownergroup data
 //---------------------------------------------------------------------
@@ -177,24 +156,29 @@ export async function fetchPages(query: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Write Owner
+//  ownergroup - Questions Count
 //---------------------------------------------------------------------
-export async function writeOwnergroup(ogowner: string, oggroup: string, ogtitle: string) {
-  const functionName = 'writeOwnergroup'
+export async function update_ogcntquestions(gid: number) {
+  const functionName = 'update_ogcntquestions'
+  noStore()
   try {
-    const { rows } = await sql`
-    INSERT INTO ownergroup (
-      ogowner,
-      oggroup,
-      ogtitle
-    ) VALUES (
-      ${ogowner},
-      ${oggroup},
-      ${ogtitle}
-    )
-    RETURNING *
-  `
-    return rows[0]
+    const rowCount = await table_count({
+      table: 'questions',
+      whereColumnValuePairs: [{ column: 'qgid', value: gid }]
+    })
+    //
+    //  update Ownergroup
+    //
+    const updateParams = {
+      table: 'ownergroup',
+      columnValuePairs: [{ column: 'ogcntquestions', value: rowCount }],
+      whereColumnValuePairs: [{ column: 'oggid', value: gid }]
+    }
+    const data = await table_update(updateParams)
+    //
+    //  Updated value
+    //
+    return rowCount
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
@@ -202,26 +186,30 @@ export async function writeOwnergroup(ogowner: string, oggroup: string, ogtitle:
   }
 }
 //---------------------------------------------------------------------
-//  Update ownergroup
+//  ownergroup - Library Count
 //---------------------------------------------------------------------
-export async function updateOwnergroup(
-  oggid: number,
-  ogowner: string,
-  oggroup: string,
-  ogtitle: string
-) {
-  const functionName = 'updateOwnergroup'
+export async function update_ogcntlibrary(gid: number) {
+  const functionName = 'update_ogcntlibrary'
+  noStore()
   try {
-    const { rows } = await sql`
-    UPDATE ownergroup
-    SET
-      ogowner = ${ogowner},
-      oggroup = ${oggroup},
-      ogtitle = ${ogtitle}
-    WHERE oggid = ${oggid}
-    RETURNING *
-  `
-    return rows[0]
+    const rowCount = await table_count({
+      table: 'library',
+      whereColumnValuePairs: [{ column: 'lrgid', value: gid }]
+    })
+    console.log('rowCount', rowCount)
+    //
+    //  update Ownergroup
+    //
+    const updateParams = {
+      table: 'ownergroup',
+      columnValuePairs: [{ column: 'ogcntlibrary', value: rowCount }],
+      whereColumnValuePairs: [{ column: 'oggid', value: gid }]
+    }
+    const data = await table_update(updateParams)
+    //
+    //  Updated value
+    //
+    return rowCount
   } catch (error) {
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')

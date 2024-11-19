@@ -30,10 +30,10 @@ export default function DropdownType({ selectedOption, setSelectedOption, name }
       //  Get the data
       //
       const fetchParams = {
-        table: 'reftype'
+        table: 'reftype',
+        orderBy: 'rttype'
       }
       const rows = await table_fetch(fetchParams)
-
       //
       // Map rows into the structure expected by DropdownSearch
       //

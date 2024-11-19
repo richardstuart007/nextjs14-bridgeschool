@@ -64,9 +64,13 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
           <input id='qqid' type='hidden' name='qqid' value={qqid} />
         </div>
         {/*  ...................................................................................*/}
+        {/*  Title */}
+        {/*  ...................................................................................*/}
+        <div className='mb-1 mt-5 block text-xl font-bold text-green-500'>Details</div>
+        {/*  ...................................................................................*/}
         {/*   Owner */}
         {/*  ...................................................................................*/}
-        {qowner === '' ? (
+        {qqid === 0 ? (
           <DropdownOwner selectedOption={qowner} setSelectedOption={setqowner} name={'qowner'} />
         ) : (
           /* -----------------Edit ------------------*/

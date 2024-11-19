@@ -1,9 +1,11 @@
 'use server'
 
 import { z } from 'zod'
-import { updateLibrary, writeLibrary } from '@/src/lib/tables/tableSpecific/library'
-import { fetch_ownergroup1 } from '@/src/lib/tables/tableSpecific/ownergroup'
 import validateLibrary from '@/src/ui/admin/library/maint-validate'
+import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
+import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import { update_ogcntlibrary } from '@/src/lib/tables/tableSpecific/ownergroup'
 // ----------------------------------------------------------------------
 //  Update Library Setup
 // ----------------------------------------------------------------------
@@ -64,13 +66,11 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
   //
   // Unpack form data
   //
-  // console.log('Database update')
   const { lrdesc, lrlink, lrwho, lrtype, lrowner, lrref, lrgroup } = validatedFields.data
   //
   //  Convert hidden fields value to numeric
   //
   const lrlid = Number(formData.get('lrlid'))
-  // console.log('lrlid:', lrlid)
   //
   // Validate fields
   //
@@ -100,14 +100,55 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
     //
     //  Get the ownergroup id
     //
-    const ownergroup = await fetch_ownergroup1(lrowner, lrgroup)
-    const lrgid = ownergroup.oggid
+    const fetchParams = {
+      table: 'ownergroup',
+      whereColumnValuePairs: [
+        { column: 'ogowner', value: lrowner },
+        { column: 'oggroup', value: lrgroup }
+      ]
+    }
+    const rows = await table_fetch(fetchParams)
+    const lrgid = rows[0].oggid
     //
-    //  Write/Update the library
+    // Common column-value pairs
     //
-    await (lrlid === 0
-      ? writeLibrary(lrdesc, lrlink, lrwho, lrtype, lrowner, lrref, lrgroup, lrgid)
-      : updateLibrary(lrlid, lrdesc, lrlink, lrwho, lrtype, lrowner, lrref, lrgroup, lrgid))
+    const columnValuePairs = [
+      { column: 'lrdesc', value: lrdesc },
+      { column: 'lrlink', value: lrlink },
+      { column: 'lrwho', value: lrwho },
+      { column: 'lrtype', value: lrtype },
+      { column: 'lrowner', value: lrowner },
+      { column: 'lrref', value: lrref },
+      { column: 'lrgroup', value: lrgroup },
+      { column: 'lrgid', value: lrgid }
+    ]
+    //
+    //  Write
+    //
+    let data
+    if (lrlid === 0) {
+      const params = {
+        table: 'library',
+        columnValuePairs
+      }
+      data = await table_write(params)
+      //
+      //  update Library counts in Ownergroup
+      //
+      const ogcntlibrary = await update_ogcntlibrary(lrgid)
+      console.log('ogcntlibrary', ogcntlibrary)
+    }
+    //
+    //  Update
+    //
+    else {
+      const updateParams = {
+        table: 'library',
+        columnValuePairs,
+        whereColumnValuePairs: [{ column: 'lrlid', value: lrlid }]
+      }
+      data = await table_update(updateParams)
+    }
 
     return {
       message: `Database updated successfully.`,

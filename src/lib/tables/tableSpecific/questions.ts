@@ -6,30 +6,6 @@ import { table_Questions } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const MAINT_ITEMS_PER_PAGE = 15
 //---------------------------------------------------------------------
-//  Questions data by ID
-//---------------------------------------------------------------------
-export async function fetchQuestionsByGid(qgid: number) {
-  const functionName = 'fetchQuestionsByGid'
-  noStore()
-  try {
-    const data = await sql<table_Questions>`
-      SELECT *
-      FROM questions
-      WHERE qgid = ${qgid}
-      ORDER BY qgid, qseq;
-    `
-    //
-    //  Return rows
-    //
-    const rows = data.rows
-    return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  questions data
 //---------------------------------------------------------------------
 export async function fetchQuestionsFiltered(query: string, currentPage: number) {
@@ -173,50 +149,6 @@ export async function fetchQuestionsTotalPages(query: string) {
   }
 }
 //---------------------------------------------------------------------
-//  Write questions
-//---------------------------------------------------------------------
-export async function writeowner(qowner: string, qgroup: string) {
-  const functionName = 'writeowner'
-  try {
-    const { rows } = await sql`
-    INSERT INTO questions (
-      qowner,
-      qgroup
-    ) VALUES (
-      ${qowner},
-      ${qgroup}
-    )
-    RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Update questions
-//---------------------------------------------------------------------
-export async function updatequestions(qqid: number, qowner: string, qgroup: string) {
-  const functionName = 'updatequestions'
-  try {
-    const { rows } = await sql`
-    UPDATE questions
-    SET
-      qowner = ${qowner},
-      qgroup = ${qgroup}
-    WHERE qqid = ${qqid}
-    RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Get next qseq
 //---------------------------------------------------------------------
 export async function getNextSeq(qowner: string, qgroup: string) {
@@ -229,7 +161,6 @@ export async function getNextSeq(qowner: string, qgroup: string) {
       AND qgroup = ${qgroup}
   ;
   `
-    console.log(rows)
     const next_qseq = rows[0].next_qseq
     return next_qseq
   } catch (error) {

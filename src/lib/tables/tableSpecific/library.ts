@@ -1,6 +1,6 @@
 'use server'
 
-import { sql, db } from '@vercel/postgres'
+import { db } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_LibraryGroup } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
@@ -356,85 +356,4 @@ export async function buildWhere_Library(query: string) {
     whereClauseUpdate = `WHERE ${whereClause.slice(0, -5)}`
   }
   return whereClauseUpdate
-}
-//---------------------------------------------------------------------
-//  Write Library
-//---------------------------------------------------------------------
-export async function writeLibrary(
-  lrdesc: string,
-  lrlink: string,
-  lrwho: string,
-  lrtype: string,
-  lrowner: string,
-  lrref: string,
-  lrgroup: string,
-  lrgid: number
-) {
-  const functionName = 'writeLibrary'
-  try {
-    const { rows } = await sql`
-    INSERT INTO library (
-      lrdesc,
-      lrlink,
-      lrwho,
-      lrtype,
-      lrowner,
-      lrref,
-      lrgroup,
-      lrgid
-    ) VALUES (
-      ${lrdesc},
-      ${lrlink},
-      ${lrwho},
-      ${lrtype},
-      ${lrowner},
-      ${lrref},
-      ${lrgroup},
-      ${lrgid}
-    )
-    RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Update Library
-//---------------------------------------------------------------------
-export async function updateLibrary(
-  lrlid: number,
-  lrdesc: string,
-  lrlink: string,
-  lrwho: string,
-  lrtype: string,
-  lrowner: string,
-  lrref: string,
-  lrgroup: string,
-  lrgid: number
-) {
-  const functionName = 'updateLibrary'
-  try {
-    const { rows } = await sql`
-    UPDATE library
-    SET
-      lrdesc = ${lrdesc},
-      lrlink = ${lrlink},
-      lrwho = ${lrwho},
-      lrtype = ${lrtype},
-      lrowner = ${lrowner},
-      lrref = ${lrref},
-      lrgroup = ${lrgroup},
-      lrgid = ${lrgid}
-    WHERE lrlid = ${lrlid}
-    RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
 }
