@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "localdev": "set PORT=3000 && copy /Y .env.localdev .env && next dev",
+    "localprod": "set PORT=3001 && copy /Y .env.localproduction .env && next dev",
     "lint": "next lint",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
