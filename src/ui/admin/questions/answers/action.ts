@@ -79,8 +79,8 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
   //
   //  Convert hidden fields value to numeric
   //
-  const qqid = formData.get('qqid') as string | null
-  const qqidNumber = qqid || 0
+  const qqidString = formData.get('qqid') as string | 0
+  const qqid = Number(qqidString)
   //
   // Update data into the database
   //
@@ -113,7 +113,7 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
         { column: 'qans', value: qansValue },
         { column: 'qpoints', value: qpointsValue }
       ],
-      whereColumnValuePairs: [{ column: 'qqid', value: qqidNumber }]
+      whereColumnValuePairs: [{ column: 'qqid', value: qqid }]
     }
     const data = await table_update(updateParams)
 
@@ -122,6 +122,9 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       errors: undefined,
       databaseUpdated: true
     }
+    //
+    //  Errors
+    //
   } catch (error) {
     return {
       message: 'Database Error: Failed to Update.',

@@ -1,7 +1,7 @@
 'use server'
 
 import { table_Ownergroup } from '@/src/lib/tables/definitions'
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import { table_count } from '@/src/lib/tables/tableGeneric/table_count'
@@ -22,24 +22,38 @@ export async function fetchFiltered(query: string, currentPage: number) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT *
+    const sqlQueryStatement = `SELECT *
     FROM ownergroup
-     ${sqlWhere}
+      ${sqlWhere}
       ORDER BY ogowner, oggroup
-      LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT $1 OFFSET $2
      `
+    const queryValues = [MAINT_ITEMS_PER_PAGE, offset]
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const data = await client.query<table_Ownergroup>(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute SQL
+    //
+    const data = await sql.query<table_Ownergroup>(sqlQuery, queryValues)
     //
     //  Return results
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -134,22 +148,35 @@ export async function fetchPages(query: string) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT COUNT(*)
+    const sqlQueryStatement = `SELECT COUNT(*)
     FROM ownergroup
     ${sqlWhere}`
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const result = await client.query(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const result = await sql.query(sqlQuery)
     //
     //  Return results
     //
     const count = result.rows[0].count
     const totalPages = Math.ceil(count / MAINT_ITEMS_PER_PAGE)
     return totalPages
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -179,7 +206,13 @@ export async function update_ogcntquestions(gid: number) {
     //  Updated value
     //
     return rowCount
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -196,7 +229,6 @@ export async function update_ogcntlibrary(gid: number) {
       table: 'library',
       whereColumnValuePairs: [{ column: 'lrgid', value: gid }]
     })
-    console.log('rowCount', rowCount)
     //
     //  update Ownergroup
     //
@@ -210,7 +242,13 @@ export async function update_ogcntlibrary(gid: number) {
     //  Updated value
     //
     return rowCount
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

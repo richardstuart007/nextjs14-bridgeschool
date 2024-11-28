@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 
@@ -23,11 +23,6 @@ interface Props {
 export async function table_delete({ table, whereColumnValuePairs }: Props): Promise<any[]> {
   const functionName = 'table_delete'
   noStore()
-  //
-  //  Connect
-  //
-  const client = await db.connect()
-
   try {
     //
     // Build the WHERE clause with parameterized values
@@ -45,34 +40,39 @@ export async function table_delete({ table, whereColumnValuePairs }: Props): Pro
     //
     const sqlQuery = `DELETE FROM ${table} WHERE ${whereClause} RETURNING *`
     //
-    // Log the query and values
+    //  Logging
     //
-    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
+    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`, 'I')
     //
     // Execute the query
     //
-    const data = await client.query(sqlQuery, values)
+    const data = await sql.query(sqlQuery, values)
     //
     // Check and return the deleted rows
     //
     const rowsNumber = data.rows.length
     if (rowsNumber > 0) {
-      writeLogging(functionName, `TABLE(${table}) WHERE(${whereClause}) DELETED(${rowsNumber})`)
+      writeLogging(
+        functionName,
+        `TABLE(${table}) WHERE(${whereClause}) DELETED(${rowsNumber})`,
+        'I'
+      )
       return data.rows
     }
     //
     // No records were deleted
     //
     return []
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     const errorMessage = `Table(${table}) DELETE FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)
     throw new Error(`${functionName}, ${errorMessage}`)
-  } finally {
-    //
-    //  Disconnect
-    //
-    client.release()
   }
 }

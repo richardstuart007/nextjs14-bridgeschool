@@ -37,7 +37,6 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
     oowner: formData.get('oowner'),
     otitle: formData.get('otitle')
   })
-  // console.log('formData', formData)
   //
   // If form validation fails, return errors early. Otherwise, continue.
   //
@@ -50,13 +49,11 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
   //
   // Unpack form data
   //
-  // console.log('Database update')
   const { oowner, otitle } = validatedFields.data
   //
   //  Convert hidden fields value to numeric
   //
   const ooid = Number(formData.get('ooid'))
-  // console.log('ooid:', ooid)
   //
   // Validate fields
   //
@@ -96,6 +93,9 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
       errors: undefined,
       databaseUpdated: true
     }
+    //
+    //  Errors
+    //
   } catch (error) {
     return {
       message: 'Database Error: Failed to Update Owner.',

@@ -63,6 +63,9 @@ export default function Table({ gid }: FormProps) {
       setLibrary(data)
       const fetchedTotalPages = await fetchLibraryTotalPages(query)
       setTotalPages(fetchedTotalPages)
+      //
+      //  Errors
+      //
     } catch (error) {
       console.error('Error fetching library:', error)
     }
@@ -116,7 +119,6 @@ export default function Table({ gid }: FormProps) {
         //  update Library counts in Ownergroup
         //
         const ogcntlibrary = await update_ogcntlibrary(library.lrgid)
-        console.log('ogcntlibrary', ogcntlibrary)
         //
         //  Reload the page
         //

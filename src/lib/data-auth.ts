@@ -2,8 +2,6 @@
 
 import { auth } from '@/auth'
 import { updateCookieSessionId } from '@/src/lib/data-cookie'
-import { writeSessions } from '@/src/lib/tables/tableSpecific/sessions'
-import { writeUser } from '@/src/lib/tables/tableSpecific/users'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import { table_Users } from '@/src/lib/tables/definitions'
 import { structure_ProviderSignInParams } from '@/src/lib/tables/structures'
@@ -31,32 +29,13 @@ export async function providerSignIn({ provider, email, name }: structure_Provid
     //
     //  Create user if does not exist
     //
-    if (!userRecord) {
-      userRecord = (await writeUser(provider, email, name)) as table_Users | undefined
-      if (!userRecord) {
-        throw Error('providerSignIn: Write User Error')
-      }
-      //
-      //  Write the usersowner data
-      //
-      const dataUserowner = await table_write({
-        table: 'usersowner',
-        columnValuePairs: [
-          { column: 'uouid', value: userRecord.u_uid },
-          { column: 'uoowner', value: 'Richard' }
-        ]
-      })
-    }
+    if (!userRecord) userRecord = await newUser(provider, email, name)
+    if (!userRecord) throw Error('providerSignIn: Write Users Error')
     //
     // Write session information
     //
-    const { u_uid } = userRecord
-    const sessionsRecord = await writeSessions(u_uid)
-    //
-    // Write cookie session
-    //
-    const sessionId = sessionsRecord.s_id
-    await updateCookieSessionId(sessionsRecord.s_id)
+    const s_uid = userRecord.u_uid
+    const sessionId = await newSession(s_uid)
     //
     //  Return Session ID
     //
@@ -65,10 +44,86 @@ export async function providerSignIn({ provider, email, name }: structure_Provid
     //  Errors
     //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
   }
+}
+// ----------------------------------------------------------------------
+//  Write new user
+// ----------------------------------------------------------------------
+async function newUser(provider: string, email: string, name: string) {
+  let userRecord = []
+  const u_email = email
+  const u_name = name
+  const u_joined = new Date().toISOString().slice(0, 19).replace('T', ' ')
+  const u_fedid = ''
+  const u_admin = false
+  const u_fedcountry = 'ZZ'
+  const u_provider = provider
+  const userRecords = await table_write({
+    table: 'users',
+    columnValuePairs: [
+      { column: 'u_email', value: u_email },
+      { column: 'u_name', value: u_name },
+      { column: 'u_joined', value: u_joined },
+      { column: 'u_fedid', value: u_fedid },
+      { column: 'u_admin', value: u_admin },
+      { column: 'u_fedcountry', value: u_fedcountry },
+      { column: 'u_provider', value: u_provider }
+    ]
+  })
+  userRecord = userRecords[0]
+  if (!userRecord) {
+    throw Error('providerSignIn: Write Users Error')
+  }
+  //
+  //  Write the usersowner data
+  //
+  const uouid = userRecord.u_uid
+  const uoowner = 'Richard'
+  const dataUserowners = await table_write({
+    table: 'usersowner',
+    columnValuePairs: [
+      { column: 'uouid', value: uouid },
+      { column: 'uoowner', value: uoowner }
+    ]
+  })
+
+  return userRecord
+}
+// ----------------------------------------------------------------------
+//  Write session
+// ----------------------------------------------------------------------
+async function newSession(s_uid: number) {
+  //
+  //  Write Session
+  //
+  const s_datetime = new Date().toISOString().replace('T', ' ').replace('Z', '').substring(0, 23)
+  const sessionsRecords = await table_write({
+    table: 'sessions',
+    columnValuePairs: [
+      { column: 's_datetime', value: s_datetime },
+      { column: 's_uid', value: s_uid }
+    ]
+  })
+  //
+  //  Get the sessionId
+  //
+  const sessionsRecord = sessionsRecords[0]
+  if (!sessionsRecord) throw new Error('providerSignIn: Write Session Error')
+  const sessionId = sessionsRecord.s_id
+  //
+  // Write cookie sessionId
+  //
+  await updateCookieSessionId(sessionId)
+  //
+  //  Return Session ID
+  //
+  return sessionId
 }
 // ----------------------------------------------------------------------
 //  Get Auth Session information
@@ -78,7 +133,13 @@ export async function getAuthSession() {
   try {
     const session = await auth()
     return session
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

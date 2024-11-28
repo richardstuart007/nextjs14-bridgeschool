@@ -1,12 +1,12 @@
 'use server'
 
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 
 interface ColumnValuePair {
   column: string
-  value: string | number // Allow numeric values
+  value: string | number | boolean
 }
 
 interface TableColumnValuePairs {
@@ -19,10 +19,6 @@ export async function table_check(
 ): Promise<boolean> {
   const functionName = 'table_check'
   noStore()
-  //
-  //  Connect to database
-  //
-  const client = await db.connect()
 
   try {
     //
@@ -35,29 +31,36 @@ export async function table_check(
       const whereClause = whereColumnValuePairs
         .map(({ column }, index) => `${column} = $${index + 1}`)
         .join(' AND ')
-
       //
       // Gather values for the WHERE clause
       //
       const values = whereColumnValuePairs.map(({ value }) => value)
-
       //
       // Construct the SQL SELECT query
       //
-      const sqlQuery = `SELECT 1 FROM ${table} WHERE ${whereClause} LIMIT 1`
-
+      const sqlQueryStatement = `
+      SELECT 1
+      FROM ${table}
+      WHERE ${whereClause}
+      LIMIT 1`
       //
-      // Log and execute the query
+      // Remove redundant spaces
       //
-      writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
-      const data = await client.query(sqlQuery, values)
+      const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+      //
+      // Log the query
+      //
+      writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`, 'I')
+      //
+      // Execute the query
+      //
+      const data = await sql.query(sqlQuery, values)
       //
       // Check if rows exist
       //
       if (data.rows.length > 0) {
-        console.log(
-          `Keys exist in ${table} with conditions: ${JSON.stringify(whereColumnValuePairs)}`
-        )
+        const message = `Keys exist in ${table} with conditions: ${JSON.stringify(whereColumnValuePairs)}`
+        writeLogging(functionName, message, 'I')
         return true
       }
     }
@@ -65,14 +68,15 @@ export async function table_check(
     // If no matches were found
     //
     return false
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
-  } finally {
-    //
-    //  dis-Connect from database
-    //
-    client.release()
   }
 }

@@ -38,13 +38,6 @@ export default async function middleware(req: any): Promise<any> {
   //
   const cookie = cookies().get('SessionId')
   const isLoggedInCookie = !!cookie
-  // console.log('---------------------------pathnameNew:', pathnameNew)
-  // console.log('pathnameCurrent:', pathnameCurrent)
-  // console.log('isLoggedInCookie:', isLoggedInCookie)
-  // console.log('isPrefixApiAuth:', isPrefixApiAuth)
-  // console.log('isAppRoute:', isAppRoute)
-  // console.log('isPrefixAdminRoute:', isPrefixAdminRoute)
-  // console.log('wasLoginRegisterRoute:', wasLoginRegisterRoute)
   //-------------------------------------------------------------------------------------------------
   //  Allow all API routes
   //-------------------------------------------------------------------------------------------------
@@ -82,18 +75,21 @@ export default async function middleware(req: any): Promise<any> {
     //  Not logged in
     //
     if (!isLoggedInCookie) {
-      writeLogging(functionName, `Admin Route not logged in: Redirect ${Routes_Login}`)
+      //
+      //  Logging
+      //
+      writeLogging(functionName, `Admin Route not logged in: Redirect ${Routes_Login}`, 'W')
       return Response.redirect(new URL(Routes_Login, nextUrl))
     }
     //
     //  Not authorised ()
     //
     const isAdminAuthorised = await isAdmin()
-    console.log('isAdminAuthorised', isAdminAuthorised)
     if (!isAdminAuthorised) {
       writeLogging(
         functionName,
-        `Admin Route not Authorised: Redirect ${Routes_AfterLogin_redirect}`
+        `Admin Route not Authorised: Redirect ${Routes_AfterLogin_redirect}`,
+        'W'
       )
       return Response.redirect(new URL(Routes_AfterLogin_redirect, nextUrl))
     }

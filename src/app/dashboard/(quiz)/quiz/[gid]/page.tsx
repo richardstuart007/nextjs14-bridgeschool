@@ -26,6 +26,9 @@ export default async function Page({ params }: { params: { gid: number } }) {
     const questionsData = await table_fetch(fetchParams)
     if (!questionsData) notFound()
     questions = questionsData
+    //
+    //  Errors
+    //
   } catch (error) {
     console.error('An error occurred while fetching data:', error)
   }

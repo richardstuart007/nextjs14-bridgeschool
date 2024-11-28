@@ -59,6 +59,9 @@ export default function Table({ gid }: FormProps) {
         setrecord(data)
         const fetchedTotalPages = await fetchQuestionsTotalPages(query)
         setTotalPages(fetchedTotalPages)
+        //
+        //  Errors
+        //
       } catch (error) {
         console.error('Error fetching questions:', error)
       }
@@ -144,7 +147,6 @@ export default function Table({ gid }: FormProps) {
         //  update Questions counts in Ownergroup
         //
         const ogcntquestions = await update_ogcntquestions(questions.qgid)
-        console.log('ogcntquestions', ogcntquestions)
         //
         //  Reload the page
         //

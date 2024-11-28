@@ -44,6 +44,9 @@ export default function DropdownType({ selectedOption, setSelectedOption, name }
 
       // Set the mapped options to the state
       setDropdownOptions(options)
+      //
+      //  Errors
+      //
     } catch (error) {
       console.error('Error fetching dropdown options:', error)
     } finally {

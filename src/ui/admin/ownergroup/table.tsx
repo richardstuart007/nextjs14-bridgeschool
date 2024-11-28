@@ -49,6 +49,9 @@ export default function Table() {
         setRow(data)
         const fetchedTotalPages = await fetchPages(query)
         setTotalPages(fetchedTotalPages)
+        //
+        //  Errors
+        //
       } catch (error) {
         console.error('Error fetching data:', error)
       }

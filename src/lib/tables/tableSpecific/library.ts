@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_LibraryGroup } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
@@ -20,24 +20,38 @@ export async function fetchLibraryUserTotalPages(query: string, uid: number) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT COUNT(*)
+    const sqlQueryStatement = `
+    SELECT COUNT(*)
     FROM library
     LEFT JOIN usersowner ON lrowner = uoowner
     LEFT JOIN ownergroup ON lrowner = ogowner and lrgroup = oggroup
     ${sqlWhere}`
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const result = await client.query(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const result = await sql.query(sqlQuery)
     //
     //  Return results
     //
     const count = result.rows[0].count
     const totalPages = Math.ceil(count / LIBRARY_ITEMS_PER_PAGE)
     return totalPages
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -58,26 +72,40 @@ export async function fetchLibraryUserFiltered(query: string, currentPage: numbe
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT *
+    const sqlQueryStatement = `SELECT *
     FROM library
     LEFT JOIN usersowner ON lrowner = uoowner
     LEFT JOIN ownergroup ON lrgid = oggid
      ${sqlWhere}
       ORDER BY lrref
-      LIMIT ${LIBRARY_ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT $1 OFFSET $2
      `
+    const queryValues = [LIBRARY_ITEMS_PER_PAGE, offset]
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const data = await client.query<table_LibraryGroup>(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute the sql
+    //
+    const data = await sql.query<table_LibraryGroup>(sqlQuery, queryValues)
     //
     //  Return results
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -201,22 +229,36 @@ export async function fetchLibraryTotalPages(query: string) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT COUNT(*)
+    const sqlQueryStatement = `SELECT COUNT(*)
     FROM library
-    ${sqlWhere}`
+     ${sqlWhere}`
+
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const result = await client.query(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const result = await sql.query(sqlQuery)
     //
     //  Return results
     //
     const count = result.rows[0].count
     const totalPages = Math.ceil(count / MAINT_ITEMS_PER_PAGE)
     return totalPages
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -237,24 +279,38 @@ export async function fetchLibraryFiltered(query: string, currentPage: number) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT *
+    const sqlQueryStatement = `SELECT *
     FROM library
      ${sqlWhere}
       ORDER BY lrlid
-      LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT $1 OFFSET $2
      `
+    const queryValues = [MAINT_ITEMS_PER_PAGE, offset]
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const data = await client.query<table_LibraryGroup>(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute SQL
+    //
+    const data = await sql.query<table_LibraryGroup>(sqlQuery, queryValues)
     //
     //  Return results
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

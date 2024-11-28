@@ -39,9 +39,11 @@ export default function NavSide() {
     //  Auth redirect error - fix ???
     //
     if (!pathname.includes('/dashboard')) {
+      //
+      //  Logging
+      //
       const message = 'nav-side: Auth redirect but not /dashboard'
-      // console.log(message)
-      writeLogging(functionName, message)
+      writeLogging(functionName, message, 'W')
       router.push(pathname)
       return
     }

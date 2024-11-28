@@ -61,6 +61,9 @@ export default async function Page({ params }: { params: { hid: number } }) {
         {questions ? <ReviewForm history={history} questions={questions} /> : null}
       </div>
     )
+    //
+    //  Errors
+    //
   } catch (error) {
     console.error('An error occurred while fetching history data:', error)
     return <div>An error occurred while fetching history data.</div>

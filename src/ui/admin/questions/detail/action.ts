@@ -58,19 +58,19 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
   //
   //  Convert hidden fields value to numeric
   //
-  const qqid = formData.get('qqid') as string | null
-  const qqidNumber = qqid ? Number(qqid) : 0
+  const qqidString = formData.get('qqid') as string | 0
+  const qqid = Number(qqidString)
 
-  const qseqChar = formData.get('qseq')
-  let qseqNumber = qseqChar ? Number(qseqChar) : 0
+  const qseqString = formData.get('qseq') as string | 0
+  let qseq = Number(qseqString)
   //
   // Validate fields
   //
   const Table = {
-    qqid: qqidNumber,
+    qqid: qqid,
     qowner: qowner,
     qgroup: qgroup,
-    qseq: qseqNumber
+    qseq: qseq
   }
   const errorMessages = await validate(Table)
   if (errorMessages.message) {
@@ -87,14 +87,14 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
     //
     //  Update
     //
-    if (qqidNumber !== 0) {
+    if (qqid !== 0) {
       //
       //  update parameters
       //
       const updateParams = {
         table: 'questions',
         columnValuePairs: [{ column: 'qdetail', value: qdetail }],
-        whereColumnValuePairs: [{ column: 'qqid', value: qqidNumber }]
+        whereColumnValuePairs: [{ column: 'qqid', value: qqid }]
       }
       const data = await table_update(updateParams)
     }
@@ -105,7 +105,7 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
       //
       //  Get next sequence if Add
       //
-      qseqNumber = await getNextSeq(qowner, qgroup)
+      qseq = await getNextSeq(qowner, qgroup)
       //
       //  Get group id - qgid
       //
@@ -125,7 +125,7 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
         columnValuePairs: [
           { column: 'qowner', value: qowner },
           { column: 'qgroup', value: qgroup },
-          { column: 'qseq', value: qseqNumber },
+          { column: 'qseq', value: qseq },
           { column: 'qdetail', value: qdetail },
           { column: 'qgid', value: oggid }
         ]
@@ -135,7 +135,6 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
       //  update Questions counts in Ownergroup
       //
       const ogcntquestions = await update_ogcntquestions(oggid)
-      console.log('ogcntquestions', ogcntquestions)
     }
     return {
       message: `Database updated successfully.`,

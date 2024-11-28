@@ -39,7 +39,6 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
   //
   // Close the popup if the update was successful
   //
-  // console.log('formState', formState)
   if (formState.databaseUpdated && shouldCloseOnUpdate) {
     onSuccess()
     return null

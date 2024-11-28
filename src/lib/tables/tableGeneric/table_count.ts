@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
@@ -22,10 +22,6 @@ export async function table_count({ table, whereColumnValuePairs }: Props): Prom
   const functionName = 'table_count'
   noStore()
   //
-  //  Connect
-  //
-  const client = await db.connect()
-  //
   // Build the base SQL query
   //
   let sqlQuery = `SELECT COUNT(*) FROM ${table}`
@@ -44,27 +40,28 @@ export async function table_count({ table, whereColumnValuePairs }: Props): Prom
       sqlQuery += ` WHERE ${whereClause}`
     }
     //
-    // Log the query and values
+    //  Logging
     //
-    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
+    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`, 'I')
     //
     // Execute the query
     //
-    const data = await client.query(sqlQuery, values)
+    const data = await sql.query(sqlQuery, values)
     //
     // Return the count
     //
     const rowCount = parseInt(data.rows[0].count, 10)
     return rowCount
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     const errorMessage = `Table(${table}) SQL(${sqlQuery}) FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)
     throw new Error(`${functionName}, ${errorMessage}`)
-  } finally {
-    //
-    //  Disconnect
-    //
-    client.release()
   }
 }

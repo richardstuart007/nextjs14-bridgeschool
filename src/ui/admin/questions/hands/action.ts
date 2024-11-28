@@ -233,7 +233,8 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
     //
     //  Convert hidden fields value to numeric
     //
-    const qqid = formData.get('qqid') as string
+    const qqidString = formData.get('qqid') as string | 0
+    const qqid = Number(qqidString)
     //
     // Update data into the database
     //
@@ -264,6 +265,9 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       const data = await table_update(updateParams)
       message = `Database updated successfully.`
       databaseUpdated = true
+      //
+      //  Errors
+      //
     } catch (error) {
       ok = false
       message = 'Database Error: Failed to Update.'

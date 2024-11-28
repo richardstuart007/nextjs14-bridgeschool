@@ -41,6 +41,9 @@ export const {
       try {
         sessionId = await providerSignIn(signInData)
         return true
+        //
+        //  Errors
+        //
       } catch (error) {
         console.error('Provider signIn error:', error)
         return false
@@ -135,6 +138,9 @@ export const {
             password: userPwd.uphash
           }
           return rtnData as structure_UserAuth
+          //
+          //  Errors
+          //
         } catch (error) {
           console.error('Authorization error:', error)
           return null

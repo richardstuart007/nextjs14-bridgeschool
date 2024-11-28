@@ -1,13 +1,7 @@
 'use server'
 
-import { sql, db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
-import {
-  structure_HistoryGroup,
-  structure_UsershistoryTopResults,
-  structure_UsershistoryRecentResults
-} from '@/src/lib/tables/structures'
-import { table_Usershistory } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 const HISTORY_ITEMS_PER_PAGE = 10
 //---------------------------------------------------------------------
@@ -18,19 +12,36 @@ export async function fetchHistoryTotalPages(query: string) {
   noStore()
   try {
     let sqlWhere = await buildWhere_History(query)
-    const sqlQuery = `
-    SELECT COUNT(*)
-    FROM usershistory
-    ${sqlWhere}`
+    const sqlQueryStatement = `
+    SELECT
+      COUNT(*)
+      FROM usershistory
+       ${sqlWhere}`
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const result = await sql.query(sqlQuery)
 
-    const client = await db.connect()
-    const result = await client.query(sqlQuery)
     const count = result.rows[0].count
-    client.release()
 
     const totalPages = Math.ceil(count / HISTORY_ITEMS_PER_PAGE)
     return totalPages
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -45,21 +56,38 @@ export async function fetchHistoryFiltered(query: string, currentPage: number) {
   const offset = (currentPage - 1) * HISTORY_ITEMS_PER_PAGE
   try {
     let sqlWhere = await buildWhere_History(query)
-    const sqlQuery = `
+    const sqlQueryStatement = `
     SELECT *
     FROM usershistory
     LEFT JOIN ownergroup ON r_gid = oggid
     LEFT JOIN users ON r_uid = u_uid
      ${sqlWhere}
       ORDER BY r_hid DESC
-      LIMIT ${HISTORY_ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT $1 OFFSET $2
      `
-    const client = await db.connect()
-    const data = await client.query<structure_HistoryGroup>(sqlQuery)
-    client.release()
+    const queryValues = [HISTORY_ITEMS_PER_PAGE, offset]
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const data = await sql.query(sqlQuery, queryValues)
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -171,8 +199,8 @@ export async function fetchTopResultsData() {
   noStore()
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
-    const data = await sql<structure_UsershistoryTopResults>`
-      SELECT
+    const sqlQueryStatement = `
+    SELECT
         r_uid,
         u_name,
         COUNT(*) AS record_count,
@@ -192,14 +220,32 @@ export async function fetchTopResultsData() {
         COUNT(*) >= 3
       ORDER BY
         percentage DESC
-      LIMIT 5;
-    `
+      LIMIT 5
+  `
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    writeLogging(functionName, sqlQuery, 'I')
+    //
+    //  Run sql Query
+    //
+    const data = await sql.query(sqlQuery)
     //
     //  Return rows
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -214,35 +260,53 @@ export async function fetchRecentResultsData1() {
   // ????????????
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
-    const data = await sql<structure_UsershistoryRecentResults>`
-  SELECT
-    r_hid, r_uid, u_name, r_totalpoints, r_maxpoints, r_correctpercent
-  FROM (
-          SELECT
-            r_hid,
-            r_uid,
-            u_name,
-            r_totalpoints,
-            r_maxpoints,
-            r_correctpercent,
-            ROW_NUMBER()
-            OVER (PARTITION BY r_uid ORDER BY r_hid DESC) AS rn
-          FROM usershistory
-          JOIN users
-            ON r_uid = u_uid
-        )
-  AS ranked
-  WHERE rn = 1
-  ORDER BY
-    r_hid DESC
-  LIMIT 5;
-    `
+    const sqlQueryStatement = `
+    SELECT
+      r_hid, r_uid, u_name, r_totalpoints, r_maxpoints, r_correctpercent
+      FROM (
+              SELECT
+                r_hid,
+                r_uid,
+                u_name,
+                r_totalpoints,
+                r_maxpoints,
+                r_correctpercent,
+                ROW_NUMBER()
+                OVER (PARTITION BY r_uid ORDER BY r_hid DESC) AS rn
+              FROM usershistory
+              JOIN users
+                ON r_uid = u_uid
+            )
+      AS ranked
+      WHERE rn = 1
+      ORDER BY
+        r_hid DESC
+      LIMIT 5
+      `
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    writeLogging(functionName, sqlQuery, 'I')
+    //
+    //  Run sql Query
+    //
+    const data = await sql.query(sqlQuery)
     //
     //  Return rows
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -258,70 +322,51 @@ export async function fetchRecentResultsData5(userIds: number[]) {
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
     const [id1, id2, id3, id4, id5] = userIds
-
-    const data = await sql<structure_UsershistoryRecentResults>`
-SELECT r_hid, r_uid, u_name, r_totalpoints, r_maxpoints, r_correctpercent
-FROM (
+    const sqlQueryStatement = `
     SELECT
-        r_hid, r_uid, u_name, r_totalpoints, r_maxpoints, r_correctpercent,
-        ROW_NUMBER() OVER (PARTITION BY r_uid ORDER BY r_hid DESC) AS rn
-    FROM usershistory
-    JOIN users ON r_uid = u_uid
-       WHERE r_uid IN (${id1}, ${id2}, ${id3}, ${id4}, ${id5})
-) AS ranked
-WHERE rn <= 5
-ORDER BY r_uid;
-    `
+      r_hid,
+      r_uid,
+      u_name,
+      r_totalpoints,
+      r_maxpoints,
+      r_correctpercent
+      FROM (
+        SELECT
+          r_hid, r_uid, u_name, r_totalpoints, r_maxpoints, r_correctpercent,
+          ROW_NUMBER() OVER (PARTITION BY r_uid ORDER BY r_hid DESC) AS rn
+        FROM usershistory
+        JOIN users ON r_uid = u_uid
+          WHERE r_uid IN ($1, $2, $3, $4, $5)
+      ) AS ranked
+      WHERE rn <= 5
+      ORDER BY r_uid;
+        `
+    const queryValues = [id1, id2, id3, id4, id5]
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const data = await sql.query(sqlQuery, queryValues)
     //
     //  Return rows
     //
     const rows = data.rows
     return rows
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
-//  Write User History
-//---------------------------------------------------------------------
-type table_Usershistory_New = Omit<table_Usershistory, 'r_hid'>
-export async function writeUsershistory(table_Usershistory_New: table_Usershistory_New) {
-  const functionName = 'writeUsershistory'
-  try {
     //
-    //  Deconstruct history
+    //  Errors
     //
-    const {
-      r_datetime,
-      r_owner,
-      r_group,
-      r_questions,
-      r_qid,
-      r_ans,
-      r_uid,
-      r_points,
-      r_maxpoints,
-      r_totalpoints,
-      r_correctpercent,
-      r_gid,
-      r_sid
-    } = table_Usershistory_New
-
-    const r_qid_string = `{${r_qid.join(',')}}`
-    const r_ans_string = `{${r_ans.join(',')}}`
-    const r_points_string = `{${r_points.join(',')}}`
-
-    const { rows } = await sql`INSERT INTO Usershistory
-    (r_datetime, r_owner, r_group, r_questions, r_qid, r_ans, r_uid, r_points,
-       r_maxpoints, r_totalpoints, r_correctpercent, r_gid, r_sid)
-    VALUES (${r_datetime}, ${r_owner},${r_group},${r_questions},${r_qid_string},${r_ans_string},${r_uid},${r_points_string},
-      ${r_maxpoints},${r_totalpoints},${r_correctpercent},${r_gid},${r_sid})
-    RETURNING *`
-    const table_Usershistory = rows[0]
-    return table_Usershistory
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

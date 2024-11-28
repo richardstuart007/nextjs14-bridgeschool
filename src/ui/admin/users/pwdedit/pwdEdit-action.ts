@@ -1,7 +1,8 @@
 'use server'
 
 import { z } from 'zod'
-import { updateUsersPwd } from '@/src/lib/tables/tableSpecific/users'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import bcrypt from 'bcryptjs'
 // ----------------------------------------------------------------------
 //  Update User Setup
 // ----------------------------------------------------------------------
@@ -51,12 +52,24 @@ export async function PwdEdit(prevState: StateSetup, formData: FormData): Promis
   // Update data into the database
   //
   try {
-    await updateUsersPwd(userid, uppwd)
-
+    //
+    //  Update the userspwd data
+    //
+    const upuid = userid
+    const uphash = await bcrypt.hash(uppwd, 10)
+    const updateParams = {
+      table: 'userspwd',
+      columnValuePairs: [{ column: 'uphash', value: uphash }],
+      whereColumnValuePairs: [{ column: 'upuid', value: upuid }]
+    }
+    const data = await table_update(updateParams)
     return {
       message: 'Password updated successfully.',
       errors: undefined
     }
+    //
+    //  Errors
+    //
   } catch (error) {
     return {
       message: 'Database Error: Failed to Update Password.',

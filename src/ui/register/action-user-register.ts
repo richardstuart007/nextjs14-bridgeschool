@@ -1,11 +1,10 @@
 'use server'
 
 import { z } from 'zod'
-import { writeUser, writeUsersPwd } from '@/src/lib/tables/tableSpecific/users'
-import type { table_Users } from '@/src/lib/tables/definitions'
 import { signIn } from '@/auth'
 import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
 import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
+import bcrypt from 'bcryptjs'
 // ----------------------------------------------------------------------
 //  Register
 // ----------------------------------------------------------------------
@@ -70,23 +69,55 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
   //
   //  Write User
   //
-  const userRecord = (await writeUser(provider, email, name)) as table_Users | undefined
+  const u_email = email
+  const u_name = name
+  const u_joined = new Date().toISOString().slice(0, 19).replace('T', ' ')
+  const u_fedid = ''
+  const u_admin = false
+  const u_fedcountry = 'ZZ'
+  const u_provider = provider
+  const userRecords = await table_write({
+    table: 'users',
+    columnValuePairs: [
+      { column: 'u_email', value: u_email },
+      { column: 'u_name', value: u_name },
+      { column: 'u_joined', value: u_joined },
+      { column: 'u_fedid', value: u_fedid },
+      { column: 'u_admin', value: u_admin },
+      { column: 'u_fedcountry', value: u_fedcountry },
+      { column: 'u_provider', value: u_provider }
+    ]
+  })
+  const userRecord = userRecords[0]
   if (!userRecord) {
-    throw Error('registerUser: Write User Error')
+    throw Error('registerUser: Write Users Error')
   }
   //
   //  Write the userspwd data
   //
-  const userid = userRecord.u_uid
-  await writeUsersPwd(userid, password, email)
+  const upuid = userRecord.u_uid
+  const uphash = await bcrypt.hash(password, 10)
+  const upemail = email
+
+  const userpwdRecords = await table_write({
+    table: 'userspwd',
+    columnValuePairs: [
+      { column: 'upuid', value: upuid },
+      { column: 'uphash', value: uphash },
+      { column: 'upemail', value: upemail }
+    ]
+  })
+  const userpwdRecord = userpwdRecords[0]
   //
   //  Write the usersowner data
   //
-  const dataUserowner = await table_write({
+  const uouid = userRecord.u_uid
+  const uoowner = 'Richard'
+  const dataUserowners = await table_write({
     table: 'usersowner',
     columnValuePairs: [
-      { column: 'uouid', value: userid },
-      { column: 'uoowner', value: 'Richard' }
+      { column: 'uouid', value: uouid },
+      { column: 'uoowner', value: uoowner }
     ]
   })
   //

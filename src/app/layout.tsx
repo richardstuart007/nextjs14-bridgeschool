@@ -12,10 +12,6 @@ export const metadata: Metadata = {
   description: 'Nextjs14 Bridge School.',
   metadataBase: new URL('https://nextjs14-bridgeschool.vercel.app/')
 }
-//
-//  Cashed database name
-//
-let cachedDName: string = 'notfetched'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const d_name: string = await getDatabaseName()
@@ -24,9 +20,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   //-----------------------------------------------------------------------------
   async function getDatabaseName(): Promise<string> {
     //
-    //  Once only
+    //  Define the constant
     //
-    if (cachedDName !== 'notfetched') return cachedDName
+    const globalCachedDName = globalThis as typeof globalThis & { cachedDName?: string }
+    //
+    // If the value exists, return it
+    //
+    if (globalCachedDName.cachedDName !== undefined) return globalCachedDName.cachedDName
     //
     //  Fetch database name
     //
@@ -34,11 +34,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       table: 'database',
       whereColumnValuePairs: [{ column: 'd_did', value: 1 }]
     })
-
     const row = rows[0]
-    cachedDName = row?.d_name ?? 'Unknown'
-
-    return cachedDName
+    const dbName = row?.d_name ?? 'Unknown'
+    //
+    // Store the database name in globalThis for future requests
+    //
+    globalCachedDName.cachedDName = dbName
+    //
+    //  Return the name
+    //
+    return dbName
   }
   //-----------------------------------------------------------------------------
   return (

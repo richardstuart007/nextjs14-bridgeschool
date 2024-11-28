@@ -45,6 +45,9 @@ export default function Table() {
         setwho(data)
         const fetchedTotalPages = await fetchWhoTotalPages(query)
         setTotalPages(fetchedTotalPages)
+        //
+        //  Errors
+        //
       } catch (error) {
         console.error('Error fetching who:', error)
       }

@@ -6,41 +6,35 @@ import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 import { deleteCookie, getCookieSessionId } from '@/src/lib/data-cookie'
 //---------------------------------------------------------------------
-//  Write User Sessions
-//---------------------------------------------------------------------
-export async function writeSessions(s_uid: number) {
-  const functionName = 'writeSessions'
-  try {
-    const s_datetime = new Date().toISOString().replace('T', ' ').replace('Z', '').substring(0, 23)
-    const { rows } = await sql`
-    INSERT INTO sessions (
-      s_datetime,
-      s_uid
-    ) VALUES (
-      ${s_datetime},
-      ${s_uid}
-    ) RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-//---------------------------------------------------------------------
 //  Update Sessions to signed out
 //---------------------------------------------------------------------
 export async function SessionsSignout(s_id: number) {
   const functionName = 'SessionsSignout'
   try {
-    await sql`
+    const sqlQueryStatement = `
     UPDATE sessions
     SET
       s_signedin = false
-    WHERE s_id = ${s_id}
+    WHERE s_id = $1
     `
+    const queryValues = [s_id]
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    await sql.query(sqlQuery, queryValues)
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     return {
@@ -54,7 +48,7 @@ export async function SessionsSignout(s_id: number) {
 export async function SessionsSignoutAll() {
   const functionName = 'SessionsSignoutAll'
   try {
-    await sql`
+    const sqlQueryStatement = `
     UPDATE sessions
     SET
       s_signedin = false
@@ -62,7 +56,25 @@ export async function SessionsSignoutAll() {
       s_signedin = true AND
       s_datetime < NOW() - INTERVAL '3 HOURS'
     `
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    writeLogging(functionName, sqlQuery, 'I')
+    //
+    //  Run sql Query
+    //
+    await sql.query(sqlQuery)
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     return {
@@ -81,15 +93,35 @@ export async function UpdateSessions(
 ) {
   const functionName = 'UpdateSessions'
   try {
-    await sql`
+    const sqlQueryStatement = `
     UPDATE sessions
     SET
-      s_dftmaxquestions = ${s_dftmaxquestions},
-      s_sortquestions = ${s_sortquestions},
-      s_skipcorrect = ${s_skipcorrect}
-    WHERE s_id = ${s_id}
+      s_dftmaxquestions = $1,
+      s_sortquestions = $2,
+      s_skipcorrect = $3
+    WHERE s_id = $4
     `
+    const queryValues = [s_dftmaxquestions, s_sortquestions, s_skipcorrect, s_id]
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute the sql
+    //
+    await sql.query(sqlQuery, queryValues)
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     return {
@@ -104,8 +136,8 @@ export async function fetchSessionInfo(sessionId: number) {
   const functionName = 'fetchSessionInfo'
   noStore()
   try {
-    const data = await sql`
-      SELECT
+    const sqlQueryStatement = `
+    SELECT
         u_uid,
         u_name,
         u_email,
@@ -118,10 +150,26 @@ export async function fetchSessionInfo(sessionId: number) {
       FROM sessions
       JOIN users
       ON   s_uid = u_uid
-      WHERE s_id = ${sessionId};
+      WHERE s_id = $1
     `
-
+    const queryValues = [sessionId]
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute the sql
+    //
+    const data = await sql.query(sqlQuery, queryValues)
     const row = data.rows[0]
+    //
+    //  Return the session info
+    //
     const structure_SessionsInfo: structure_SessionsInfo = {
       bsuid: row.u_uid,
       bsname: row.u_name,
@@ -134,7 +182,13 @@ export async function fetchSessionInfo(sessionId: number) {
       bsdftmaxquestions: row.s_dftmaxquestions
     }
     return structure_SessionsInfo
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -164,6 +218,9 @@ export async function navsignout() {
     //  Errors
     //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

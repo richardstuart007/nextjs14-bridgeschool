@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { sql } from '@vercel/postgres'
+import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 // ----------------------------------------------------------------------
 //  Update User Setup
 // ----------------------------------------------------------------------
@@ -59,20 +59,32 @@ export async function UserEdit(prevState: StateSetup, formData: FormData): Promi
   // Update data into the database
   //
   try {
-    await sql`
-    UPDATE users
-    SET
-      u_name = ${u_name},
-      u_fedid = ${u_fedid},
-      u_fedcountry = ${u_fedcountry},
-      u_admin = ${u_admin}
-    WHERE u_uid = ${u_uid}
-    `
+    //
+    // Common column-value pairs
+    //
+    const columnValuePairs = [
+      { column: 'u_name', value: u_name },
+      { column: 'u_fedid', value: u_fedid },
+      { column: 'u_fedcountry', value: u_fedcountry },
+      { column: 'u_admin', value: u_admin }
+    ]
+    const updateParams = {
+      table: 'users',
+      columnValuePairs,
+      whereColumnValuePairs: [{ column: 'u_uid', value: u_uid }]
+    }
+    //
+    //  Update the database
+    //
+    const data = await table_update(updateParams)
 
     return {
       message: 'User updated successfully.',
       errors: undefined
     }
+    //
+    //  Errors
+    //
   } catch (error) {
     return {
       message: 'Database Error: Failed to Update User.',
