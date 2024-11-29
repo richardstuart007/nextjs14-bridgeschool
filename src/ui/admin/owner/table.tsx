@@ -57,25 +57,10 @@ export default function Table() {
     // eslint-disable-next-line
   }, [currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
-  //  Edit
-  //----------------------------------------------------------------------------------------------
-  function handleClickEdit(owner: table_Owner) {
-    setSelectedRow(owner)
-    setIsModelOpenEdit(true)
-  }
-  //----------------------------------------------------------------------------------------------
   //  Add
   //----------------------------------------------------------------------------------------------
   function handleClickAdd() {
     setIsModelOpenAdd(true)
-  }
-  //----------------------------------------------------------------------------------------------
-  //  Close Modal Edit
-  //----------------------------------------------------------------------------------------------
-  function handleModalCloseEdit() {
-    setIsModelOpenEdit(false)
-    setSelectedRow(null)
-    setShouldFetchData(true)
   }
   //----------------------------------------------------------------------------------------------
   //  Close Modal Add
@@ -91,7 +76,7 @@ export default function Table() {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',
-      subTitle: `Are you sure you want to delete (${owner.ooid}) : ${owner.otitle}?`,
+      subTitle: `Are you sure you want to delete (${owner.ooid}) ?`,
       onConfirm: async () => {
         //
         // Check a list of tables if owner changes
@@ -162,13 +147,7 @@ export default function Table() {
                     Owner
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Title
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
                     ID
-                  </th>
-                  <th scope='col' className='px-2 py-2 font-medium text-left'>
-                    Edit
                   </th>
                   <th scope='col' className='px-2 py-2 font-medium text-left'>
                     Delete
@@ -182,16 +161,7 @@ export default function Table() {
                     className='w-full border-b py-2 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg'
                   >
                     <td className='px-2 py-1 text-sm '>{owner.oowner}</td>
-                    <td className='px-2 py-1 text-sm '>{owner.otitle}</td>
                     <td className='px-2 py-1 text-sm '>{owner.ooid}</td>
-                    <td className='px-2 py-1 text-sm'>
-                      <button
-                        onClick={() => handleClickEdit(owner)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
-                      >
-                        Edit
-                      </button>
-                    </td>
                     <td className='px-2 py-1 text-sm'>
                       <button
                         onClick={() => handleDeleteClick(owner)}
@@ -211,19 +181,8 @@ export default function Table() {
           <Pagination totalPages={totalPages} />
         </div>
 
-        {/* Edit Modal */}
-        {selectedRow && (
-          <MaintPopup
-            ownerRecord={selectedRow}
-            isOpen={isModelOpenEdit}
-            onClose={handleModalCloseEdit}
-          />
-        )}
-
         {/* Add Modal */}
-        {isModelOpenAdd && (
-          <MaintPopup ownerRecord={null} isOpen={isModelOpenAdd} onClose={handleModalCloseAdd} />
-        )}
+        {isModelOpenAdd && <MaintPopup isOpen={isModelOpenAdd} onClose={handleModalCloseAdd} />}
 
         {/* Confirmation Dialog */}
         <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />

@@ -41,7 +41,6 @@ export type table_Logging = {
 
 export type table_Owner = {
   oowner: string
-  otitle: string
   ooid: number
 }
 

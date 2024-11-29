@@ -1,10 +1,8 @@
 'use server'
 
 import { z } from 'zod'
-import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import validateOwner from '@/src/ui/admin/owner/maint-validate'
-
 // ----------------------------------------------------------------------
 //  Update Owner Setup
 // ----------------------------------------------------------------------
@@ -12,8 +10,7 @@ import validateOwner from '@/src/ui/admin/owner/maint-validate'
 //  Form Schema for validation
 //
 const FormSchemaSetup = z.object({
-  oowner: z.string(),
-  otitle: z.string()
+  oowner: z.string()
 })
 //
 //  Errors and Messages
@@ -21,7 +18,6 @@ const FormSchemaSetup = z.object({
 export type StateSetup = {
   errors?: {
     oowner?: string[]
-    otitle?: string[]
   }
   message?: string | null
   databaseUpdated?: boolean
@@ -34,8 +30,7 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
   //  Validate form data
   //
   const validatedFields = Setup.safeParse({
-    oowner: formData.get('oowner'),
-    otitle: formData.get('otitle')
+    oowner: formData.get('oowner')
   })
   //
   // If form validation fails, return errors early. Otherwise, continue.
@@ -49,20 +44,8 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
   //
   // Unpack form data
   //
-  const { oowner, otitle } = validatedFields.data
-  //
-  //  Convert hidden fields value to numeric
-  //
-  const ooid = Number(formData.get('ooid'))
-  //
-  // Validate fields
-  //
-  const OwnerTable = {
-    ooid: ooid,
-    oowner: oowner,
-    otitle: otitle
-  }
-  const errorMessages = await validateOwner(OwnerTable)
+  const { oowner } = validatedFields.data
+  const errorMessages = await validateOwner(oowner)
   if (errorMessages.message) {
     return {
       errors: errorMessages.errors,
@@ -74,19 +57,11 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
   // Update data into the database
   //
   try {
-    const updateParams = {
-      table: 'owner',
-      columnValuePairs: [{ column: 'otitle', value: otitle }],
-      whereColumnValuePairs: [{ column: 'ooid', value: ooid }]
-    }
     const writeParams = {
       table: 'owner',
-      columnValuePairs: [
-        { column: 'oowner', value: oowner },
-        { column: 'otitle', value: otitle }
-      ]
+      columnValuePairs: [{ column: 'oowner', value: oowner }]
     }
-    const data = await (ooid === 0 ? table_write(writeParams) : table_update(updateParams))
+    const data = await table_write(writeParams)
 
     return {
       message: `Database updated successfully.`,

@@ -39,7 +39,7 @@ export default function DropdownOwner({ selectedOption, setSelectedOption, name 
       //
       const options = rows.map(row => ({
         value: row.oowner,
-        label: row.otitle
+        label: row.oowner
       }))
       //
       // Set the mapped options to the state
