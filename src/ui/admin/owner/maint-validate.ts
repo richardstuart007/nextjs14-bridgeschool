@@ -1,17 +1,14 @@
-import { table_Owner } from '@/src/lib/tables/definitions'
 import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
 //
 //  Errors and Messages
 //
 export type StateSetup = {
   errors?: {
-    otitle?: string[]
     oowner?: string[]
   }
   message?: string | null
 }
-export default async function validateOwner(record: table_Owner): Promise<StateSetup> {
-  const { ooid, oowner } = record
+export default async function validateOwner(oowner: string): Promise<StateSetup> {
   //
   // Initialise errors return
   //
@@ -19,16 +16,14 @@ export default async function validateOwner(record: table_Owner): Promise<StateS
   //
   //  Check for Add duplicate
   //
-  if (ooid === 0) {
-    const tableColumnValuePairs = [
-      {
-        table: 'owner',
-        whereColumnValuePairs: [{ column: 'oowner', value: oowner }]
-      }
-    ]
-    const exists = await table_check(tableColumnValuePairs)
-    if (exists) errors.oowner = ['Owner must be unique']
-  }
+  const tableColumnValuePairs = [
+    {
+      table: 'owner',
+      whereColumnValuePairs: [{ column: 'oowner', value: oowner }]
+    }
+  ]
+  const exists = await table_check(tableColumnValuePairs)
+  if (exists) errors.oowner = ['Owner must be unique']
   //
   // Return error messages
   //

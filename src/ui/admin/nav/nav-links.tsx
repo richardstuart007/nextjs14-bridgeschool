@@ -1,16 +1,6 @@
 'use client'
 import { useEffect, useState, ForwardRefExoticComponent, SVGProps, RefAttributes } from 'react'
-import {
-  HomeIcon,
-  UserIcon,
-  CircleStackIcon,
-  BuildingLibraryIcon,
-  ServerStackIcon,
-  RectangleGroupIcon,
-  UserCircleIcon,
-  DocumentTextIcon,
-  QuestionMarkCircleIcon
-} from '@heroicons/react/24/outline'
+import { HomeIcon, CircleStackIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
@@ -34,24 +24,9 @@ export default function Page() {
   //
   const [links, setLinks] = useState<Link[]>([])
   useEffect(() => {
-    const hrefUser = `/admin/users`
-
-    const hrefOwner = `/admin/owner`
-    const hrefOwnergroup = `/admin/ownergroup`
-    const hrefLibrary = `/admin/library`
-    const hrefWho = `/admin/who`
-    const hrefReftype = `/admin/reftype`
-    const hrefQuestions = `/admin/questions`
     const hrefAdmin = `/admin`
     const initialLinks = [
       { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-      { name: 'Owner', href: hrefOwner, icon: ServerStackIcon },
-      { name: 'Ownergroup', href: hrefOwnergroup, icon: RectangleGroupIcon },
-      { name: 'Library', href: hrefLibrary, icon: BuildingLibraryIcon },
-      { name: 'Who', href: hrefWho, icon: UserCircleIcon },
-      { name: 'Reftype', href: hrefReftype, icon: DocumentTextIcon },
-      { name: 'Questions', href: hrefQuestions, icon: QuestionMarkCircleIcon },
-      { name: 'Users', href: hrefUser, icon: UserIcon },
       { name: 'Admin', href: hrefAdmin, icon: CircleStackIcon }
     ]
     setLinks(initialLinks)

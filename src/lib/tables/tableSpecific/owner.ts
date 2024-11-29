@@ -94,9 +94,6 @@ export async function buildWhere_Owner(query: string) {
             oid = parseInt(value, 10)
           }
           break
-        case 'title':
-          title = value
-          break
         case 'owner':
           owner = value
           break
@@ -116,7 +113,6 @@ export async function buildWhere_Owner(query: string) {
   //
   let whereClause = ''
   if (oid !== 0) whereClause += `ooid = ${oid} AND `
-  if (title !== '') whereClause += `otitle ILIKE '%${title}%' AND `
   if (owner !== '') whereClause += `oowner ILIKE '%${owner}%' AND `
   //
   // Remove the trailing 'AND' if there are conditions
