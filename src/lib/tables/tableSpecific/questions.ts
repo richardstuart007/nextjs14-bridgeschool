@@ -1,6 +1,6 @@
 'use server'
 
-import { sql, db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_Questions } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
@@ -20,24 +20,38 @@ export async function fetchQuestionsFiltered(query: string, currentPage: number)
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT *
+    const sqlQueryStatement = `SELECT *
     FROM questions
      ${sqlWhere}
       ORDER BY qowner, qgroup, qseq
-      LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT $1 OFFSET $2
      `
+    const queryValues = [MAINT_ITEMS_PER_PAGE, offset]
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const data = await client.query<table_Questions>(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute the sql
+    //
+    const data = await sql.query<table_Questions>(sqlQuery, queryValues)
     //
     //  Return results
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -127,22 +141,35 @@ export async function fetchQuestionsTotalPages(query: string) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT COUNT(*)
+    const sqlQueryStatement = `SELECT COUNT(*)
     FROM questions
     ${sqlWhere}`
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const result = await client.query(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const result = await sql.query(sqlQuery)
     //
     //  Return results
     //
     const count = result.rows[0].count
     const totalPages = Math.ceil(count / MAINT_ITEMS_PER_PAGE)
     return totalPages
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -154,16 +181,37 @@ export async function fetchQuestionsTotalPages(query: string) {
 export async function getNextSeq(qowner: string, qgroup: string) {
   const functionName = 'getNextSeq'
   try {
-    const { rows } = await sql`
-    SELECT COALESCE(MAX(qseq) + 1, 1) AS next_qseq
-    FROM questions
-    WHERE qowner = ${qowner}
-      AND qgroup = ${qgroup}
-  ;
-  `
-    const next_qseq = rows[0].next_qseq
+    const sqlQueryStatement = `
+      SELECT COALESCE(MAX(qseq) + 1, 1) AS next_qseq
+      FROM questions
+      WHERE qowner = $1
+        AND qgroup = $2
+    `
+    //
+    // Remove redundant spaces
+    //
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `Query: ${sqlQuery}, Values: ${JSON.stringify([qowner, qgroup])}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const data = await sql.query(sqlQuery, [qowner, qgroup])
+    //
+    //  Return results
+    //
+    const next_qseq = data.rows[0]?.next_qseq ?? null
     return next_qseq
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

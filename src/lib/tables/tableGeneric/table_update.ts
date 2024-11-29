@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
@@ -8,7 +8,7 @@ import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 interface ColumnValuePair {
   column: string
-  value: string | number
+  value: string | number | boolean | string[] | number[]
 }
 //
 // Props
@@ -26,10 +26,6 @@ export async function table_update({
 }: Props): Promise<any[]> {
   const functionName = 'table_update'
   noStore()
-  //
-  // Connect
-  //
-  const client = await db.connect()
   //
   // Create the SET clause for the update statement
   //
@@ -53,23 +49,30 @@ export async function table_update({
   // Construct the SQL UPDATE query
   //
   try {
+    //
+    // Build the SQL query
+    //
     const sqlQuery = `UPDATE ${table} SET ${setClause} WHERE ${whereClause} RETURNING *`
     //
-    // Run the query
+    //  Log the sql
     //
     const lgmsg = `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`
-    writeLogging(functionName, lgmsg)
-    const data = await client.query(sqlQuery, values)
+    writeLogging(functionName, lgmsg, 'I')
+    //
+    //  Execute the sql
+    //
+    const data = await sql.query(sqlQuery, values)
     //
     // Return rows updated
     //
     return data.rows
+    //
+    //  Errors
+    //
   } catch (error) {
     const errorMessage = `Table(${table}) WHERE(${whereClause}) FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)
     throw new Error(`functionName, ${errorMessage}`)
-  } finally {
-    client.release()
   }
 }

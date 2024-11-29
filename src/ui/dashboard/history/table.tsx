@@ -10,7 +10,7 @@ export default async function HistoryTable({
 }) {
   // await new Promise(resolve => setTimeout(resolve, 23000))
   const history = await fetchHistoryFiltered(query, currentPage)
-
+  //----------------------------------------------------------------------------------------------
   return (
     <div className='mt-2 md:mt-6 flow-root'>
       <div className='inline-block min-w-full align-middle'>
@@ -75,7 +75,7 @@ export default async function HistoryTable({
                     <QuizReview hid={history.r_hid} />
                   </td>
 
-                  <td className='px-2 py-2'>
+                  <td className='px-2 py-1 text-sm'>
                     <BookQuiz gid={history.r_gid} />
                   </td>
                 </tr>

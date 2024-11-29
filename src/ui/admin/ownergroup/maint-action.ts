@@ -39,7 +39,6 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
     oggroup: formData.get('oggroup'),
     ogtitle: formData.get('ogtitle')
   })
-  // console.log('formData', formData)
   //
   // If form validation fails, return errors early. Otherwise, continue.
   //
@@ -100,6 +99,9 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       errors: undefined,
       databaseUpdated: true
     }
+    //
+    //  Errors
+    //
   } catch (error) {
     return {
       message: 'Database Error: Failed to Update Owner.',

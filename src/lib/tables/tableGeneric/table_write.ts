@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
@@ -8,7 +8,7 @@ import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 interface ColumnValuePair {
   column: string
-  value: string | number
+  value: string | number | boolean | string[] | number[]
 }
 //
 // Define the props interface for the insert function
@@ -21,10 +21,7 @@ interface Props {
 export async function table_write({ table, columnValuePairs }: Props): Promise<any[]> {
   const functionName = 'table_write'
   noStore()
-  //
-  //  Connect
-  //
-  const client = await db.connect()
+
   //
   // Prepare the columns and parameterized placeholders for the INSERT statement
   //
@@ -39,21 +36,30 @@ export async function table_write({ table, columnValuePairs }: Props): Promise<a
   // Run the query
   //
   try {
-    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
-    const data = await client.query(sqlQuery, values) // Use parameterized query to prevent SQL injection
+    //
+    //  Logging
+    //
+    const message = `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute the sql
+    //
+    const data = await sql.query(sqlQuery, values)
     //
     // Return the inserted rows
     //
-    return data.rows[0]
+    return data.rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     const errorMessage = `Table(${table}) SQL(${sqlQuery}) FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)
-    throw new Error(`${functionName}, ${errorMessage}`)
-  } finally {
-    //
-    //  Disconnect
-    //
-    client.release()
+    // throw new Error(`${functionName}, ${errorMessage}`)
+    return []
   }
 }

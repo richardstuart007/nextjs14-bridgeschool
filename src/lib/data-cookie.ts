@@ -21,6 +21,9 @@ export async function updateCookieSessionId(sessionId: number) {
       sameSite: 'lax',
       path: '/'
     })
+    //
+    //  Errors
+    //
   } catch (error) {
     console.error(`${functionName}:`, error)
     throw new Error(`${functionName}: Failed`)
@@ -33,6 +36,9 @@ export async function deleteCookie(cookieName: string = 'SessionId') {
   const functionName = 'deleteCookie'
   try {
     cookies().delete(cookieName)
+    //
+    //  Errors
+    //
   } catch (error) {
     console.error(`${functionName}:`, error)
     throw new Error(`${functionName}: Failed`)
@@ -60,6 +66,9 @@ export async function getCookieSessionId(cookieName: string = 'SessionId'): Prom
     //  Return JSON
     //
     return JSON_cookie
+    //
+    //  Errors
+    //
   } catch (error) {
     console.error(`${functionName}:`, error)
     return null

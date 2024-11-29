@@ -1,17 +1,15 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { table_Questions, table_Usershistory } from '@/src/lib/tables/definitions'
+import { table_Questions } from '@/src/lib/tables/definitions'
 import QuizQuestion from '@/src/ui/dashboard/quiz-question/quiz-question'
 import QuizBidding from '@/src/ui/dashboard/quiz-question/quiz-bidding/QuizBidding'
 import QuizHands from '@/src/ui/dashboard/quiz-question/quiz-hands/QuizHands'
 import QuizChoice from './quiz-choice'
 import { QuizSubmit } from '@/src/ui/dashboard/quiz/buttons'
 import { useRouter } from 'next/navigation'
-import { writeUsershistory } from '@/src/lib/tables/tableSpecific/usershistory'
+import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
 import { useUserContext } from '@/UserContext'
-
-type table_Usershistory_New = Omit<table_Usershistory, 'r_hid'>
 
 interface QuestionsFormProps {
   questions: table_Questions[]
@@ -80,6 +78,9 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
       //
       setQuestions(questions_work)
       setQuestion(questions_work[0])
+      //
+      //  Errors
+      //
     } catch (error) {
       console.error('An error occurred while fetching data:', error)
     }
@@ -151,23 +152,32 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
     //
     // Create a NewUsersHistoryTable object
     //
-
-    const table_Usershistory_New: table_Usershistory_New = {
-      r_datetime: new Date().toISOString().replace('T', ' ').replace('Z', '').substring(0, 23),
-      r_owner: question.qowner,
-      r_group: question.qgroup,
-      r_questions: answer.length,
-      r_qid: r_qid,
-      r_ans: answer,
-      r_uid: cxuid,
-      r_points: r_points,
-      r_maxpoints: r_maxpoints,
-      r_totalpoints: r_totalpoints,
-      r_correctpercent: r_correctpercent,
-      r_gid: question.qgid,
-      r_sid: cxid
+    const r_datetime = new Date().toISOString().replace('T', ' ').replace('Z', '').substring(0, 23)
+    //
+    //  Create parameters
+    //
+    const writeParams = {
+      table: 'usershistory',
+      columnValuePairs: [
+        { column: 'r_datetime', value: r_datetime },
+        { column: 'r_owner', value: question.qowner },
+        { column: 'r_group', value: question.qgroup },
+        { column: 'r_questions', value: answer.length },
+        { column: 'r_qid', value: r_qid },
+        { column: 'r_ans', value: answer },
+        { column: 'r_uid', value: cxuid },
+        { column: 'r_points', value: r_points },
+        { column: 'r_maxpoints', value: r_maxpoints },
+        { column: 'r_correctpercent', value: r_correctpercent },
+        { column: 'r_gid', value: question.qgid },
+        { column: 'r_sid', value: cxid }
+      ]
     }
-    const historyRecord = await writeUsershistory(table_Usershistory_New)
+    //
+    //  Write the history record
+    //
+    const historyRecords = await table_write(writeParams)
+    const historyRecord = historyRecords[0]
     //
     //  Go to the quiz review page
     //

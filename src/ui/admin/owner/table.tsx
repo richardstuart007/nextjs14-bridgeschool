@@ -45,6 +45,9 @@ export default function Table() {
         setowner(data)
         const fetchedTotalPages = await fetchOwnerTotalPages(query)
         setTotalPages(fetchedTotalPages)
+        //
+        //  Errors
+        //
       } catch (error) {
         console.error('Error fetching owner:', error)
       }

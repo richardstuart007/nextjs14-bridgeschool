@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
@@ -26,10 +26,6 @@ export async function table_fetch({
   const functionName = 'table_fetch'
   noStore()
   //
-  //  Connect
-  //
-  const client = await db.connect()
-  //
   // Start building the query
   //
   let sqlQuery = `SELECT * FROM ${table}`
@@ -40,8 +36,8 @@ export async function table_fetch({
     //
     if (whereColumnValuePairs) {
       const conditions = whereColumnValuePairs.map(({ column }, index) => {
-        values.push(whereColumnValuePairs[index].value) // Add value to array
-        return `${column} = $${index + 1}` // Use parameterized placeholders
+        values.push(whereColumnValuePairs[index].value)
+        return `${column} = $${index + 1}`
       })
       const whereClause = conditions.join(' AND ')
       sqlQuery += ` WHERE ${whereClause}`
@@ -49,30 +45,29 @@ export async function table_fetch({
     //
     // Add ORDER BY clause
     //
-    if (orderBy) {
-      sqlQuery += ` ORDER BY ${orderBy}`
-    }
+    if (orderBy) sqlQuery += ` ORDER BY ${orderBy}`
     //
     // Log the query and values
     //
-    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`)
+    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`, 'I')
     //
     // Execute the query
     //
-    const data = await client.query(sqlQuery, values)
+    const data = await sql.query(sqlQuery, values)
     //
     // Return rows
     //
     return data.rows.length > 0 ? data.rows : []
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     const errorMessage = `Table(${table}) SQL(${sqlQuery}) FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)
     throw new Error(`${functionName}, ${errorMessage}`)
-  } finally {
-    //
-    //  Disconnect
-    //
-    client.release()
   }
 }

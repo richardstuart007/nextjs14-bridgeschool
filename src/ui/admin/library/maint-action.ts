@@ -53,7 +53,6 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
     lrtype: formData.get('lrtype'),
     lrlink: formData.get('lrlink')
   })
-  // console.log('formData', formData)
   //
   // If form validation fails, return errors early. Otherwise, continue.
   //
@@ -136,7 +135,6 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
       //  update Library counts in Ownergroup
       //
       const ogcntlibrary = await update_ogcntlibrary(lrgid)
-      console.log('ogcntlibrary', ogcntlibrary)
     }
     //
     //  Update
@@ -155,6 +153,9 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
       errors: undefined,
       databaseUpdated: true
     }
+    //
+    //  Errors
+    //
   } catch (error) {
     return {
       message: 'Database Error: Failed to Update Library.',

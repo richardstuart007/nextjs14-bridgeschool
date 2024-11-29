@@ -1,6 +1,6 @@
 'use server'
 
-import { sql, db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_Who } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
@@ -20,24 +20,39 @@ export async function fetchWhoFiltered(query: string, currentPage: number) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT *
+    const sqlQueryStatement = `SELECT *
     FROM who
      ${sqlWhere}
       ORDER BY wwho
-      LIMIT ${MAINT_ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT $1
+      OFFSET $2
      `
+    const queryValues = [MAINT_ITEMS_PER_PAGE, offset]
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const data = await client.query<table_Who>(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute the sql
+    //
+    const data = await sql.query<table_Who>(sqlQuery, queryValues)
     //
     //  Return results
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -127,22 +142,36 @@ export async function fetchWhoTotalPages(query: string) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT COUNT(*)
+    const sqlQueryStatement = `SELECT COUNT(*)
     FROM who
     ${sqlWhere}`
+    const queryValues = [sqlWhere]
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const result = await client.query(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const result = await sql.query(sqlQuery)
     //
     //  Return results
     //
     const count = result.rows[0].count
     const totalPages = Math.ceil(count / MAINT_ITEMS_PER_PAGE)
     return totalPages
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

@@ -38,6 +38,9 @@ export default function SessionForm({ id }: { id: number }): JSX.Element {
         setbsskipcorrect(data.bsskipcorrect)
         setbssortquestions(data.bssortquestions)
       }
+      //
+      //  Errors
+      //
     } catch (error) {
       console.error('An error occurred while fetching data:', error)
     }

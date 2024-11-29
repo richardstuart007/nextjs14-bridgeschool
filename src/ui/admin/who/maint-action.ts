@@ -89,13 +89,15 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       ]
     }
     const data = await (wwid === 0 ? table_write(writeParams) : table_update(updateParams))
-    // console.log('data:', data)
 
     return {
       message: `Database updated successfully.`,
       errors: undefined,
       databaseUpdated: true
     }
+    //
+    //  Errors
+    //
   } catch (error) {
     return {
       message: 'Database Error: Failed to Update.',

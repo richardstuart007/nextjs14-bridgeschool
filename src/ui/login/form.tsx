@@ -57,7 +57,6 @@ export default function LoginForm() {
     //  Auth redirect error - fix ???
     //
     if (!pathname.includes('/login')) {
-      // console.log('router.push /login')
       router.push('/login')
     }
   }

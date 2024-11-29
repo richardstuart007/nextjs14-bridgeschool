@@ -49,8 +49,10 @@ export default function DropdownOwnerGroup({
         value: row.oggroup,
         label: row.ogtitle
       }))
-      // console.log('options', options)
       setDropdownOptions(options)
+      //
+      //  Errors
+      //
     } catch (error) {
       console.error('Error fetching dropdown options:', error)
     } finally {

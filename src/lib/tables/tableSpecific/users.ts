@@ -1,126 +1,10 @@
 'use server'
 
-import { sql, db } from '@vercel/postgres'
+import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
 import { table_Users } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
-import bcrypt from 'bcryptjs'
-
 const USERS_ITEMS_PER_PAGE = 15
-// ----------------------------------------------------------------------
-//  Write New User
-// ----------------------------------------------------------------------
-export async function writeUser(provider: string, email: string, name?: string) {
-  const functionName = 'writeUser'
-  //
-  // Insert data into the database
-  //
-  const u_email = email
-  //
-  //  Get name from email if it does not exist
-  //
-  let u_name
-  name ? (u_name = name) : (u_name = email.split('@')[0])
-  //
-  //  Use default values
-  //
-  const u_joined = new Date().toISOString().slice(0, 19).replace('T', ' ')
-  const u_fedid = ''
-  const u_admin = false
-  const u_fedcountry = 'ZZ'
-  const u_provider = provider
-  try {
-    const { rows } = await sql`
-    INSERT
-      INTO users
-       (
-        u_email,
-        u_name,
-        u_joined,
-        u_fedid,
-        u_admin,
-        u_fedcountry,
-        u_provider
-        )
-    VALUES (
-      ${u_email},
-      ${u_name},
-      ${u_joined},
-      ${u_fedid},
-      ${u_admin},
-      ${u_fedcountry},
-      ${u_provider}
-     ) RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-// ----------------------------------------------------------------------
-//  Write Userpwd record
-// ----------------------------------------------------------------------
-export async function writeUsersPwd(userid: number, userpwd: string, email: string) {
-  const functionName = 'writeUsersPwd'
-  //
-  // Insert data into the database
-  //
-  const upuid = userid
-  const uphash = await bcrypt.hash(userpwd, 10)
-  const upemail = email
-  try {
-    const { rows } = await sql`
-    INSERT
-      INTO userspwd
-       (
-        upuid,
-        uphash,
-        upemail
-        )
-    VALUES (
-      ${upuid},
-      ${uphash},
-      ${upemail}
-     )
-    RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
-// ----------------------------------------------------------------------
-//  Update Userspwd record
-// ----------------------------------------------------------------------
-export async function updateUsersPwd(userid: number, userpwd: string) {
-  const functionName = 'updateUsersPwd'
-  //
-  // Encrypt the password
-  //
-  const upuid = userid
-  const uphash = await bcrypt.hash(userpwd, 10)
-  //
-  // Update the data
-  //
-  try {
-    const { rows } = await sql`
-    UPDATE userspwd
-    SET
-      uphash = ${uphash}
-    WHERE upuid = ${upuid}
-    RETURNING *
-  `
-    return rows[0]
-  } catch (error) {
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
-}
 //---------------------------------------------------------------------
 //  Users data
 //---------------------------------------------------------------------
@@ -136,24 +20,39 @@ export async function fetchUsersFiltered(query: string, currentPage: number) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT *
+    const sqlQueryStatement = `SELECT *
     FROM users
      ${sqlWhere}
       ORDER BY u_name
-      LIMIT ${USERS_ITEMS_PER_PAGE} OFFSET ${offset}
+      LIMIT $1
+      OFFSET $2
      `
+    const queryValues = [USERS_ITEMS_PER_PAGE, offset]
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const data = await client.query<table_Users>(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Execute the sql
+    //
+    const data = await sql.query<table_Users>(sqlQuery, queryValues)
     //
     //  Return results
     //
     const rows = data.rows
     return rows
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
@@ -173,22 +72,36 @@ export async function fetchUsersTotalPages(query: string) {
     //
     //  Build Query Statement
     //
-    const sqlQuery = `SELECT COUNT(*)
+    const sqlQueryStatement = `
+    SELECT COUNT(*)
     FROM users
     ${sqlWhere}`
     //
-    //  Run SQL
+    // Remove redundant spaces
     //
-    const client = await db.connect()
-    const result = await client.query(sqlQuery)
-    client.release()
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
+    //
+    //  Logging
+    //
+    const message = `${sqlQuery} Values: ${sqlWhere}`
+    writeLogging(functionName, message, 'I')
+    //
+    //  Run sql Query
+    //
+    const result = await sql.query(sqlQuery)
     //
     //  Return results
     //
     const count = result.rows[0].count
     const totalPages = Math.ceil(count / USERS_ITEMS_PER_PAGE)
     return totalPages
+    //
+    //  Errors
+    //
   } catch (error) {
+    //
+    //  Logging
+    //
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)

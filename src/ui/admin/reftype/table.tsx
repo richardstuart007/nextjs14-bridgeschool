@@ -48,6 +48,9 @@ export default function Table() {
         setrecord(data)
         const fetchedTotalPages = await fetchReftypeTotalPages(query)
         setTotalPages(fetchedTotalPages)
+        //
+        //  Errors
+        //
       } catch (error) {
         console.error('Error fetching reftype:', error)
       }

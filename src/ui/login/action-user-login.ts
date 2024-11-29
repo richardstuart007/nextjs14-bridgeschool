@@ -49,6 +49,9 @@ export async function loginUser(prevState: StateLogin | undefined, formData: For
   const { email, password } = validatedFields.data
   try {
     await signIn('credentials', { email, password, redirectTo: '/dashboard' })
+    //
+    //  Errors
+    //
   } catch (error) {
     if (error instanceof AuthError) {
       let errorMessage: string

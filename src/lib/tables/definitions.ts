@@ -36,6 +36,7 @@ export type table_Logging = {
   lgmsg: string
   lgfunctionname: string
   lgsession: number
+  lgseverity: string
 }
 
 export type table_Owner = {

@@ -44,6 +44,9 @@ export default function Table() {
         setUsers(fetchedUsers)
         const fetchedTotalPages = await fetchUsersTotalPages(query)
         setTotalPages(fetchedTotalPages)
+        //
+        //  Errors
+        //
       } catch (error) {
         console.error('Error fetching users:', error)
       }

@@ -26,6 +26,9 @@ export default async function Page({ params }: { params: { uid: number } }) {
     const data = rows[0]
     if (!data) notFound()
     UserRecord = data
+    //
+    //  Errors
+    //
   } catch (error) {
     console.error('An error occurred while fetching data:', error)
   }
