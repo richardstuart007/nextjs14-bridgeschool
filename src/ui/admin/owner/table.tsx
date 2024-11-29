@@ -24,10 +24,7 @@ export default function Table() {
   const [owner, setowner] = useState<table_Owner[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(true)
-
-  const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<table_Owner | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
