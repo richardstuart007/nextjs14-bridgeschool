@@ -124,17 +124,16 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
     //
     //  Write
     //
-    let data
     if (lrlid === 0) {
       const params = {
         table: 'library',
         columnValuePairs
       }
-      data = await table_write(params)
+      await table_write(params)
       //
       //  update Library counts in Ownergroup
       //
-      const ogcntlibrary = await update_ogcntlibrary(lrgid)
+      await update_ogcntlibrary(lrgid)
     }
     //
     //  Update
@@ -145,7 +144,7 @@ export async function LibraryMaint(prevState: StateSetup, formData: FormData): P
         columnValuePairs,
         whereColumnValuePairs: [{ column: 'lrlid', value: lrlid }]
       }
-      data = await table_update(updateParams)
+      await table_update(updateParams)
     }
 
     return {

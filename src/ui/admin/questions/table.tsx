@@ -41,7 +41,6 @@ export default function Table({ gid }: FormProps) {
   const [isModelOpenEdit_bidding, setIsModelOpenEdit_bidding] = useState(false)
 
   const [selectedRow, setSelectedRow] = useState<table_Questions | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: '',
@@ -142,11 +141,11 @@ export default function Table({ gid }: FormProps) {
           table: 'questions',
           whereColumnValuePairs: [{ column: 'qqid', value: questions.qqid }]
         }
-        const data = await table_delete(Params)
+        await table_delete(Params)
         //
         //  update Questions counts in Ownergroup
         //
-        const ogcntquestions = await update_ogcntquestions(questions.qgid)
+        await update_ogcntquestions(questions.qgid)
         //
         //  Reload the page
         //
@@ -356,9 +355,6 @@ export default function Table({ gid }: FormProps) {
 
         {/* Confirmation Dialog */}
         <ConfirmDialog confirmDialog={confirmDialog} setConfirmDialog={setConfirmDialog} />
-
-        {/* Error message */}
-        <div className='mt-2'>{message && <div className='text-red-600 mb-4'>{message}</div>}</div>
       </div>
     </>
   )

@@ -93,23 +93,23 @@ export default function Table() {
         //
         // Call the server function to delete
         //
-        const data_usershistory = await table_delete({
+        await table_delete({
           table: 'usershistory',
           whereColumnValuePairs: [{ column: 'r_uid', value: uid }]
         })
-        const data_sessions = await table_delete({
+        await table_delete({
           table: 'sessions',
           whereColumnValuePairs: [{ column: 's_uid', value: uid }]
         })
-        const data_usersowner = await table_delete({
+        await table_delete({
           table: 'usersowner',
           whereColumnValuePairs: [{ column: 'uouid', value: uid }]
         })
-        const data_userspwd = await table_delete({
+        await table_delete({
           table: 'userspwd',
           whereColumnValuePairs: [{ column: 'upuid', value: uid }]
         })
-        const data_users = await table_delete({
+        await table_delete({
           table: 'users',
           whereColumnValuePairs: [{ column: 'u_uid', value: uid }]
         })

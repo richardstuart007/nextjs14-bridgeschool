@@ -42,7 +42,7 @@ export default function NavLinks(props: FormProps): JSX.Element {
   useEffect(() => {
     const hrefUser = `/dashboard/user/${bsuid}`
     const hrefSession = `/dashboard/session/${bsid}`
-    const hrefLibrary = `/dashboard/library/${bsuid}`
+    const hrefLibrary = `/dashboard/library`
     const hrefHistory = `/dashboard/history/${bsuid}`
     const hrefAdmin = `/admin`
     //

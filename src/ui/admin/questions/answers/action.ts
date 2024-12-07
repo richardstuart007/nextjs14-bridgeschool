@@ -115,7 +115,7 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       ],
       whereColumnValuePairs: [{ column: 'qqid', value: qqid }]
     }
-    const data = await table_update(updateParams)
+    await table_update(updateParams)
 
     return {
       message: `Database updated successfully.`,

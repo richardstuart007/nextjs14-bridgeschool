@@ -69,7 +69,6 @@ export async function buildWhere_Owner(query: string) {
   // Initialize variables
   //
   let oid = 0
-  let title = ''
   let owner = ''
   //
   // Split the search query into parts based on spaces

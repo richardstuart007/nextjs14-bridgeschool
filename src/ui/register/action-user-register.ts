@@ -99,7 +99,7 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
   const uphash = await bcrypt.hash(password, 10)
   const upemail = email
 
-  const userpwdRecords = await table_write({
+  await table_write({
     table: 'userspwd',
     columnValuePairs: [
       { column: 'upuid', value: upuid },
@@ -107,13 +107,12 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
       { column: 'upemail', value: upemail }
     ]
   })
-  const userpwdRecord = userpwdRecords[0]
   //
   //  Write the usersowner data
   //
   const uouid = userRecord.u_uid
   const uoowner = 'Richard'
-  const dataUserowners = await table_write({
+  await table_write({
     table: 'usersowner',
     columnValuePairs: [
       { column: 'uouid', value: uouid },

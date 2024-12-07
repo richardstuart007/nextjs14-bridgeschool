@@ -62,7 +62,7 @@ export async function PwdEdit(prevState: StateSetup, formData: FormData): Promis
       columnValuePairs: [{ column: 'uphash', value: uphash }],
       whereColumnValuePairs: [{ column: 'upuid', value: upuid }]
     }
-    const data = await table_update(updateParams)
+    await table_update(updateParams)
     return {
       message: 'Password updated successfully.',
       errors: undefined

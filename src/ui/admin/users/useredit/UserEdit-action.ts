@@ -76,7 +76,7 @@ export async function UserEdit(prevState: StateSetup, formData: FormData): Promi
     //
     //  Update the database
     //
-    const data = await table_update(updateParams)
+    await table_update(updateParams)
 
     return {
       message: 'User updated successfully.',

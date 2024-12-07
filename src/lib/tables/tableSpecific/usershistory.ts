@@ -98,98 +98,110 @@ export async function fetchHistoryFiltered(query: string, currentPage: number) {
 //---------------------------------------------------------------------
 export async function buildWhere_History(query: string) {
   const functionName = 'buildWhere_History'
-  //
-  //  Empty search
-  //
-  let whereClause = ''
-  if (!query) return whereClause
-  //
-  // Initialize variables
-  //
-  let hid = 0
-  let owner = ''
-  let group = ''
-  let cnt = 0
-  let uid = 0
-  let correct = 0
-  let gid = 0
-  //
-  // Split the search query into parts based on spaces
-  //
-  const parts = query.split(/\s+/).filter(part => part.trim() !== '')
-  //
-  // Loop through each part to extract values using switch statement
-  //
-  parts.forEach(part => {
-    if (part.includes(':')) {
-      const [key, value] = part.split(':')
-      //
-      //  Check for empty values
-      //
-      if (value === '') return
-      //
-      // Process each part
-      //
-      switch (key) {
-        case 'hid':
-          if (!isNaN(Number(value))) {
-            hid = parseInt(value, 10)
-          }
-          break
-        case 'uid':
-          if (!isNaN(Number(value))) {
-            uid = parseInt(value, 10)
-          }
-          break
-        case 'correct':
-          if (!isNaN(Number(value))) {
-            correct = parseInt(value, 10)
-          }
-          break
-        case 'owner':
-          owner = value
-          break
-        case 'group':
-          group = value
-          break
-        case 'gid':
-          if (!isNaN(Number(value))) {
-            gid = parseInt(value, 10)
-          }
-          break
-        case 'cnt':
-          if (!isNaN(Number(value))) {
-            cnt = parseInt(value, 10)
-          }
-          break
-        default:
-          group = value
-          break
+  try {
+    //
+    //  Empty search
+    //
+    let whereClause = ''
+    if (!query) return whereClause
+    //
+    // Initialize variables
+    //
+    let hid = 0
+    let owner = ''
+    let group = ''
+    let cnt = 0
+    let uid = 0
+    let correct = 0
+    let gid = 0
+    //
+    // Split the search query into parts based on spaces
+    //
+    const parts = query.split(/\s+/).filter(part => part.trim() !== '')
+    //
+    // Loop through each part to extract values using switch statement
+    //
+    parts.forEach(part => {
+      if (part.includes(':')) {
+        const [key, value] = part.split(':')
+        //
+        //  Check for empty values
+        //
+        if (value === '') return
+        //
+        // Process each part
+        //
+        switch (key) {
+          case 'hid':
+            if (!isNaN(Number(value))) {
+              hid = parseInt(value, 10)
+            }
+            break
+          case 'uid':
+            if (!isNaN(Number(value))) {
+              uid = parseInt(value, 10)
+            }
+            break
+          case 'correct':
+            if (!isNaN(Number(value))) {
+              correct = parseInt(value, 10)
+            }
+            break
+          case 'owner':
+            owner = value
+            break
+          case 'group':
+            group = value
+            break
+          case 'gid':
+            if (!isNaN(Number(value))) {
+              gid = parseInt(value, 10)
+            }
+            break
+          case 'cnt':
+            if (!isNaN(Number(value))) {
+              cnt = parseInt(value, 10)
+            }
+            break
+          default:
+            group = value
+            break
+        }
+      } else {
+        // Default to 'group' if no key is provided
+        if (group === '') {
+          group = part
+        }
       }
-    } else {
-      // Default to 'group' if no key is provided
-      if (group === '') {
-        group = part
-      }
+    })
+    //
+    // Add conditions for each variable if not empty or zero
+    //
+    if (hid !== 0) whereClause += `r_hid = ${hid} AND `
+    if (uid !== 0) whereClause += `r_uid = ${uid} AND `
+    if (owner !== '') whereClause += `r_owner ILIKE '%${owner}%' AND `
+    if (group !== '') whereClause += `r_group ILIKE '%${group}%' AND `
+    if (cnt !== 0) whereClause += `ogcntquestions >= ${cnt} AND `
+    if (correct !== 0) whereClause += `r_correctpercent >= ${correct} AND `
+    if (gid !== 0) whereClause += `r_gid = ${gid} AND `
+    //
+    // Remove the trailing 'AND' if there are conditions
+    //
+    if (whereClause !== '') {
+      whereClause = `WHERE ${whereClause.slice(0, -5)}`
     }
-  })
-  //
-  // Add conditions for each variable if not empty or zero
-  //
-  if (hid !== 0) whereClause += `r_hid = ${hid} AND `
-  if (uid !== 0) whereClause += `r_uid = ${uid} AND `
-  if (owner !== '') whereClause += `r_owner ILIKE '%${owner}%' AND `
-  if (group !== '') whereClause += `r_group ILIKE '%${group}%' AND `
-  if (cnt !== 0) whereClause += `ogcntquestions >= ${cnt} AND `
-  if (correct !== 0) whereClause += `r_correctpercent >= ${correct} AND `
-  if (gid !== 0) whereClause += `r_gid = ${gid} AND `
-  //
-  // Remove the trailing 'AND' if there are conditions
-  //
-  if (whereClause !== '') {
-    whereClause = `WHERE ${whereClause.slice(0, -5)}`
+    return whereClause
+    //
+    //  Errors
+    //
+  } catch (error) {
+    //
+    //  Logging
+    //
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
   }
-  return whereClause
 }
 //---------------------------------------------------------------------
 //  Top results data

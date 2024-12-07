@@ -96,7 +96,7 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
         columnValuePairs: [{ column: 'qdetail', value: qdetail }],
         whereColumnValuePairs: [{ column: 'qqid', value: qqid }]
       }
-      const data = await table_update(updateParams)
+      await table_update(updateParams)
     }
     //
     //  Write
@@ -130,11 +130,11 @@ export async function Maint_detail(prevState: StateSetup, formData: FormData): P
           { column: 'qgid', value: oggid }
         ]
       }
-      const data = await table_write(writeParams)
+      await table_write(writeParams)
       //
       //  update Questions counts in Ownergroup
       //
-      const ogcntquestions = await update_ogcntquestions(oggid)
+      await update_ogcntquestions(oggid)
     }
     return {
       message: `Database updated successfully.`,

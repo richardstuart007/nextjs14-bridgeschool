@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 
 type DropdownProps = {
-  label: string
+  label?: string
   name: string
   options: { value: string; label: string }[]
   selectedOption: string
   setSelectedOption: (value: string) => void
   searchEnabled?: boolean
+  dropdownWidth?: string
 }
 
 export default function DropdownSearch({
@@ -15,7 +16,8 @@ export default function DropdownSearch({
   options,
   selectedOption,
   setSelectedOption,
-  searchEnabled = true
+  searchEnabled = true,
+  dropdownWidth = 'w-72'
 }: DropdownProps) {
   const [searchTerm, setSearchTerm] = useState<string>('')
   //
@@ -33,19 +35,21 @@ export default function DropdownSearch({
     }
   }, [filteredOptions, selectedOption, setSelectedOption])
   return (
-    <div className='mt-2'>
+    <div className='mt-2 font-medium '>
       {/*  ...................................................................................*/}
       {/* Label for the dropdown */}
       {/*  ...................................................................................*/}
-      <label className=' block text-xs font-medium text-gray-900 mb-1' htmlFor={name}>
-        {label}
-      </label>
+      {label && (
+        <label className=' block text-gray-900 mb-1 text-xs' htmlFor={name}>
+          {label}
+        </label>
+      )}
       {/*  ...................................................................................*/}
       {/* Search Input */}
       {/*  ...................................................................................*/}
       {searchEnabled && (
         <input
-          className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
+          className={`${dropdownWidth} md:max-w-md px-2 rounded-md border border-blue-500 py-[6px] text-xs `}
           type='text'
           placeholder='Search...'
           value={searchTerm}
@@ -57,7 +61,7 @@ export default function DropdownSearch({
       {/*  ...................................................................................*/}
       <div className='relative'>
         <select
-          className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm'
+          className={`${dropdownWidth} md:max-w-md px-2 rounded-md border border-blue-500 py-[6px] text-xs `}
           id={name}
           name={name}
           value={selectedOption}

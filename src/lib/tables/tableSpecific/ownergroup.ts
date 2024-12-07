@@ -201,7 +201,7 @@ export async function update_ogcntquestions(gid: number) {
       columnValuePairs: [{ column: 'ogcntquestions', value: rowCount }],
       whereColumnValuePairs: [{ column: 'oggid', value: gid }]
     }
-    const data = await table_update(updateParams)
+    await table_update(updateParams)
     //
     //  Updated value
     //
@@ -237,7 +237,7 @@ export async function update_ogcntlibrary(gid: number) {
       columnValuePairs: [{ column: 'ogcntlibrary', value: rowCount }],
       whereColumnValuePairs: [{ column: 'oggid', value: gid }]
     }
-    const data = await table_update(updateParams)
+    await table_update(updateParams)
     //
     //  Updated value
     //

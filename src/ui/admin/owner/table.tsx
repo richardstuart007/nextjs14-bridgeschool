@@ -106,7 +106,7 @@ export default function Table() {
           table: 'owner',
           whereColumnValuePairs: [{ column: 'ooid', value: owner.ooid }]
         }
-        const data = await table_delete(Params)
+        await table_delete(Params)
         //
         //  Reload the page
         //

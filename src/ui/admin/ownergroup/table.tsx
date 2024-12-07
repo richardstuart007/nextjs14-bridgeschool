@@ -146,7 +146,7 @@ export default function Table() {
           table: 'ownergroup',
           whereColumnValuePairs: [{ column: 'oggid', value: row.oggid }]
         }
-        const data = await table_delete(Params)
+        await table_delete(Params)
         //
         //  Reload the page
         //
@@ -268,7 +268,9 @@ export default function Table() {
         )}
         {selectedRow && (
           <MaintPopup_Library
-            gid={String(selectedRow.oggid)}
+            gid={selectedRow.oggid}
+            owner={selectedRow.ogowner}
+            group={selectedRow.oggroup}
             isOpen={isModelOpenEdit_library}
             onClose={handleModalCloseEdit_library}
           />

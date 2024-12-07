@@ -262,7 +262,7 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       //
       //  Update the database
       //
-      const data = await table_update(updateParams)
+      await table_update(updateParams)
       message = `Database updated successfully.`
       databaseUpdated = true
       //

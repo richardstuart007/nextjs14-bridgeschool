@@ -231,24 +231,36 @@ export async function navsignout() {
 // ----------------------------------------------------------------------
 export async function isAdmin() {
   const functionName = 'isAdmin'
-  //
-  //  Get session id
-  //
-  const cookie = await getCookieSessionId()
-  //
-  //  No cookie then not logged in
-  //
-  if (!cookie) return false
-  //
-  //  Session ID
-  //
-  const sessionId = parseInt(cookie, 10)
-  //
-  //  Session info
-  //
-  const sessionInfo = await fetchSessionInfo(sessionId)
-  //
-  //  Return admin flag
-  //
-  return sessionInfo.bsadmin
+  try {
+    //
+    //  Get session id
+    //
+    const cookie = await getCookieSessionId()
+    //
+    //  No cookie then not logged in
+    //
+    if (!cookie) return false
+    //
+    //  Session ID
+    //
+    const sessionId = parseInt(cookie, 10)
+    //
+    //  Session info
+    //
+    const sessionInfo = await fetchSessionInfo(sessionId)
+    //
+    //  Return admin flag
+    //
+    return sessionInfo.bsadmin
+    //
+    //  Errors
+    //
+  } catch (error) {
+    //
+    //  Logging
+    //
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
 }

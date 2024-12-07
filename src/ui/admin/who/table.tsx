@@ -120,7 +120,7 @@ export default function Table() {
           table: 'who',
           whereColumnValuePairs: [{ column: 'wwid', value: who.wwid }]
         }
-        const data = await table_delete(Params)
+        await table_delete(Params)
         //
         //  Reload the page
         //

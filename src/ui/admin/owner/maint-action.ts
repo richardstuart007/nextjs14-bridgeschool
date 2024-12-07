@@ -61,7 +61,7 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
       table: 'owner',
       columnValuePairs: [{ column: 'oowner', value: oowner }]
     }
-    const data = await table_write(writeParams)
+    await table_write(writeParams)
 
     return {
       message: `Database updated successfully.`,

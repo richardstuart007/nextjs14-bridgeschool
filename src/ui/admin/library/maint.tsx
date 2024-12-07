@@ -6,25 +6,33 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { LibraryMaint } from '@/src/ui/admin/library/maint-action'
 import type { table_Library } from '@/src/lib/tables/definitions'
 import DropdownType from '@/src/ui/utils/dropdown/dropdown-type'
-import DropdownOwner from '@/src/ui/utils/dropdown/dropdown-owner'
 import DropdownWho from '@/src/ui/utils/dropdown/dropdown-who'
 import DropdownOwnerGroup from '@/src/ui/utils/dropdown/dropdown-group'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
 
 interface FormProps {
-  libraryRecord: table_Library | null
+  libraryRecord?: table_Library | null
+  selected_owner?: string | null | undefined
+  selected_group?: string | null | undefined
   onSuccess: () => void
   shouldCloseOnUpdate?: boolean
 }
 
-export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = true }: FormProps) {
+export default function Form({
+  libraryRecord,
+  selected_owner,
+  selected_group,
+  onSuccess,
+  shouldCloseOnUpdate = true
+}: FormProps) {
   const initialState = { message: null, errors: {}, databaseUpdated: false }
   const [formState, formAction] = useFormState(LibraryMaint, initialState)
   //
   //  State and Initial values
   //
   const lrlid = libraryRecord?.lrlid || 0
-  const [lrowner, setLrowner] = useState(libraryRecord?.lrowner || '')
-  const [lrgroup, setLrgroup] = useState(libraryRecord?.lrgroup || '')
+  const [lrowner, setLrowner] = useState<string>(libraryRecord?.lrowner || selected_owner || '')
+  const [lrgroup, setLrgroup] = useState<string>(libraryRecord?.lrgroup || selected_group || '')
   const [lrref, setLrref] = useState(libraryRecord?.lrref || '')
   const [lrdesc, setLrdesc] = useState(libraryRecord?.lrdesc || '')
   const [lrwho, setLrwho] = useState(libraryRecord?.lrwho || '')
@@ -70,8 +78,19 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
         {/*  ...................................................................................*/}
         {/*   Owner */}
         {/*  ...................................................................................*/}
-        {lrlid === 0 ? (
-          <DropdownOwner selectedOption={lrowner} setSelectedOption={setLrowner} name={'lrowner'} />
+        {lrlid === 0 && !selected_owner ? (
+          <DropdownGeneric
+            selectedOption={lrowner}
+            setSelectedOption={setLrowner}
+            name='lrowner'
+            label='Owner'
+            table='owner'
+            orderBy='oowner'
+            optionLabel='oowner'
+            optionValue='oowner'
+            dropdownWidth='w-28'
+            includeBlank={false}
+          />
         ) : (
           /* -----------------Edit ------------------*/
           <>
@@ -94,7 +113,7 @@ export default function Form({ libraryRecord, onSuccess, shouldCloseOnUpdate = t
         {/*  ...................................................................................*/}
         {/*   Owner Group */}
         {/*  ...................................................................................*/}
-        {lrlid === 0 ? (
+        {lrlid === 0 && !selected_group ? (
           <DropdownOwnerGroup
             selectedOption={lrgroup}
             setSelectedOption={setLrgroup}
