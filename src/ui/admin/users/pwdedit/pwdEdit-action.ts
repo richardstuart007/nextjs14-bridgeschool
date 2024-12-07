@@ -26,7 +26,7 @@ export type StateSetup = {
 
 const Setup = FormSchemaSetup
 
-export async function PwdEdit(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function PwdEdit(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   //  Validate form data
   //

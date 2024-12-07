@@ -33,7 +33,10 @@ export type StateSetup = {
 
 const Setup = FormSchemaSetup
 
-export async function Maint_detail(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function Maint_detail(
+  _prevState: StateSetup,
+  formData: FormData
+): Promise<StateSetup> {
   //
   //  Validate form data
   //

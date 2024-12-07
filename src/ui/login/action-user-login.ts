@@ -26,7 +26,7 @@ export type StateLogin = {
 
 const Login = FormSchemaLogin
 
-export async function loginUser(prevState: StateLogin | undefined, formData: FormData) {
+export async function loginUser(_prevState: StateLogin | undefined, formData: FormData) {
   //
   //  Validate the fields using Zod
   //
@@ -66,7 +66,7 @@ export async function loginUser(prevState: StateLogin | undefined, formData: For
         default:
           errorMessage = 'Something went wrong - unknown error'
       }
-      return { ...prevState, message: errorMessage }
+      return { ..._prevState, message: errorMessage }
     }
     throw error
   }

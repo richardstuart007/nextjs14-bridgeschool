@@ -113,7 +113,7 @@ const VALIDVALUES = [
 ]
 const SPECIALBIDS = ['PASS', 'X', 'XX', '?']
 
-export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   // Retrieve values from formData and store them in an array
   //

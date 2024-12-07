@@ -48,7 +48,7 @@ const hand_name = [
   'WC'
 ]
 
-export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   // Retrieve values from formData and store them in an array
   //
