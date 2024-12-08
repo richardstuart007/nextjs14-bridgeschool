@@ -5,8 +5,7 @@ import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { Maint_detail } from '@/src/ui/admin/questions/detail/action'
 import type { table_Questions } from '@/src/lib/tables/definitions'
-import DropdownOwner from '@/src/ui/utils/dropdown/dropdown-owner'
-import DropdownOwnerGroup from '@/src/ui/utils/dropdown/dropdown-group'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
 
 interface FormProps {
   record: table_Questions | null
@@ -70,7 +69,18 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
         {/*   Owner */}
         {/*  ...................................................................................*/}
         {qqid === 0 ? (
-          <DropdownOwner selectedOption={qowner} setSelectedOption={setqowner} name={'qowner'} />
+          <DropdownGeneric
+            selectedOption={qowner}
+            setSelectedOption={setqowner}
+            name='qowner'
+            label='Owner'
+            table='owner'
+            orderBy='oowner'
+            optionLabel='oowner'
+            optionValue='oowner'
+            dropdownWidth='w-72'
+            includeBlank={false}
+          />
         ) : (
           /* -----------------Edit ------------------*/
           <>
@@ -90,12 +100,20 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
         {/*  ...................................................................................*/}
         {/*   Owner Group */}
         {/*  ...................................................................................*/}
-        {qqid === 0 ? (
-          <DropdownOwnerGroup
+        {qqid === 0 && qowner ? (
+          <DropdownGeneric
             selectedOption={qgroup}
             setSelectedOption={setqgroup}
-            name={'qgroup'}
-            owner={qowner}
+            name='qgroup'
+            label='Group'
+            table='ownergroup'
+            tableColumn='ogowner'
+            tableColumnValue={qowner}
+            orderBy='ogowner, oggroup'
+            optionLabel='oggroup'
+            optionValue='ogroup'
+            dropdownWidth='w-72'
+            includeBlank={false}
           />
         ) : (
           /* -----------------Edit ------------------*/

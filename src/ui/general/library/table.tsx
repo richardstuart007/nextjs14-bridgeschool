@@ -51,12 +51,12 @@ export default function Table({
   const [type, settype] = useState('')
 
   const [show_gid, setshow_gid] = useState(maintMode)
-  const [show_owner, setshow_owner] = useState(true)
-  const [show_group, setshow_group] = useState(true)
-  const [show_lid, setshow_lid] = useState(true)
-  const [show_who, setshow_who] = useState(true)
-  const [show_ref, setshow_ref] = useState(true)
-  const [show_type, setshow_type] = useState(true)
+  const [show_owner, setshow_owner] = useState(false)
+  const [show_group, setshow_group] = useState(false)
+  const [show_lid, setshow_lid] = useState(false)
+  const [show_who, setshow_who] = useState(false)
+  const [show_ref, setshow_ref] = useState(false)
+  const [show_type, setshow_type] = useState(false)
   const [show_questions, setshow_questions] = useState(!maintMode)
 
   const [currentPage, setcurrentPage] = useState(1)
@@ -86,12 +86,15 @@ export default function Table({
   useEffect(() => {
     updateScreen()
     setcurrentPage(1)
+    //
     // Update on resize
+    //
     window.addEventListener('resize', updateScreen)
-
+    //
     // Cleanup event listener on unmount
+    //
     return () => window.removeEventListener('resize', updateScreen)
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   //......................................................................................
   //  Screen width - items per page width
   //......................................................................................
@@ -100,6 +103,7 @@ export default function Table({
     //  Width
     //............................................................
     const width = window.innerWidth
+    console.log('width', width)
 
     let screenwidth = 1
     if (width >= 1536) {
@@ -113,27 +117,39 @@ export default function Table({
     } else {
       screenwidth = 1
     }
-
-    if (screenwidth < 5) {
-      setshow_lid(false)
-      setshow_ref(false)
+    //
+    //  Initialize all values to false
+    //
+    setshow_gid(false)
+    setshow_owner(false)
+    setshow_group(false)
+    setshow_lid(false)
+    setshow_who(false)
+    setshow_ref(false)
+    setshow_type(false)
+    setshow_questions(false)
+    //
+    //  larger screens
+    //
+    if (screenwidth >= 2) {
+      setshow_gid(true)
+      setshow_owner(true)
+      setshow_group(true)
+      if (!maintMode) setshow_questions(true)
+      setshow_type(true)
     }
-    if (screenwidth < 4) {
-      setshow_gid(false)
-      setshow_owner(false)
-      setshow_group(false)
-      setshow_questions(false)
-      setshow_type(false)
+    if (screenwidth >= 3) {
+      setshow_who(true)
     }
-    if (screenwidth < 3) {
-      setshow_who(false)
-    }
-    if (screenwidth < 2) {
+    if (screenwidth >= 4) {
+      setshow_lid(true)
+      setshow_ref(true)
     }
     //............................................................
     //  Height
     //............................................................
     const height = window.innerHeight
+    console.log('height', height)
 
     let rows = 15
     //
@@ -348,7 +364,7 @@ export default function Table({
       {/** Display Label                                                        */}
       {/** -------------------------------------------------------------------- */}
       <div className='flex w-full items-center justify-between'>
-        <h1 className={`${lusitana.className} text-2xl`}>
+        <h1 className={`${lusitana.className} text-xl`}>
           {maintMode ? 'Library MAINT' : `Library`}
         </h1>
         {/** -------------------------------------------------------------------- */}
@@ -357,7 +373,7 @@ export default function Table({
         {maintMode && (
           <button
             onClick={() => handleClickAdd()}
-            className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
+            className='bg-green-500 text-white px-2 py-1 font-normal text-sm rounded-md hover:bg-green-600'
           >
             Add
           </button>
@@ -442,9 +458,9 @@ export default function Table({
               {/* ................................................... */}
               {show_owner && (
                 <th scope='col' className='pl-2'>
-                  {uid === undefined || uid === 0 ? null : selected_owner ? (
+                  {selected_owner ? (
                     <h1>{selected_owner}</h1>
-                  ) : maintMode ? (
+                  ) : uid === undefined || uid === 0 ? null : maintMode ? (
                     <DropdownGeneric
                       selectedOption={owner}
                       setSelectedOption={setowner}
@@ -498,7 +514,10 @@ export default function Table({
                   )}
                 </th>
               )}
-              {show_lid && <th scope='col' className=' '></th>}
+              {/* ................................................... */}
+              {/* LIBRARY ID                                          */}
+              {/* ................................................... */}
+              {show_lid && <th scope='col' className=' pl-2'></th>}
               {/* ................................................... */}
               {/* REF                                                 */}
               {/* ................................................... */}
@@ -578,11 +597,11 @@ export default function Table({
             {library?.map(library => (
               <tr key={library.lrlid} className='w-full border-b'>
                 {show_gid && (
-                  <td className=' pl-2 pt-2 text-center'>{selected_gid ? '' : library.lrgid}</td>
+                  <td className=' pl-2 pt-2 text-left'>{selected_gid ? '' : library.lrgid}</td>
                 )}
                 {show_owner && <td className=' pl-2 pt-2'>{owner ? '' : library.lrowner}</td>}
                 {show_group && <td className=' pl-2 pt-2'>{group ? '' : library.lrgroup}</td>}
-                {show_lid && <td className=' pl-2 pt-2 text-center'>{library.lrlid}</td>}
+                {show_lid && <td className=' pl-2 pt-2 text-left'>{library.lrlid}</td>}
                 {show_ref && <td className=' pl-2 pt-2'>{library.lrref}</td>}
                 <td className='pl-2 pt-2'>
                   {library.lrdesc.length > 40

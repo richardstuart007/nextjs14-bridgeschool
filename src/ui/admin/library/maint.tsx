@@ -5,9 +5,6 @@ import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { LibraryMaint } from '@/src/ui/admin/library/maint-action'
 import type { table_Library } from '@/src/lib/tables/definitions'
-import DropdownType from '@/src/ui/utils/dropdown/dropdown-type'
-import DropdownWho from '@/src/ui/utils/dropdown/dropdown-who'
-import DropdownOwnerGroup from '@/src/ui/utils/dropdown/dropdown-group'
 import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
 
 interface FormProps {
@@ -53,23 +50,22 @@ export default function Form({
     )
   }
   //-------------------------------------------------------------------------
-  //
   // Close the popup if the update was successful
-  //
+  //-------------------------------------------------------------------------
   if (formState.databaseUpdated && shouldCloseOnUpdate) {
     onSuccess()
     return null
   }
-
+  //-------------------------------------------------------------------------
   return (
     <form action={formAction} className='space-y-3 '>
       <div className='flex-1 rounded-lg bg-gray-50 px-4 pb-2 pt-2 max-w-md'>
         {/*  ...................................................................................*/}
         {/*  ID  */}
         {/*  ...................................................................................*/}
-        <div>
+        <div className='mt-4'>
           {lrlid !== 0 && (
-            <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='lrlid'>
+            <label className='  block text-xs font-medium text-gray-900' htmlFor='lrlid'>
               ID: {lrlid}
             </label>
           )}
@@ -78,78 +74,78 @@ export default function Form({
         {/*  ...................................................................................*/}
         {/*   Owner */}
         {/*  ...................................................................................*/}
-        {lrlid === 0 && !selected_owner ? (
-          <DropdownGeneric
-            selectedOption={lrowner}
-            setSelectedOption={setLrowner}
-            name='lrowner'
-            label='Owner'
-            table='owner'
-            orderBy='oowner'
-            optionLabel='oowner'
-            optionValue='oowner'
-            dropdownWidth='w-28'
-            includeBlank={false}
-          />
-        ) : (
-          /* -----------------Edit ------------------*/
-          <>
-            <div className='mt-2'>
-              <label
-                className='mb-1 mt-5 block text-xs font-medium text-gray-900'
-                htmlFor='lrowner'
-              >
+        <div className='mt-4'>
+          {lrlid === 0 && !selected_owner ? (
+            <DropdownGeneric
+              selectedOption={lrowner}
+              setSelectedOption={setLrowner}
+              name='lrowner'
+              label='Owner'
+              table='owner'
+              orderBy='oowner'
+              optionLabel='oowner'
+              optionValue='oowner'
+              dropdownWidth='w-72'
+              includeBlank={false}
+            />
+          ) : (
+            /* -----------------Edit ------------------*/
+            <>
+              <label className='  block text-xs font-medium text-gray-900' htmlFor='lrowner'>
                 Owner
               </label>
-              <>
-                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
-                  {lrowner}
-                </span>
-                <input id='lrowner' type='hidden' name='lrowner' value={lrowner} />
-              </>
-            </div>
-          </>
-        )}
+
+              <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-2 text-sm'>
+                {lrowner}
+              </span>
+              <input id='lrowner' type='hidden' name='lrowner' value={lrowner} />
+            </>
+          )}
+        </div>
         {/*  ...................................................................................*/}
         {/*   Owner Group */}
         {/*  ...................................................................................*/}
-        {lrlid === 0 && !selected_group ? (
-          <DropdownOwnerGroup
-            selectedOption={lrgroup}
-            setSelectedOption={setLrgroup}
-            name={'lrgroup'}
-            owner={lrowner}
-          />
-        ) : (
-          /* -----------------Edit ------------------*/
-          <>
-            <div className='mt-2'>
-              <label
-                className='mb-1 mt-5 block text-xs font-medium text-gray-900'
-                htmlFor='lrgroup'
-              >
+        <div className='mt-4'>
+          {lrlid === 0 && !selected_group && lrowner ? (
+            <DropdownGeneric
+              selectedOption={lrgroup}
+              setSelectedOption={setLrgroup}
+              name='lrgroup'
+              label='Group'
+              table='ownergroup'
+              tableColumn='ogowner'
+              tableColumnValue={lrowner}
+              orderBy='ogowner, oggroup'
+              optionLabel='oggroup'
+              optionValue='ogroup'
+              dropdownWidth='w-72'
+              includeBlank={false}
+            />
+          ) : (
+            /* -----------------Edit ------------------*/
+            <>
+              <label className='  block text-xs font-medium text-gray-900' htmlFor='lrgroup'>
                 Owner Group
               </label>
-              <>
-                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
-                  {lrgroup}
-                </span>
-                <input id='lrgroup' type='hidden' name='lrgroup' value={lrgroup} />
-              </>
-            </div>
-          </>
-        )}
+
+              <span className='block w-72 md:max-w-md  rounded-md bg-gray-200 border-none px-4 py-2 text-sm'>
+                {lrgroup}
+              </span>
+              <input id='lrgroup' type='hidden' name='lrgroup' value={lrgroup} />
+            </>
+          )}
+        </div>
         {/*  ...................................................................................*/}
         {/*   Reference */}
         {/*  ...................................................................................*/}
-        <div className='mt-2'>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='lrref'>
+        <div className='mt-4'>
+          <label className=' block text-xs font-medium text-gray-900' htmlFor='lrref'>
             Reference
           </label>
           <div className='relative'>
             {lrlid === 0 ? (
               <input
-                className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
+                className='w-72 md:max-w-md  rounded-md border border-blue-500 px-4 py-1 text-sm '
                 id='lrref'
                 type='lrref'
                 name='lrref'
@@ -159,7 +155,7 @@ export default function Form({
             ) : (
               /* -----------------Edit ------------------*/
               <>
-                <span className='block w-72 md:max-w-md px-4 rounded-md bg-gray-200 border-none py-[9px] text-sm'>
+                <span className='block w-72 md:max-w-md  rounded-md bg-gray-200 border-none px-4 py-2 text-sm'>
                   {lrref}
                 </span>
                 <input id='lrref' type='hidden' name='lrref' value={lrref} />
@@ -179,13 +175,13 @@ export default function Form({
         {/*  ...................................................................................*/}
         {/*  Description */}
         {/*  ...................................................................................*/}
-        <div>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='lrdesc'>
+        <div className='mt-4'>
+          <label className=' block text-xs font-medium text-gray-900' htmlFor='lrdesc'>
             Description
           </label>
           <div className='relative'>
             <input
-              className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
+              className='w-72 md:max-w-md rounded-md border border-blue-500 px-4 py-1 text-sm '
               id='lrdesc'
               type='lrdesc'
               name='lrdesc'
@@ -205,21 +201,47 @@ export default function Form({
         {/*  ...................................................................................*/}
         {/*  Who  */}
         {/*  ...................................................................................*/}
-        <DropdownWho selectedOption={lrwho} setSelectedOption={setLrwho} name={'lrwho'} />
+        <div className='mt-4'>
+          <DropdownGeneric
+            selectedOption={lrwho}
+            setSelectedOption={setLrwho}
+            name='lrwho'
+            label='Who'
+            table='who'
+            orderBy='wtitle'
+            optionLabel='wtitle'
+            optionValue='wwho'
+            dropdownWidth='w-72'
+            includeBlank={false}
+          />
+        </div>
         {/*  ...................................................................................*/}
         {/*  Type  */}
         {/*  ...................................................................................*/}
-        <DropdownType selectedOption={lrtype} setSelectedOption={setLrtype} name={'lrtype'} />
+        <div className='mt-4'>
+          <DropdownGeneric
+            selectedOption={lrtype}
+            setSelectedOption={setLrtype}
+            name='lrtype'
+            label='Type'
+            table='reftype'
+            orderBy='rttitle'
+            optionLabel='rttitle'
+            optionValue='rttype'
+            dropdownWidth='w-72'
+            includeBlank={false}
+          />
+        </div>
         {/*  ...................................................................................*/}
         {/*  Link */}
         {/*  ...................................................................................*/}
-        <div>
-          <label className='mb-1 mt-5 block text-xs font-medium text-gray-900' htmlFor='lrlink'>
+        <div className='mt-4'>
+          <label className='  block text-xs font-medium text-gray-900' htmlFor='lrlink'>
             Link
           </label>
           <div className='relative'>
             <input
-              className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
+              className='w-72 md:max-w-md  rounded-md border border-blue-500  px-4 py-1 text-sm '
               id='lrlink'
               type='lrlink'
               name='lrlink'
