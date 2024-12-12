@@ -41,7 +41,8 @@ export default function Table({
   //  State
   //
   const [uid, setuid] = useState(0)
-  const [itemsPerPage, setItemsPerPage] = useState(15)
+  const [widthNumber, setWidthNumber] = useState(2)
+  const [rowsPerPage, setRowsPerPage] = useState(5)
   const [searchValue, setSearchValue] = useState(initial_searchValue)
   const [owner, setowner] = useState(selected_owner ? selected_owner : '')
   const [group, setgroup] = useState(selected_group ? selected_group : '')
@@ -84,39 +85,49 @@ export default function Table({
   //  Screen change
   //......................................................................................
   useEffect(() => {
-    updateScreen()
-    setcurrentPage(1)
+    screenSize()
+
     //
     // Update on resize
     //
-    window.addEventListener('resize', updateScreen)
+    window.addEventListener('resize', screenSize)
     //
     // Cleanup event listener on unmount
     //
-    return () => window.removeEventListener('resize', updateScreen)
+    return () => window.removeEventListener('resize', screenSize)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   //......................................................................................
-  //  Screen width - items per page width
+  //  Screen size
   //......................................................................................
-  function updateScreen() {
-    //............................................................
-    //  Width
-    //............................................................
-    const width = window.innerWidth
-    console.log('width', width)
-
-    let screenwidth = 1
-    if (width >= 1536) {
-      screenwidth = 5
-    } else if (width >= 1280) {
-      screenwidth = 4
-    } else if (width >= 1024) {
-      screenwidth = 3
-    } else if (width >= 768) {
-      screenwidth = 2
-    } else {
-      screenwidth = 1
-    }
+  function screenSize() {
+    //
+    //  Adjust the Columns and Rows
+    //
+    updateColumns()
+    updateRows()
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Width
+  //----------------------------------------------------------------------------------------------
+  async function updateColumns() {
+    //
+    //  2xl, xl, lg, md, sm
+    //
+    const innerWidth = window.innerWidth
+    let widthNumber_new = 1
+    if (innerWidth >= 1536) widthNumber_new = 5
+    else if (innerWidth >= 1280) widthNumber_new = 4
+    else if (innerWidth >= 1024) widthNumber_new = 3
+    else if (innerWidth >= 768) widthNumber_new = 2
+    else widthNumber_new = 1
+    //
+    //  NO Change
+    //
+    if (widthNumber_new === widthNumber) return
+    //
+    //  Update widthNumber
+    //
+    setWidthNumber(widthNumber_new)
     //
     //  Initialize all values to false
     //
@@ -131,63 +142,49 @@ export default function Table({
     //
     //  larger screens
     //
-    if (screenwidth >= 2) {
+    if (widthNumber_new >= 2) {
       setshow_gid(true)
       setshow_owner(true)
       setshow_group(true)
       if (!maintMode) setshow_questions(true)
       setshow_type(true)
     }
-    if (screenwidth >= 3) {
+    if (widthNumber_new >= 3) {
       setshow_who(true)
     }
-    if (screenwidth >= 4) {
+    if (widthNumber_new >= 4) {
       setshow_lid(true)
       setshow_ref(true)
     }
-    //............................................................
-    //  Height
-    //............................................................
-    const height = window.innerHeight
-    console.log('height', height)
-
-    let rows = 15
-    //
-    //  2xl
-    //
-    if (height >= 864) {
-      rows = 20
-    }
-    //
-    //  xl
-    //
-    else if (height >= 720) {
-      rows = 13
-    }
-    //
-    //  lg
-    //
-    else if (height >= 576) {
-      rows = 10
-    }
-    //
-    //  md
-    //
-    else if (height >= 512) {
-      rows = 9
-    }
-    //
-    //  sm
-    //
-    else {
-      rows = 7
-    }
-    //
-    //  Set the rows per page
-    //
-    setItemsPerPage(rows)
   }
-
+  //----------------------------------------------------------------------------------------------
+  //  Height affects ROWS
+  //----------------------------------------------------------------------------------------------
+  async function updateRows() {
+    const innerHeight = window.innerHeight
+    //
+    //  2xl, xl, lg, md, sm
+    //
+    let screenRows = 5
+    if (innerHeight >= 864) screenRows = 17
+    else if (innerHeight >= 720) screenRows = 13
+    else if (innerHeight >= 576) screenRows = 10
+    else if (innerHeight >= 512) screenRows = 9
+    else screenRows = 4
+    //
+    //  NO Change
+    //
+    if (screenRows === rowsPerPage) return
+    //
+    //  Set the screenRows per page
+    //
+    setRowsPerPage(screenRows)
+    //
+    //  Change of Rows
+    //
+    setcurrentPage(1)
+    setShouldFetchData(true)
+  }
   //......................................................................................
   // Reset the group when the owner changes
   //......................................................................................
@@ -266,7 +263,7 @@ export default function Table({
       const propsData = {
         query: searchValue,
         currentPage: currentPage,
-        items_per_page: itemsPerPage,
+        items_per_page: rowsPerPage,
         ...(maintMode ? {} : { uid })
       }
       const data = await fetchLibraryFiltered(propsData)
@@ -276,7 +273,7 @@ export default function Table({
       //
       const propsPages = {
         query: searchValue,
-        items_per_page: itemsPerPage,
+        items_per_page: rowsPerPage,
         ...(maintMode ? {} : { uid })
       }
       const fetchedTotalPages = await fetchLibraryTotalPages(propsPages)

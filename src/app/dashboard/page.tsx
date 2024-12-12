@@ -5,8 +5,8 @@ import { Suspense } from 'react'
 
 export default async function Page() {
   return (
-    <main className='h-screen flex flex-col p-2 md:p-6'>
-      <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>Dashboard</h1>
+    <main className='h-screen flex flex-col p-2 md:p-4'>
+      <h1 className={`${lusitana.className} mb-1 text-lg md:text-xl`}>Dashboard</h1>
       <div className='flex-grow'>
         <Suspense fallback={<SummarySkeleton />}>
           <SummaryGraphs />

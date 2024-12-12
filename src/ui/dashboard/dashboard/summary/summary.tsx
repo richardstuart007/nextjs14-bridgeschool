@@ -165,25 +165,30 @@ export default async function SummaryGraphs() {
   }
   //--------------------------------------------------------------------------------
   return (
-    <div className='h-screen flex flex-col gap-5 md:p-3'>
+    <div className='h-screen flex flex-col gap-4'>
       {/* --------------------------------------------------------------- */}
-      {/* Top Results Section */}
+      {/* Top Results Section - TopGraphData  */}
       {/* --------------------------------------------------------------- */}
-      <div className='box-border' style={{ height: '40%' }}>
-        <div className='w-full max-w-2xl bg-gray-100 h-full'>
+      <div className='flex-none h-[40vh]'>
+        <div className='w-full max-w-2xl bg-gray-100 h-full p-3 flex flex-col justify-between'>
           <h2 className='text-lg'>Top Results</h2>
-          <StackedBarChart StackedGraphData={TopGraphData} />
+          <div className='flex-grow overflow-hidden'>
+            <StackedBarChart StackedGraphData={TopGraphData} />
+          </div>
         </div>
       </div>
       {/* --------------------------------------------------------------- */}
-      {/* Recent Results Section */}
+      {/* Recent Results Section - RecentGraphData   */}
       {/* --------------------------------------------------------------- */}
-      <div className='box-border' style={{ height: '40%' }}>
-        <div className='w-full max-w-2xl bg-gray-100 h-full'>
-          <h2 className='text-lg'>Recent Results</h2>
-          <StackedBarChart StackedGraphData={RecentGraphData} />
+      <div className='flex-none h-[40vh]'>
+        <div className='w-full max-w-2xl bg-gray-100 h-full p-3 flex flex-col justify-between'>
+          <h2 className='text-lg'>Top Results</h2>
+          <div className='flex-grow overflow-hidden'>
+            <StackedBarChart StackedGraphData={RecentGraphData} />
+          </div>
         </div>
       </div>
+      {/* --------------------------------------------------------------- */}
     </div>
   )
 }

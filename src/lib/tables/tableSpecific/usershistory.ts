@@ -2,206 +2,231 @@
 
 import { sql } from '@vercel/postgres'
 import { unstable_noStore as noStore } from 'next/cache'
+import { table_UsershistoryGroupUser } from '@/src/lib/tables/definitions'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
-const HISTORY_ITEMS_PER_PAGE = 10
-//---------------------------------------------------------------------
-//  History totals
-//---------------------------------------------------------------------
-export async function fetchHistoryTotalPages(query: string) {
-  const functionName = 'fetchHistoryTotalPages'
-  noStore()
-  try {
-    let sqlWhere = await buildWhere_History(query)
-    const sqlQueryStatement = `
-    SELECT
-      COUNT(*)
-      FROM usershistory
-       ${sqlWhere}`
-    //
-    // Remove redundant spaces
-    //
-    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
-    //
-    //  Logging
-    //
-    const message = `${sqlQuery} Values: ${sqlWhere}`
-    writeLogging(functionName, message, 'I')
-    //
-    //  Run sql Query
-    //
-    const result = await sql.query(sqlQuery)
 
-    const count = result.rows[0].count
-
-    const totalPages = Math.ceil(count / HISTORY_ITEMS_PER_PAGE)
-    return totalPages
-    //
-    //  Errors
-    //
-  } catch (error) {
-    //
-    //  Logging
-    //
-    console.error(`${functionName}:`, error)
-    writeLogging(functionName, 'Function failed')
-    throw new Error(`${functionName}: Failed`)
-  }
+// Constants for pagination
+const ITEMS_PER_PAGE = 10
+const prefix = 'h_'
+//---------------------------------------------------------------------
+//  Combined Fetch Library Function
+//---------------------------------------------------------------------
+type FetchFilteredParams = {
+  query: string
+  currentPage: number
+  uid?: number
+  items_per_page?: number
 }
-//---------------------------------------------------------------------
-//  History data
-//---------------------------------------------------------------------
-export async function fetchHistoryFiltered(query: string, currentPage: number) {
-  const functionName = 'fetchHistoryFiltered'
+export async function fetchFiltered({
+  query,
+  currentPage,
+  uid,
+  items_per_page = ITEMS_PER_PAGE
+}: FetchFilteredParams) {
+  const functionName = 'fetchFiltered'
   noStore()
-  const offset = (currentPage - 1) * HISTORY_ITEMS_PER_PAGE
+  //
+  // Calculate the offset for pagination
+  //
+  const offset = (currentPage - 1) * items_per_page
+
   try {
-    let sqlWhere = await buildWhere_History(query)
-    const sqlQueryStatement = `
-    SELECT *
+    //
+    // Build Where clause, include user filter if uid is provided
+    //
+    const { sqlWhere, queryValues } = await buildWhere(query, uid)
+    //
+    // If uid specified then limit to r_uid = uid, else all library items
+    //
+    const sqlQueryStatement = `SELECT *
     FROM usershistory
-    LEFT JOIN ownergroup ON r_gid = oggid
-    LEFT JOIN users ON r_uid = u_uid
-     ${sqlWhere}
-      ORDER BY r_hid DESC
-      LIMIT $1 OFFSET $2
+      LEFT JOIN ownergroup
+        ON r_gid = oggid
+      LEFT JOIN users
+        ON r_uid = u_uid
+      ${sqlWhere}
+      ORDER BY
+        r_hid DESC
+       LIMIT ${items_per_page} OFFSET ${offset}
      `
-    const queryValues = [HISTORY_ITEMS_PER_PAGE, offset]
     //
     // Remove redundant spaces
     //
     const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
     //
-    //  Logging
+    // Logging
     //
-    const message = `${sqlQuery} Values: ${sqlWhere}`
+    const message = `${sqlQuery} Values: ${queryValues}`
     writeLogging(functionName, message, 'I')
     //
-    //  Run sql Query
+    // Execute SQL
     //
-    const data = await sql.query(sqlQuery, queryValues)
-    const rows = data.rows
-    return rows
+    const data = await sql.query<table_UsershistoryGroupUser>(sqlQuery, queryValues)
     //
-    //  Errors
+    // Return results
     //
+    return data.rows
   } catch (error) {
-    //
-    //  Logging
-    //
+    // Logging
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
   }
 }
 //---------------------------------------------------------------------
-//  History where clause
+//  Combined Fetch Library Total Pages Function
 //---------------------------------------------------------------------
-export async function buildWhere_History(query: string) {
-  const functionName = 'buildWhere_History'
+type fetchTotalPagesParams = {
+  query: string
+  uid?: number
+  items_per_page?: number
+}
+export async function fetchTotalPages({
+  query,
+  uid,
+  items_per_page = ITEMS_PER_PAGE
+}: fetchTotalPagesParams) {
+  const functionName = 'fetchTotalPages'
+  noStore()
   try {
     //
-    //  Empty search
+    // Build Where clause, include user filter if uid is provided
     //
-    let whereClause = ''
-    if (!query) return whereClause
+    const { sqlWhere, queryValues } = await buildWhere(query, uid)
     //
-    // Initialize variables
+    // Build Query Statement to count total records
     //
-    let hid = 0
-    let owner = ''
-    let group = ''
-    let cnt = 0
-    let uid = 0
-    let correct = 0
-    let gid = 0
+    const sqlQueryStatement = uid
+      ? `
+      SELECT COUNT(*)
+      FROM library
+      LEFT JOIN usersowner ON lrowner = uoowner
+      LEFT JOIN ownergroup ON lrgid = oggid
+      ${sqlWhere}
+    `
+      : `
+      SELECT COUNT(*)
+      FROM library
+      ${sqlWhere}
+    `
     //
-    // Split the search query into parts based on spaces
+    // Remove redundant spaces
     //
-    const parts = query.split(/\s+/).filter(part => part.trim() !== '')
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
     //
-    // Loop through each part to extract values using switch statement
+    // Logging
     //
-    parts.forEach(part => {
-      if (part.includes(':')) {
-        const [key, value] = part.split(':')
-        //
-        //  Check for empty values
-        //
-        if (value === '') return
-        //
-        // Process each part
-        //
-        switch (key) {
-          case 'hid':
-            if (!isNaN(Number(value))) {
-              hid = parseInt(value, 10)
-            }
-            break
-          case 'uid':
-            if (!isNaN(Number(value))) {
-              uid = parseInt(value, 10)
-            }
-            break
-          case 'correct':
-            if (!isNaN(Number(value))) {
-              correct = parseInt(value, 10)
-            }
-            break
-          case 'owner':
-            owner = value
-            break
-          case 'group':
-            group = value
-            break
-          case 'gid':
-            if (!isNaN(Number(value))) {
-              gid = parseInt(value, 10)
-            }
-            break
-          case 'cnt':
-            if (!isNaN(Number(value))) {
-              cnt = parseInt(value, 10)
-            }
-            break
-          default:
-            group = value
-            break
-        }
-      } else {
-        // Default to 'group' if no key is provided
-        if (group === '') {
-          group = part
-        }
-      }
-    })
+    const message = `${sqlQuery} Values: ${queryValues}`
+    writeLogging(functionName, message, 'I')
     //
-    // Add conditions for each variable if not empty or zero
+    // Run SQL query to get the count of total records
     //
-    if (hid !== 0) whereClause += `r_hid = ${hid} AND `
-    if (uid !== 0) whereClause += `r_uid = ${uid} AND `
-    if (owner !== '') whereClause += `r_owner ILIKE '%${owner}%' AND `
-    if (group !== '') whereClause += `r_group ILIKE '%${group}%' AND `
-    if (cnt !== 0) whereClause += `ogcntquestions >= ${cnt} AND `
-    if (correct !== 0) whereClause += `r_correctpercent >= ${correct} AND `
-    if (gid !== 0) whereClause += `r_gid = ${gid} AND `
+    const result = await sql.query(sqlQuery, queryValues)
     //
-    // Remove the trailing 'AND' if there are conditions
+    // Calculate total pages
     //
-    if (whereClause !== '') {
-      whereClause = `WHERE ${whereClause.slice(0, -5)}`
-    }
-    return whereClause
-    //
-    //  Errors
-    //
+    const count = result.rows[0].count
+    const totalPages = Math.ceil(count / items_per_page)
+    return totalPages
   } catch (error) {
-    //
-    //  Logging
-    //
+    // Logging
     console.error(`${functionName}:`, error)
     writeLogging(functionName, 'Function failed')
     throw new Error(`${functionName}: Failed`)
   }
+}
+
+//---------------------------------------------------------------------
+//  Library where clause with optional user filter
+//---------------------------------------------------------------------
+async function buildWhere(
+  query: string,
+  uid?: number
+): Promise<{ sqlWhere: string; queryValues: (string | number)[] }> {
+  //
+  // Default to user-specific filter if no query provided
+  //
+  if (!query) {
+    return uid
+      ? { sqlWhere: `WHERE r_uid = $1`, queryValues: [uid] }
+      : { sqlWhere: '', queryValues: [] }
+  }
+  //
+  // Initialize conditions and query values
+  //
+  const whereParams: string[] = []
+  const queryValues: (string | number)[] = []
+  //
+  // Add user filter if uid is provided
+  //
+  if (uid) {
+    whereParams.push(`r_uid = $1`)
+    queryValues.push(uid)
+  }
+  //
+  // Parse the query into parts
+  //
+  query
+    .split(/\s+/)
+    .filter(Boolean)
+    .forEach((part, index) => {
+      let key: string, value: string, operator: string
+      //
+      // Adjust for the $1 for uid
+      //
+      const paramIndex = index + (uid ? 2 : 1)
+      //
+      //  Exact match
+      //
+      if (part.includes('=')) {
+        const split = part.split('=')
+        key = split[0]
+        value = split[1]
+        operator = '='
+      }
+      //
+      //  Partial match
+      //
+      else if (part.includes(':')) {
+        const split = part.split(':')
+        key = split[0]
+        value = split[1]
+        operator = 'ILIKE'
+      }
+      //
+      //  Default as desc
+      //
+      else {
+        key = 'desc'
+        value = part
+        operator = 'ILIKE'
+      }
+      //
+      // Skip if value is empty
+      //
+      if (!value) return
+      //
+      // Add the prefix only to the query fields
+      //
+      key = `${prefix}${key}`
+      //
+      // For ILIKE, add % around the value
+      //
+      if (operator === 'ILIKE') value = `%${value}%`
+      //
+      // Push the condition and value
+      //
+      whereParams.push(`${key} ${operator} $${paramIndex}`)
+      queryValues.push(isNaN(Number(value)) ? value : Number(value))
+    })
+  //
+  // Combine conditions into a WHERE clause
+  //
+  const sqlWhere = whereParams.length > 0 ? `WHERE ${whereParams.join(' AND ')}` : ''
+  //
+  //  Return the sqlWhere and the $1 etc values
+  //
+  return { sqlWhere, queryValues }
 }
 //---------------------------------------------------------------------
 //  Top results data
