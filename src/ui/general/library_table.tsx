@@ -632,8 +632,10 @@ export default function Table({
                 {/* ................................................... */}
                 {/* Questions                                            */}
                 {/* ................................................... */}
-                {show_questions && 'ogcntquestions' in library && library.ogcntquestions > 0 && (
-                  <td className=' pl-2 pt-2 text-center'>{library.ogcntquestions}</td>
+                {show_questions && 'ogcntquestions' in library && (
+                  <td className='pl-2 pt-2 text-center'>
+                    {library.ogcntquestions > 0 ? library.ogcntquestions : ' '}
+                  </td>
                 )}
                 {/* ................................................... */}
                 {/* Button  2                                                 */}
@@ -649,12 +651,16 @@ export default function Table({
                   </td>
                 ) : (
                   <td className=' pl-2 pt-2 text-center'>
-                    <Link
-                      href={`/dashboard/quiz/${library.lrgid}`}
-                      className='bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 px-2 py-1'
-                    >
-                      Quiz
-                    </Link>
+                    {'ogcntquestions' in library && library.ogcntquestions > 0 ? (
+                      <Link
+                        href={`/dashboard/quiz/${library.lrgid}`}
+                        className='bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 px-2 py-1'
+                      >
+                        Quiz
+                      </Link>
+                    ) : (
+                      ' '
+                    )}
                   </td>
                 )}
                 {/* ---------------------------------------------------------------------------------- */}

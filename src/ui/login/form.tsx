@@ -4,7 +4,7 @@ import { lusitana } from '@/src/fonts'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState } from 'react-dom'
-import { loginUser } from '@/src/ui/login/action-user-login'
+import { loginUser } from '@/src/ui/login/action'
 import { usePathname, useRouter } from 'next/navigation'
 import { deleteCookie } from '@/src/lib/data-cookie'
 import Socials from '@/src/ui/login/socials'
@@ -74,7 +74,7 @@ export default function LoginForm() {
   //  Go to Register
   //-------------------------------------------------------------------------
   interface RegisterButtonProps {
-    onClick: () => void
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
   }
   function RegisterButton({ onClick }: RegisterButtonProps) {
     return (
@@ -89,7 +89,8 @@ export default function LoginForm() {
   //--------------------------------------------------------------------------------
   //  Register User
   //--------------------------------------------------------------------------------
-  function onClick_registration() {
+  function onClick_registration(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
     router.push('/register')
   }
   //-------------------------------------------------------------------------
@@ -119,7 +120,6 @@ export default function LoginForm() {
               name='email'
               placeholder='Enter your email address'
               autoComplete='email'
-              required
               disabled={submitting}
             />
           </div>
@@ -139,7 +139,6 @@ export default function LoginForm() {
               name='password'
               placeholder='Enter password'
               autoComplete='current-password'
-              required
               disabled={submitting}
             />
           </div>

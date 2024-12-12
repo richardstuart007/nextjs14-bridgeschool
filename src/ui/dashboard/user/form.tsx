@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '../../utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
-import { UserEdit } from '@/src/ui/dashboard/user/action-user-edit'
+import { UserEdit } from '@/src/ui/dashboard/user/action'
 import { notFound } from 'next/navigation'
 import SelectCountry from '@/src/ui/utils/countries/select-country'
 import { useUserContext } from '@/UserContext'
@@ -114,8 +114,7 @@ export default function Form() {
               id='u_name'
               type='u_name'
               name='u_name'
-              autoComplete='u_name'
-              required
+              autoComplete='name'
               value={u_name}
               onChange={e => setu_name(e.target.value)}
             />
@@ -129,7 +128,6 @@ export default function Form() {
               </p>
             ))}
         </div>
-
         {/*  ...................................................................................*/}
         {/*  FEDCOUNTRY  */}
         {/*  ...................................................................................*/}
@@ -162,8 +160,6 @@ export default function Form() {
               id='u_fedid'
               type='u_fedid'
               name='u_fedid'
-              autoComplete='u_fedid'
-              required
               value={u_fedid}
               onChange={e => setu_fedid(e.target.value)}
             />

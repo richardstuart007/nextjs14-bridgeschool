@@ -26,7 +26,7 @@ export default function Table() {
   //
   //  Input selection
   //
-  const [uid, setuid] = useState(0)
+  const [uid, setuid] = useState<number | string>('')
   const [widthNumber, setWidthNumber] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(99)
   const [owner, setowner] = useState('')
@@ -76,6 +76,7 @@ export default function Table() {
   useEffect(() => {
     if (sessionContext?.cxuid) {
       setuid(sessionContext.cxuid)
+      setShouldFetchData(true)
     }
   }, [sessionContext])
   //......................................................................................
@@ -106,6 +107,7 @@ export default function Table() {
     // Construct filters dynamically from input fields
     //
     const filtersToUpdate: Filter[] = [
+      { column: 'r_uid', value: uid, operator: '=' },
       { column: 'r_owner', value: owner, operator: '=' },
       { column: 'r_group', value: group, operator: '=' },
       { column: 'ogtitle', value: title, operator: 'LIKE' },
@@ -122,7 +124,7 @@ export default function Table() {
     //
     setFilters(updatedFilters)
     setShouldFetchData(true)
-  }, [owner, group, questions, title, name, correct])
+  }, [uid, owner, group, questions, title, name, correct])
   //......................................................................................
   // Fetch history on mount and when shouldFetchData changes
   //......................................................................................
@@ -177,20 +179,21 @@ export default function Table() {
     //
     if (widthNumber_new >= 1) {
       setshow_title(true)
+      setshow_uid(true)
     }
     if (widthNumber_new >= 2) {
     }
     if (widthNumber_new >= 3) {
       setshow_correct(true)
+      setshow_name(true)
     }
     if (widthNumber_new >= 4) {
       setshow_owner(true)
       setshow_group(true)
-      setshow_name(true)
     }
     if (widthNumber_new >= 5) {
       setshow_questions(true)
-      setshow_uid(true)
+
       setshow_hid(true)
       setshow_gid(true)
     }
@@ -315,19 +318,19 @@ export default function Table() {
                   Title
                 </th>
               )}
-              {show_questions && (
-                <th scope='col' className=' font-medium px-2 text-center'>
-                  Questions
-                </th>
-              )}
               {show_uid && (
-                <th scope='col' className=' font-medium px-2'>
+                <th scope='col' className=' font-medium px-2 text-center'>
                   Uid
                 </th>
               )}
               {show_name && (
                 <th scope='col' className=' font-medium px-2'>
                   User-Name
+                </th>
+              )}
+              {show_questions && (
+                <th scope='col' className=' font-medium px-2 text-center'>
+                  Questions
                 </th>
               )}
               {show_correct && (
@@ -418,6 +421,44 @@ export default function Table() {
                 </th>
               )}
               {/* ................................................... */}
+              {/* uid                                                 */}
+              {/* ................................................... */}
+              {show_uid && (
+                <th scope='col' className='px-2 text-center'>
+                  <input
+                    id='uid'
+                    name='uid'
+                    className={`w-12 md:max-w-md rounded-md border border-blue-500  px-2 font-normal text-xs text-center`}
+                    type='text'
+                    value={uid}
+                    onChange={e => {
+                      const value = e.target.value
+                      const numValue = parseInt(value, 10)
+                      const parsedValue = isNaN(numValue) ? '' : numValue
+                      setuid(parsedValue)
+                    }}
+                  />
+                </th>
+              )}
+              {/* ................................................... */}
+              {/* Name                                                 */}
+              {/* ................................................... */}
+              {show_name && (
+                <th scope='col' className='px-2'>
+                  <input
+                    id='name'
+                    name='name'
+                    className={`w-50 md:max-w-md rounded-md border border-blue-500  py-2 font-normal text-xs`}
+                    type='text'
+                    value={name}
+                    onChange={e => {
+                      const value = e.target.value.split(' ')[0]
+                      setname(value)
+                    }}
+                  />
+                </th>
+              )}
+              {/* ................................................... */}
               {/* Questions                                           */}
               {/* ................................................... */}
               {show_questions && (
@@ -433,28 +474,6 @@ export default function Table() {
                       const numValue = parseInt(value, 10)
                       const parsedValue = isNaN(numValue) ? '' : numValue
                       setquestions(parsedValue)
-                    }}
-                  />
-                </th>
-              )}
-              {/* ................................................... */}
-              {/* uid                                                 */}
-              {/* ................................................... */}
-              {show_uid && <th scope='col' className=' px-2'></th>}
-              {/* ................................................... */}
-              {/* Name                                                 */}
-              {/* ................................................... */}
-              {show_name && (
-                <th scope='col' className='px-2'>
-                  <input
-                    id='name'
-                    name='name'
-                    className={`w-50 md:max-w-md rounded-md border border-blue-500  py-2 font-normal text-xs`}
-                    type='text'
-                    value={name}
-                    onChange={e => {
-                      const value = e.target.value.split(' ')[0]
-                      setname(value)
                     }}
                   />
                 </th>
@@ -505,9 +524,9 @@ export default function Table() {
                       : ' '}
                   </td>
                 )}
-                {show_questions && <td className='px-2 py-2 text-center'>{history.r_questions}</td>}
                 {show_uid && <td className='px-2 py-2 text-center'>{history.r_uid}</td>}
                 {show_name && <td className='px-2 py-2'>{history.u_name}</td>}
+                {show_questions && <td className='px-2 py-2 text-center'>{history.r_questions}</td>}
                 {show_correct && (
                   <td className='px-2 py-2  text-center '>{history.r_correctpercent}</td>
                 )}

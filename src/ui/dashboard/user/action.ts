@@ -12,7 +12,7 @@ import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 //
 const FormSchemaSetup = z.object({
   u_uid: z.string(),
-  u_name: z.string(),
+  u_name: z.string().min(1),
   u_fedid: z.string(),
   u_fedcountry: z.string()
 })

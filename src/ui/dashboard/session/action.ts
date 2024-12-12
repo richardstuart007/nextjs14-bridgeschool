@@ -12,7 +12,7 @@ import { UpdateSessions } from '@/src/lib/tables/tableSpecific/sessions'
 //  Form Schema for validation
 //
 const FormSchemaSession = z.object({
-  bsdftmaxquestions: z.number().min(5).max(100),
+  bsdftmaxquestions: z.number().min(3).max(30),
   bssortquestions: z.boolean(),
   bsskipcorrect: z.boolean()
 })

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
-import { UserEdit } from '@/src/ui/admin/users/useredit/UserEdit-action'
+import { UserEdit } from '@/src/ui/admin/users/useredit/action'
 import type { table_Users } from '@/src/lib/tables/definitions'
 import SelectCountry from '@/src/ui/utils/countries/select-country'
 
@@ -65,8 +65,7 @@ export default function Form({ UserRecord }: { UserRecord: table_Users }) {
                 id='u_name'
                 type='u_name'
                 name='u_name'
-                autoComplete='u_name'
-                required
+                autoComplete='name'
                 value={u_name}
                 onChange={e => setU_name(e.target.value)}
               />
@@ -93,7 +92,6 @@ export default function Form({ UserRecord }: { UserRecord: table_Users }) {
                 id='u_fedid'
                 type='u_fedid'
                 name='u_fedid'
-                autoComplete='u_fedid'
                 value={u_fedid}
                 onChange={e => setU_fedid(e.target.value)}
               />

@@ -9,7 +9,11 @@ export default function Socials() {
   //
   //  Signin using provider
   //
-  const signInProvider = (provider: 'google' | 'github') => {
+  const signInProvider = (
+    provider: 'google' | 'github',
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault()
     signIn(provider, {
       callbackUrl: Routes_AfterLogin_redirect
     })
@@ -22,13 +26,13 @@ export default function Socials() {
       <div className='flex items-center w-full pt-4 gap-x-6'>
         <Button
           className='w-full border border-orange-300 rounded-lg bg-orange-300 hover:bg-orange-500 flex items-center justify-center'
-          onClick={() => signInProvider('google')}
+          onClick={event => signInProvider('google', event)}
         >
           <FcGoogle className='h-8 w-8' />
         </Button>
         <Button
           className='w-full border border-orange-300 rounded-lg bg-orange-300 hover:bg-orange-500 flex items-center justify-center'
-          onClick={() => signInProvider('github')}
+          onClick={event => signInProvider('github', event)}
         >
           <FaGithub className='h-8 w-8' />
         </Button>

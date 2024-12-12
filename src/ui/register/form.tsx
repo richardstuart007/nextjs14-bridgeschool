@@ -4,7 +4,7 @@ import { lusitana } from '@/src/fonts'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState } from 'react-dom'
-import { registerUser } from '@/src/ui/register/action-user-register'
+import { registerUser } from '@/src/ui/register/action'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
@@ -40,7 +40,7 @@ export default function RegisterForm() {
   //  Go to Login
   //-------------------------------------------------------------------------
   interface LoginButtonProps {
-    onClick: () => void
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
   }
   function LoginButton({ onClick }: LoginButtonProps) {
     return (
@@ -55,7 +55,8 @@ export default function RegisterForm() {
   //-------------------------------------------------------------------------
   //  Handle Login Click
   //-------------------------------------------------------------------------
-  const onClick_login = () => {
+  function onClick_login(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
     router.push('/login')
   }
   //-------------------------------------------------------------------------
@@ -84,7 +85,6 @@ export default function RegisterForm() {
               type='text'
               name='name'
               placeholder='Enter your name'
-              required
               disabled={submitting}
             />
           </div>
@@ -103,7 +103,6 @@ export default function RegisterForm() {
               type='email'
               name='email'
               placeholder='Enter your email address'
-              required
               disabled={submitting}
             />
           </div>
@@ -122,7 +121,6 @@ export default function RegisterForm() {
               type='password'
               name='password'
               placeholder='Enter password'
-              required
               disabled={submitting}
             />
           </div>

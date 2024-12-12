@@ -9,8 +9,8 @@ import bcrypt from 'bcryptjs'
 //  Register
 // ----------------------------------------------------------------------
 const FormSchemaRegister = z.object({
-  name: z.string(),
-  email: z.string().email().toLowerCase(),
+  name: z.string().min(1),
+  email: z.string().email().toLowerCase().min(1),
   password: z.string().min(1)
 })
 

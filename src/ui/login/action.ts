@@ -10,8 +10,8 @@ import { AuthError } from 'next-auth'
 //  Define the schema for zod
 //
 const FormSchemaLogin = z.object({
-  email: z.string().email().toLowerCase(),
-  password: z.string()
+  email: z.string().email().toLowerCase().min(1),
+  password: z.string().min(1)
 })
 //
 //  Define the state type

@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import bcrypt from 'bcryptjs'
 // ----------------------------------------------------------------------
 //  Update User Setup
 // ----------------------------------------------------------------------
@@ -9,38 +10,29 @@ import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 //  Form Schema for validation
 //
 const FormSchemaSetup = z.object({
-  u_uid: z.string(),
-  u_name: z.string(),
-  u_fedid: z.string(),
-  u_fedcountry: z.string(),
-  u_admin: z.boolean()
+  upuid: z.string().min(1),
+  uppwd: z.string().min(1, { message: 'String must be at least 2 characters long' })
 })
 //
 //  Errors and Messages
 //
 export type StateSetup = {
   errors?: {
-    u_uid?: string[]
-    u_name?: string[]
-    u_fedid?: string[]
-    u_fedcountry?: string[]
-    u_admin?: string[]
+    upuid?: string[]
+    uppwd?: string[]
   }
   message?: string | null
 }
 
 const Setup = FormSchemaSetup
 
-export async function UserEdit(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function PwdEdit(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   //  Validate form data
   //
   const validatedFields = Setup.safeParse({
-    u_uid: formData.get('u_uid'),
-    u_name: formData.get('u_name'),
-    u_fedid: formData.get('u_fedid'),
-    u_fedcountry: formData.get('u_fedcountry'),
-    u_admin: formData.get('u_admin') === 'true'
+    upuid: formData.get('upuid'),
+    uppwd: formData.get('uppwd')
   })
   //
   // If form validation fails, return errors early. Otherwise, continue.
@@ -54,32 +46,25 @@ export async function UserEdit(_prevState: StateSetup, formData: FormData): Prom
   //
   // Unpack form data
   //
-  const { u_uid, u_name, u_fedid, u_fedcountry, u_admin } = validatedFields.data
+  const { upuid, uppwd } = validatedFields.data
+  const userid = parseInt(upuid, 10)
   //
   // Update data into the database
   //
   try {
     //
-    // Common column-value pairs
+    //  Update the userspwd data
     //
-    const columnValuePairs = [
-      { column: 'u_name', value: u_name },
-      { column: 'u_fedid', value: u_fedid },
-      { column: 'u_fedcountry', value: u_fedcountry },
-      { column: 'u_admin', value: u_admin }
-    ]
+    const upuid = userid
+    const uphash = await bcrypt.hash(uppwd, 10)
     const updateParams = {
-      table: 'users',
-      columnValuePairs,
-      whereColumnValuePairs: [{ column: 'u_uid', value: u_uid }]
+      table: 'userspwd',
+      columnValuePairs: [{ column: 'uphash', value: uphash }],
+      whereColumnValuePairs: [{ column: 'upuid', value: upuid }]
     }
-    //
-    //  Update the database
-    //
     await table_update(updateParams)
-
     return {
-      message: 'User updated successfully.',
+      message: 'Password updated successfully.',
       errors: undefined
     }
     //
@@ -87,7 +72,7 @@ export async function UserEdit(_prevState: StateSetup, formData: FormData): Prom
     //
   } catch (error) {
     return {
-      message: 'Database Error: Failed to Update User.',
+      message: 'Database Error: Failed to Update Password.',
       errors: undefined
     }
   }
