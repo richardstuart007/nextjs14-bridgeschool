@@ -5,10 +5,7 @@ import { useState, useEffect } from 'react'
 import MaintPopup from '@/src/ui/admin/library/maintPopup'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
 import { table_Library, table_LibraryGroup } from '@/src/lib/tables/definitions'
-import {
-  fetchLibraryFiltered,
-  fetchLibraryTotalPages
-} from '@/src/lib/tables/tableSpecific/library'
+import { fetchFiltered, fetchTotalPages } from '@/src/lib/tables/tableGeneric/table_fetch_pages'
 import Pagination from '@/src/ui/utils/pagination'
 import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 import { update_ogcntlibrary } from '@/src/lib/tables/tableSpecific/ownergroup'
@@ -29,21 +26,24 @@ export default function Table({
   maintMode = false
 }: FormProps) {
   //
-  //  Initial Search Value
-  //
-  let initial_searchValue = ''
-  if (selected_gid) initial_searchValue = `gid=${selected_gid}`
-  //
   //  User context
   //
   const { sessionContext } = useUserContext()
+  //
+  // Define the structure for filters
+  //
+  type Filter = {
+    column: string
+    value: string | number
+    operator: '=' | 'LIKE' | '>' | '>=' | '<' | '<='
+  }
+  const [filters, setFilters] = useState<Filter[]>([])
   //
   //  State
   //
   const [uid, setuid] = useState(0)
   const [widthNumber, setWidthNumber] = useState(2)
   const [rowsPerPage, setRowsPerPage] = useState(5)
-  const [searchValue, setSearchValue] = useState(initial_searchValue)
   const [owner, setowner] = useState(selected_owner ? selected_owner : '')
   const [group, setgroup] = useState(selected_group ? selected_group : '')
   const [desc, setdesc] = useState('')
@@ -63,7 +63,7 @@ export default function Table({
   const [currentPage, setcurrentPage] = useState(1)
   const [library, setLibrary] = useState<(table_Library | table_LibraryGroup)[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
-  const [shouldFetchData, setShouldFetchData] = useState(true)
+  const [shouldFetchData, setShouldFetchData] = useState(false)
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
   const [selectedRow, setSelectedRow] = useState<table_Library | null>(null)
@@ -79,6 +79,7 @@ export default function Table({
   useEffect(() => {
     if (sessionContext?.cxuid) {
       setuid(sessionContext.cxuid)
+      setShouldFetchData(true)
     }
   }, [sessionContext])
   //......................................................................................
@@ -86,7 +87,6 @@ export default function Table({
   //......................................................................................
   useEffect(() => {
     screenSize()
-
     //
     // Update on resize
     //
@@ -192,26 +192,36 @@ export default function Table({
     setgroup('')
   }, [owner])
   //......................................................................................
-  //  Update the query string based on search values
+  //  Update the filters array based on selected values
   //......................................................................................
   useEffect(() => {
     //
-    // Update the searchValue by iterating through all filters
+    // Construct filters dynamically from input fields
     //
-    const filtersToUpdate = { owner, group, who, type, ref, desc }
-    const exactMatchFields = ['owner', 'group', 'who', 'type']
-    let updatedQuery = searchValue
-    for (const [key, value] of Object.entries(filtersToUpdate)) {
-      const exactMatch = exactMatchFields.includes(key)
-      updatedQuery = updateQuery(updatedQuery, key, value, exactMatch)
+    const filtersToUpdate: Filter[] = [
+      { column: 'lrowner', value: owner, operator: '=' },
+      { column: 'lrgroup', value: group, operator: '=' },
+      { column: 'lrwho', value: who, operator: '=' },
+      { column: 'lrtype', value: type, operator: '=' },
+      { column: 'lrref', value: ref, operator: 'LIKE' },
+      { column: 'lrdesc', value: desc, operator: 'LIKE' }
+    ]
+    //
+    // Add the 'uouid' filter if not in maintMode
+    //
+    if (!maintMode) {
+      filtersToUpdate.push({ column: 'uouid', value: uid, operator: '=' })
     }
     //
-    //  Set the search value
+    // Filter out any entries where `value` is not defined or empty
     //
-    setSearchValue(updatedQuery)
+    const updatedFilters = filtersToUpdate.filter(filter => filter.value)
+    //
+    //  Update filter to fetch data
+    //
+    setFilters(updatedFilters)
     setShouldFetchData(true)
-  }, [owner, group, who, type, ref, desc, searchValue])
-
+  }, [uid, owner, group, who, type, ref, desc, maintMode])
   //......................................................................................
   // Fetch library on mount and when shouldFetchData changes
   //......................................................................................
@@ -219,64 +229,58 @@ export default function Table({
     fetchdata()
     setShouldFetchData(false)
     // eslint-disable-next-line
-  }, [currentPage, shouldFetchData, searchValue])
-  //----------------------------------------------------------------------------------------------
-  // Define updateQuery as a function
-  //----------------------------------------------------------------------------------------------
-  function updateQuery(
-    searchValue: string,
-    key: string,
-    value: string,
-    exactMatch: boolean = false
-  ) {
-    //
-    // Split the current searchValue into an array of filters
-    //
-    const filters = searchValue ? searchValue.split(' ').filter(Boolean) : []
-    //
-    // Remove any existing filter for the given key
-    //
-    const updatedFilters = filters.filter(
-      filter => !filter.startsWith(`${key}:`) && !filter.startsWith(`${key}=`)
-    )
-    //
-    // Add the new filter if the value is not empty
-    //
-    if (value) {
-      const operator = exactMatch ? '=' : ':' // Use = for exact match or : for like match
-      updatedFilters.push(`${key}${operator}${value}`)
-    }
-    //
-    // Return the updated query string
-    //
-    const returnValue = updatedFilters.join(' ')
-    return returnValue
-  }
+  }, [currentPage, shouldFetchData])
   //----------------------------------------------------------------------------------------------
   // fetchdata
   //----------------------------------------------------------------------------------------------
   async function fetchdata() {
+    //
+    //  Not Maint mode & uid = 0 then exit
+    //
+    if (!maintMode && uid === 0) return
+    //
+    //  Continue to get data
+    //
     try {
       //
-      //  Filtered data
+      //  Table
       //
-      const propsData = {
-        query: searchValue,
-        currentPage: currentPage,
-        items_per_page: rowsPerPage,
-        ...(maintMode ? {} : { uid })
+      const table = 'library'
+      //
+      //  Joins
+      //
+      let joins
+      if (!maintMode) {
+        joins = [
+          { table: 'usersowner', on: 'lrowner = uoowner' },
+          { table: 'ownergroup', on: 'lrgid = oggid' }
+        ]
       }
-      const data = await fetchLibraryFiltered(propsData)
+      //
+      // Calculate the offset for pagination
+      //
+      const offset = (currentPage - 1) * rowsPerPage
+      //
+      //  Get data
+      //
+      const data = await fetchFiltered({
+        table,
+        joins,
+        filters,
+        orderBy: 'lrowner, lrgroup, lrref',
+        limit: rowsPerPage,
+        offset
+      })
       setLibrary(data)
       //
       //  Total number of pages
       //
-      const propsPages = {
-        query: searchValue,
-        items_per_page: rowsPerPage,
-        ...(maintMode ? {} : { uid })
-      }
-      const fetchedTotalPages = await fetchLibraryTotalPages(propsPages)
+      const fetchedTotalPages = await fetchTotalPages({
+        table,
+        joins,
+        filters,
+        items_per_page: rowsPerPage
+      })
       setTotalPages(fetchedTotalPages)
       //
       //  Errors

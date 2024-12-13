@@ -1,10 +1,6 @@
 'use client'
-<<<<<<< HEAD
-import { useEffect, useState, ForwardRefExoticComponent, SVGProps, RefAttributes } from 'react'
-import { HomeIcon, CircleStackIcon } from '@heroicons/react/24/outline'
-=======
+
 import { useEffect, useState } from 'react'
->>>>>>> dev
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
@@ -24,13 +20,8 @@ export default function Page() {
   useEffect(() => {
     const hrefAdmin = `/admin`
     const initialLinks = [
-<<<<<<< HEAD
-      { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-      { name: 'Admin', href: hrefAdmin, icon: CircleStackIcon }
-=======
       { name: 'Dashboard', href: '/dashboard' },
       { name: 'Admin', href: hrefAdmin }
->>>>>>> dev
     ]
     setLinks(initialLinks)
   }, [])
