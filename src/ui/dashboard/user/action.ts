@@ -12,7 +12,7 @@ import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 //
 const FormSchemaSetup = z.object({
   u_uid: z.string(),
-  u_name: z.string(),
+  u_name: z.string().min(1),
   u_fedid: z.string(),
   u_fedcountry: z.string()
 })
@@ -31,7 +31,7 @@ export type StateSetup = {
 
 const Setup = FormSchemaSetup
 
-export async function UserEdit(prevState: StateSetup, formData: FormData) {
+export async function UserEdit(_prevState: StateSetup, formData: FormData) {
   //
   //  Validate form data
   //
@@ -74,7 +74,7 @@ export async function UserEdit(prevState: StateSetup, formData: FormData) {
     //
     //  Update the database
     //
-    const data = await table_update(updateParams)
+    await table_update(updateParams)
 
     return {
       message: 'User updated successfully.',

@@ -1,6 +1,10 @@
 'use client'
+<<<<<<< HEAD
 import { useEffect, useState, ForwardRefExoticComponent, SVGProps, RefAttributes } from 'react'
 import { HomeIcon, CircleStackIcon } from '@heroicons/react/24/outline'
+=======
+import { useEffect, useState } from 'react'
+>>>>>>> dev
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
@@ -12,12 +16,6 @@ export default function Page() {
   type Link = {
     name: string
     href: string
-    icon: ForwardRefExoticComponent<
-      Omit<SVGProps<SVGSVGElement>, 'ref'> & {
-        title?: string
-        titleId?: string
-      } & RefAttributes<SVGSVGElement>
-    >
   }
   //
   // Links with hrefUser
@@ -26,8 +24,13 @@ export default function Page() {
   useEffect(() => {
     const hrefAdmin = `/admin`
     const initialLinks = [
+<<<<<<< HEAD
       { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
       { name: 'Admin', href: hrefAdmin, icon: CircleStackIcon }
+=======
+      { name: 'Dashboard', href: '/dashboard' },
+      { name: 'Admin', href: hrefAdmin }
+>>>>>>> dev
     ]
     setLinks(initialLinks)
   }, [])
@@ -39,20 +42,18 @@ export default function Page() {
   return (
     <>
       {links.map(link => {
-        const LinkIcon = link.icon
         return (
           <Link
             key={link.name}
             href={link.href}
             className={clsx(
-              'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+              'flex h-15 grow items-center justify-center gap-2 rounded-md bg-gray-50 p-1 text-xs font-medium hover:bg-sky-200 hover:text-red-600 md:flex-none md:p-2 md:px-2',
               {
                 'bg-sky-100 text-blue-600': pathname === link.href
               }
             )}
           >
-            <LinkIcon className='w-6' />
-            <p className='hidden md:block'>{link.name}</p>
+            <p className='text-xs'>{link.name}</p>
           </Link>
         )
       })}

@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs'
 //  Form Schema for validation
 //
 const FormSchemaSetup = z.object({
-  upuid: z.string(),
+  upuid: z.string().min(1),
   uppwd: z.string().min(1, { message: 'String must be at least 2 characters long' })
 })
 //
@@ -26,7 +26,7 @@ export type StateSetup = {
 
 const Setup = FormSchemaSetup
 
-export async function PwdEdit(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function PwdEdit(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   //  Validate form data
   //
@@ -62,7 +62,7 @@ export async function PwdEdit(prevState: StateSetup, formData: FormData): Promis
       columnValuePairs: [{ column: 'uphash', value: uphash }],
       whereColumnValuePairs: [{ column: 'upuid', value: upuid }]
     }
-    const data = await table_update(updateParams)
+    await table_update(updateParams)
     return {
       message: 'Password updated successfully.',
       errors: undefined

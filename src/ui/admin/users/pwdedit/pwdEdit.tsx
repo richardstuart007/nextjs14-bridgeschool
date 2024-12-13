@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
-import { PwdEdit } from '@/src/ui/admin/users/pwdedit/pwdEdit-action'
+import { PwdEdit } from '@/src/ui/admin/users/pwdedit/action'
 import type { table_Users } from '@/src/lib/tables/definitions'
 
 export default function Form({ UserRecord }: { UserRecord: table_Users }) {
@@ -52,8 +52,6 @@ export default function Form({ UserRecord }: { UserRecord: table_Users }) {
                 id='uppwd'
                 type='uppwd'
                 name='uppwd'
-                autoComplete='uppwd'
-                required
                 value={uppwd}
                 onChange={e => setUppwd(e.target.value)}
               />

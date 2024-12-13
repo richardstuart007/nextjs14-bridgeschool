@@ -113,6 +113,36 @@ export type table_Usershistory = {
   r_sid: number
 }
 
+export type table_UsershistoryGroupUser = {
+  r_hid: number
+  r_datetime: DateTime
+  r_owner: string
+  r_group: string
+  r_questions: number
+  r_qid: number[]
+  r_ans: number[]
+  r_uid: number
+  r_points: number[]
+  r_maxpoints: number
+  r_totalpoints: number
+  r_correctpercent: number
+  r_gid: number
+  r_sid: number
+  ogowner: string
+  oggroup: string
+  ogtitle: string
+  ogcntquestions: number
+  ogcntlibrary: number
+  oggid: number
+  u_uid: number
+  u_name: string
+  u_email: string
+  u_joined: DateTime
+  u_fedid: string
+  u_admin: boolean
+  u_fedcountry: string
+  u_provider: string
+}
 export type table_Userspwd = {
   upuid: number
   upemail: string

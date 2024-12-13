@@ -1,18 +1,17 @@
-import Table from '@/src/ui/general/library_table'
+import Table from '@/src/ui/dashboard/history/table'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
+import { TableSkeleton } from '@/src/ui/dashboard/history/skeleton'
 
 export const metadata: Metadata = {
-  title: 'Library'
+  title: 'History'
 }
-//
-//  Exported Function
-//
+
 export default async function Page() {
   return (
     <div className='w-full md:p-6'>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Table maintMode={true} />
+      <Suspense fallback={<TableSkeleton />}>
+        <Table />
       </Suspense>
     </div>
   )

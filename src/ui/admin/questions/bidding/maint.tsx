@@ -37,8 +37,6 @@ const bidding_names = [
   'R7B4'
 ]
 
-const values_valid = 'AKQJT987654321' // Define valid values
-
 type FormStateErrors = {
   [key in (typeof bidding_names)[number]]?: string[]
 }

@@ -85,7 +85,7 @@ async function newUser(provider: string, email: string, name: string) {
   //
   const uouid = userRecord.u_uid
   const uoowner = 'Richard'
-  const dataUserowners = await table_write({
+  await table_write({
     table: 'usersowner',
     columnValuePairs: [
       { column: 'uouid', value: uouid },

@@ -123,7 +123,7 @@ export default function Table() {
           table: 'reftype',
           whereColumnValuePairs: [{ column: 'rtrid', value: reftype.rtrid }]
         }
-        const data = await table_delete(Params)
+        await table_delete(Params)
         //
         //  Reload the page
         //

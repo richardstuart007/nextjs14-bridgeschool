@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { COUNTRIES } from './countries'
 
 interface Props {
@@ -18,12 +18,20 @@ export default function SelectCountry({ onChange, countryCode }: Props): JSX.Ele
   //
   //  Find country or default
   //
-  let countryInit = COUNTRIES.find(country => country.code === countryCode)
-  if (!countryInit) countryInit = { code: 'ZZ', label: 'World', phone: '999' }
+  const getDefaultCountry = (code: string): Country => {
+    let countryInit = COUNTRIES.find(country => country.code === code)
+    return countryInit ?? { code: 'ZZ', label: 'World', phone: '999' }
+  }
   //
   //  State
   //
-  const [country, setCountry] = useState<Country>(countryInit as Country)
+  const [country, setCountry] = useState<Country>(getDefaultCountry(countryCode))
+  //
+  // Use useEffect to update the state when countryCode prop changes
+  //
+  useEffect(() => {
+    setCountry(getDefaultCountry(countryCode))
+  }, [countryCode])
   //-----------------------------------------------------------------------------------
   //  Country Change Handler
   //-----------------------------------------------------------------------------------

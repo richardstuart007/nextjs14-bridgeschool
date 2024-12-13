@@ -48,7 +48,7 @@ const hand_name = [
   'WC'
 ]
 
-export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   // Retrieve values from formData and store them in an array
   //
@@ -262,7 +262,7 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
       //
       //  Update the database
       //
-      const data = await table_update(updateParams)
+      await table_update(updateParams)
       message = `Database updated successfully.`
       databaseUpdated = true
       //

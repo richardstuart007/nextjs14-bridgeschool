@@ -24,7 +24,7 @@ export default function SearchInput({
     setsearchValue(value)
     debounce(value)
   }
-  const debounce = useDebouncedCallback((value: string) => {
+  const debounce = useDebouncedCallback((_value: string) => {
     setShouldFetchData(true)
   }, WAIT_DEBOUNCE)
   //-----------------------------------------------------------------------

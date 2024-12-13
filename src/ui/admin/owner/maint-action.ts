@@ -25,7 +25,7 @@ export type StateSetup = {
 
 const Setup = FormSchemaSetup
 
-export async function OwnerMaint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function OwnerMaint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   //  Validate form data
   //
@@ -61,7 +61,11 @@ export async function OwnerMaint(prevState: StateSetup, formData: FormData): Pro
       table: 'owner',
       columnValuePairs: [{ column: 'oowner', value: oowner }]
     }
+<<<<<<< HEAD
     const data = await table_write(writeParams)
+=======
+    await table_write(writeParams)
+>>>>>>> dev
 
     return {
       message: `Database updated successfully.`,

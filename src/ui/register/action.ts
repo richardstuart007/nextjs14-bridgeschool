@@ -9,8 +9,8 @@ import bcrypt from 'bcryptjs'
 //  Register
 // ----------------------------------------------------------------------
 const FormSchemaRegister = z.object({
-  name: z.string(),
-  email: z.string().email().toLowerCase(),
+  name: z.string().min(1),
+  email: z.string().email().toLowerCase().min(1),
   password: z.string().min(1)
 })
 
@@ -25,7 +25,7 @@ export type StateRegister = {
 
 const Register = FormSchemaRegister
 
-export async function registerUser(prevState: StateRegister | undefined, formData: FormData) {
+export async function registerUser(_prevState: StateRegister | undefined, formData: FormData) {
   //
   //  Validate the fields using Zod
   //
@@ -99,7 +99,7 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
   const uphash = await bcrypt.hash(password, 10)
   const upemail = email
 
-  const userpwdRecords = await table_write({
+  await table_write({
     table: 'userspwd',
     columnValuePairs: [
       { column: 'upuid', value: upuid },
@@ -107,13 +107,12 @@ export async function registerUser(prevState: StateRegister | undefined, formDat
       { column: 'upemail', value: upemail }
     ]
   })
-  const userpwdRecord = userpwdRecords[0]
   //
   //  Write the usersowner data
   //
   const uouid = userRecord.u_uid
   const uoowner = 'Richard'
-  const dataUserowners = await table_write({
+  await table_write({
     table: 'usersowner',
     columnValuePairs: [
       { column: 'uouid', value: uouid },

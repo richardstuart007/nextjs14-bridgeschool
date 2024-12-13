@@ -28,7 +28,7 @@ export type StateSetup = {
 
 const Setup = FormSchemaSetup
 
-export async function Maint(prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
   //
   //  Validate form data
   //
@@ -88,7 +88,7 @@ export async function Maint(prevState: StateSetup, formData: FormData): Promise<
         { column: 'wtitle', value: wtitle }
       ]
     }
-    const data = await (wwid === 0 ? table_write(writeParams) : table_update(updateParams))
+    await (wwid === 0 ? table_write(writeParams) : table_update(updateParams))
 
     return {
       message: `Database updated successfully.`,

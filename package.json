@@ -48,7 +48,7 @@
   },
   "name": "nextjs14-bridgeschool",
   "description": "Bridge School",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "main": "next.config.js",
   "author": "Richard",
   "license": "ISC"

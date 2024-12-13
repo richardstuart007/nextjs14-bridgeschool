@@ -5,7 +5,7 @@ import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { Maint } from '@/src/ui/admin/ownergroup/maint-action'
 import type { table_Ownergroup } from '@/src/lib/tables/definitions'
-import DropdownOwner from '@/src/ui/utils/dropdown/dropdown-owner'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
 
 interface FormProps {
   record: table_Ownergroup | null
@@ -64,7 +64,18 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
         {/*   Owner */}
         {/*  ...................................................................................*/}
         {oggid === 0 ? (
-          <DropdownOwner selectedOption={ogowner} setSelectedOption={setogowner} name={'ogowner'} />
+          <DropdownGeneric
+            selectedOption={ogowner}
+            setSelectedOption={setogowner}
+            name='ogowner'
+            label='Owner'
+            table='owner'
+            orderBy='oowner'
+            optionLabel='oowner'
+            optionValue='oowner'
+            dropdownWidth='w-72'
+            includeBlank={false}
+          />
         ) : (
           /* -----------------Edit ------------------*/
           <>

@@ -112,85 +112,97 @@ export async function fetchUsersTotalPages(query: string) {
 //---------------------------------------------------------------------
 export async function buildWhere_Users(query: string) {
   const functionName = 'buildWhere_Users'
-  //
-  //  Empty search
-  //
-  if (!query) return ``
-  //
-  // Initialize variables
-  //
-  let uid = 0
-  let name = ''
-  let email = ''
-  let fedid = ''
-  let fedcountry = ''
-  let provider = ''
-  //
-  // Split the search query into parts based on spaces
-  //
-  const parts = query.split(/\s+/).filter(part => part.trim() !== '')
-  //
-  // Loop through each part to extract values using switch statement
-  //
-  parts.forEach(part => {
-    if (part.includes(':')) {
-      const [key, value] = part.split(':')
-      //
-      //  Check for empty values
-      //
-      if (value === '') return
-      //
-      // Process each part
-      //
-      switch (key) {
-        case 'uid':
-          if (!isNaN(Number(value))) {
-            uid = parseInt(value, 10)
-          }
-          break
-        case 'name':
-          name = value
-          break
-        case 'email':
-          email = value
-          break
-        case 'fedid':
-          fedid = value
-          break
-        case 'fedcountry':
-          fedcountry = value
-          break
-        case 'provider':
-          provider = value
-          break
-        default:
-          name = value
-          break
+  try {
+    //
+    //  Empty search
+    //
+    if (!query) return ``
+    //
+    // Initialize variables
+    //
+    let uid = 0
+    let name = ''
+    let email = ''
+    let fedid = ''
+    let fedcountry = ''
+    let provider = ''
+    //
+    // Split the search query into parts based on spaces
+    //
+    const parts = query.split(/\s+/).filter(part => part.trim() !== '')
+    //
+    // Loop through each part to extract values using switch statement
+    //
+    parts.forEach(part => {
+      if (part.includes(':')) {
+        const [key, value] = part.split(':')
+        //
+        //  Check for empty values
+        //
+        if (value === '') return
+        //
+        // Process each part
+        //
+        switch (key) {
+          case 'uid':
+            if (!isNaN(Number(value))) {
+              uid = parseInt(value, 10)
+            }
+            break
+          case 'name':
+            name = value
+            break
+          case 'email':
+            email = value
+            break
+          case 'fedid':
+            fedid = value
+            break
+          case 'fedcountry':
+            fedcountry = value
+            break
+          case 'provider':
+            provider = value
+            break
+          default:
+            name = value
+            break
+        }
+      } else {
+        // Default to 'name' if no key is provided
+        if (name === '') {
+          name = part
+        }
       }
-    } else {
-      // Default to 'name' if no key is provided
-      if (name === '') {
-        name = part
-      }
-    }
-  })
-  //
-  // Add conditions for each variable if not empty or zero
-  //
-  let whereClause = ''
-  if (uid !== 0) whereClause += `u_uid = ${uid} AND `
-  if (name !== '') whereClause += `u_name ILIKE '%${name}%' AND `
-  if (email !== '') whereClause += `u_email ILIKE '%${email}%' AND `
-  if (fedid !== '') whereClause += `u_fedid ILIKE '%${fedid}%' AND `
-  if (fedcountry !== '') whereClause += `u_fedcountry ILIKE '%${fedcountry}%' AND `
-  if (provider !== '') whereClause += `u_provider ILIKE '%${provider}%' AND `
-  //
-  //  No where clause
-  //
-  if (whereClause === '') return ''
-  //
-  // Remove the trailing 'AND' if there are conditions
-  //
-  const whereClauseUpdate = `WHERE ${whereClause.slice(0, -5)}`
-  return whereClauseUpdate
+    })
+    //
+    // Add conditions for each variable if not empty or zero
+    //
+    let whereClause = ''
+    if (uid !== 0) whereClause += `u_uid = ${uid} AND `
+    if (name !== '') whereClause += `u_name ILIKE '%${name}%' AND `
+    if (email !== '') whereClause += `u_email ILIKE '%${email}%' AND `
+    if (fedid !== '') whereClause += `u_fedid ILIKE '%${fedid}%' AND `
+    if (fedcountry !== '') whereClause += `u_fedcountry ILIKE '%${fedcountry}%' AND `
+    if (provider !== '') whereClause += `u_provider ILIKE '%${provider}%' AND `
+    //
+    //  No where clause
+    //
+    if (whereClause === '') return ''
+    //
+    // Remove the trailing 'AND' if there are conditions
+    //
+    const whereClauseUpdate = `WHERE ${whereClause.slice(0, -5)}`
+    return whereClauseUpdate
+    //
+    //  Errors
+    //
+  } catch (error) {
+    //
+    //  Logging
+    //
+    console.error(`${functionName}:`, error)
+    writeLogging(functionName, 'Function failed')
+    throw new Error(`${functionName}: Failed`)
+  }
 }
