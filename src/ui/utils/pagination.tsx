@@ -49,7 +49,7 @@ export default function Pagination({
     position?: 'first' | 'last' | 'middle' | 'single'
     isActive: boolean
   }) {
-    const className = clsx('flex h-10 w-10 items-center justify-center text-sm border', {
+    const className = clsx('flex h-6 w-6 items-center justify-center text-xs border', {
       'rounded-l-md': position === 'first' || position === 'single',
       'rounded-r-md': position === 'last' || position === 'single',
       'z-10 bg-blue-600 border-blue-600 text-white': isActive,
@@ -91,7 +91,7 @@ export default function Pagination({
     direction: 'left' | 'right'
     isDisabled?: boolean
   }) {
-    const className = clsx('flex h-10 w-10 items-center justify-center rounded-md border', {
+    const className = clsx('flex h-6 w-6 items-center justify-center rounded-md border', {
       'pointer-events-none text-gray-300': isDisabled,
       'hover:bg-gray-100 cursor-pointer': !isDisabled,
       'mr-2 md:mr-4': direction === 'left',

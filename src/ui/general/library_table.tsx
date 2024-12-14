@@ -100,9 +100,6 @@ export default function Table({
   //  Screen size
   //......................................................................................
   function screenSize() {
-    //
-    //  Adjust the Columns and Rows
-    //
     updateColumns()
     updateRows()
   }
@@ -223,8 +220,34 @@ export default function Table({
     setShouldFetchData(true)
   }, [uid, owner, group, who, type, ref, desc, maintMode])
   //......................................................................................
-  // Fetch library on mount and when shouldFetchData changes
+  // Fetch on mount and when shouldFetchData changes
   //......................................................................................
+  //
+  //  Change of filters
+  //
+  useEffect(() => {
+    if (filters.length > 0) {
+      setcurrentPage(1)
+      setShouldFetchData(true)
+    }
+  }, [filters])
+  //
+  // Reset currentPage to 1 when fetching new data
+  //
+  useEffect(() => {
+    if (shouldFetchData) setcurrentPage(1)
+  }, [shouldFetchData])
+  //
+  // Adjust currentPage if it exceeds totalPages
+  //
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setcurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+  //
+  // Change of current page or should fetch data
+  //
   useEffect(() => {
     fetchdata()
     setShouldFetchData(false)

@@ -53,8 +53,7 @@ export default function Table() {
   const [currentPage, setcurrentPage] = useState(1)
   const [history, sethistory] = useState<table_UsershistoryGroupUser[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
-  const [shouldFetchData, setShouldFetchData] = useState(true)
-
+  const [shouldFetchData, setShouldFetchData] = useState(false)
   //......................................................................................
   // Effect to log changes and perform actions based on state changes
   //......................................................................................
@@ -64,9 +63,6 @@ export default function Table() {
   const widthNumber_Ref = useRef<number | undefined>(undefined)
   const rowsPerPage_Ref = useRef<number | undefined>(undefined)
   useEffect(() => {
-    //
-    // Update refs with current state values
-    //
     widthNumber_Ref.current = widthNumber
     rowsPerPage_Ref.current = rowsPerPage
   }, [widthNumber, rowsPerPage])
@@ -126,8 +122,34 @@ export default function Table() {
     setShouldFetchData(true)
   }, [uid, owner, group, questions, title, name, correct])
   //......................................................................................
-  // Fetch history on mount and when shouldFetchData changes
+  // Fetch on mount and when shouldFetchData changes
   //......................................................................................
+  //
+  //  Change of filters
+  //
+  useEffect(() => {
+    if (filters.length > 0) {
+      setcurrentPage(1)
+      setShouldFetchData(true)
+    }
+  }, [filters])
+  //
+  // Reset currentPage to 1 when fetching new data
+  //
+  useEffect(() => {
+    if (shouldFetchData) setcurrentPage(1)
+  }, [shouldFetchData])
+  //
+  // Adjust currentPage if it exceeds totalPages
+  //
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setcurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+  //
+  // Change of current page or should fetch data
+  //
   useEffect(() => {
     fetchdata()
     setShouldFetchData(false)
@@ -267,6 +289,7 @@ export default function Table() {
         filters,
         items_per_page: rowsPerPage
       })
+      console.log('fetchedTotalPages', fetchedTotalPages)
       setTotalPages(fetchedTotalPages)
       //
       //  Errors
