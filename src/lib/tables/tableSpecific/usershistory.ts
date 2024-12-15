@@ -69,7 +69,7 @@ export async function fetchTopResultsData() {
 export async function fetchRecentResultsData1() {
   const functionName = 'fetchRecentResultsData1'
   noStore()
-  // ????????????
+  // ???
   // await new Promise(resolve => setTimeout(resolve, 3000))
   try {
     const sqlQueryStatement = `
@@ -130,8 +130,7 @@ export async function fetchRecentResultsData1() {
 export async function fetchRecentResultsData5(userIds: number[]) {
   const functionName = 'fetchRecentResultsData5'
   noStore()
-  // ????????????
-  // await new Promise(resolve => setTimeout(resolve, 3000))
+
   try {
     const [id1, id2, id3, id4, id5] = userIds
     const sqlQueryStatement = `

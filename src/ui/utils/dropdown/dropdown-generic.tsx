@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import DropdownSearch from '@/src/ui/utils/dropdown/dropdown'
+import DropdownSearch from '@/src/ui/utils/dropdown/dropdownSearch'
 import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 
 type DropdownProps = {

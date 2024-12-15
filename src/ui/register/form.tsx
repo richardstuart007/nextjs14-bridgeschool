@@ -45,7 +45,7 @@ export default function RegisterForm() {
   function LoginButton({ onClick }: LoginButtonProps) {
     return (
       <Button
-        className='mt-4 w-full flex items-center justify-center bg-gray-300 border-none shadow-noneunderline  hover:bg-gray-500'
+        className='mt-4 w-full flex items-center justify-center bg-gray-700 text-white border-none shadow-none hover:bg-gray-900'
         onClick={onClick}
       >
         Back to Login

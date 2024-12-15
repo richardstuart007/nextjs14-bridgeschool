@@ -547,6 +547,9 @@ export default function Table({
               {/* ................................................... */}
               {show_ref && (
                 <th scope='col' className=' pl-2 '>
+                  <label htmlFor='ref' className='sr-only'>
+                    Reference
+                  </label>
                   <input
                     id='ref'
                     name='ref'
@@ -564,6 +567,9 @@ export default function Table({
               {/* DESC                                                 */}
               {/* ................................................... */}
               <th scope='col' className='pl-2'>
+                <label htmlFor='desc' className='sr-only'>
+                  Description
+                </label>
                 <input
                   id='desc'
                   name='desc'

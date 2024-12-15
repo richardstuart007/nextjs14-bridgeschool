@@ -9,8 +9,10 @@ import { usePathname, useRouter } from 'next/navigation'
 import { deleteCookie } from '@/src/lib/data-cookie'
 import Socials from '@/src/ui/login/socials'
 import { useState, useEffect } from 'react'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 
 export default function LoginForm() {
+  const functionName = 'LoginForm'
   //
   //  Router
   //
@@ -57,6 +59,11 @@ export default function LoginForm() {
     //  Auth redirect error - fix ???
     //
     if (!pathname.includes('/login')) {
+      //
+      //  Logging
+      //
+      const message = 'nav-side: Auth redirect but not /dashboard'
+      writeLogging(functionName, message, 'W')
       router.push('/login')
     }
   }
@@ -79,7 +86,7 @@ export default function LoginForm() {
   function RegisterButton({ onClick }: RegisterButtonProps) {
     return (
       <Button
-        className='mt-4 w-full flex items-center justify-center bg-gray-300 border-none shadow-noneunderline  hover:bg-gray-500'
+        className='mt-4 w-full flex items-center justify-center bg-gray-700 text-white border-none shadow-none hover:bg-gray-900'
         onClick={onClick}
       >
         Not Registered yet? Click here

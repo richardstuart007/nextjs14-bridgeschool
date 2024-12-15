@@ -60,6 +60,9 @@ export default function DropdownSearch({
       {/* Dropdown */}
       {/*  ...................................................................................*/}
       <div className='relative'>
+        <label htmlFor={name} className='sr-only'>
+          {name}
+        </label>
         <select
           className={`${dropdownWidth} md:max-w-md px-2 rounded-md border border-blue-500 py-[6px] text-xs `}
           id={name}

@@ -25,13 +25,13 @@ export default function Socials() {
       </label>
       <div className='flex items-center w-full pt-4 gap-x-6'>
         <Button
-          className='w-full border border-orange-300 rounded-lg bg-orange-300 hover:bg-orange-500 flex items-center justify-center'
+          className='w-full border border-orange-700 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center'
           onClick={event => signInProvider('google', event)}
         >
           <FcGoogle className='h-8 w-8' />
         </Button>
         <Button
-          className='w-full border border-orange-300 rounded-lg bg-orange-300 hover:bg-orange-500 flex items-center justify-center'
+          className='w-full border border-orange-700 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center'
           onClick={event => signInProvider('github', event)}
         >
           <FaGithub className='h-8 w-8' />
