@@ -1,37 +1,72 @@
 'use client'
-import { useEffect } from 'react'
-import SchoolLogo from '@/src/ui/utils/school-logo'
+import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { lusitana } from '@/src/fonts'
 import { deleteCookie } from '@/src/lib/data-cookie'
 
 export default function Page() {
-  //
-  //  Reset the session
-  //
+  const [logoSize, setLogoSize] = useState(90)
+
   useEffect(() => {
     deleteCookie()
     // eslint-disable-next-line
   }, [])
+
+  useEffect(() => {
+    const updateSize = () => {
+      const width = window.innerWidth
+      if (width >= 1536) {
+        setLogoSize(500) // 2XL
+      } else if (width >= 1280) {
+        setLogoSize(400) // XL
+      } else if (width >= 1024) {
+        setLogoSize(300) // Large
+      } else if (width >= 768) {
+        setLogoSize(200) // Medium
+      } else if (width >= 640) {
+        setLogoSize(100) // Small
+      } else {
+        setLogoSize(90) // Extra Small
+      }
+    }
+
+    updateSize() // Set initial size
+    window.addEventListener('resize', updateSize) // Update on resize
+
+    return () => window.removeEventListener('resize', updateSize)
+  }, [])
+
   return (
-    <main className='flex min-h-screen flex-col p-6'>
-      <SchoolLogo showOnSmallScreens={true} />
-      <div className='mt-4 flex grow flex-col gap-4 md:flex-row'>
-        <div className='flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20'>
-          <p
-            className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}
-          >
-            Welcome to <strong>Bridge School</strong> brought to you by{' '}
+    <main className='flex min-h-screen items-center justify-center p-6 bg-gray-50'>
+      <div className='flex flex-col justify-center items-center gap-6 rounded-lg px-6 py-10'>
+        <div className='self-center'>
+          <Image
+            src='/logos/bridgelogo.svg'
+            width={logoSize}
+            height={logoSize}
+            priority
+            alt='bridgecards'
+          />
+        </div>
+        <div
+          className={`${lusitana.className} p-4 max-w-fit inline-block text-xs md:text-lg xl:text-xl 2xl:text-2xl`}
+        >
+          <p className='text-center py-2'>
+            <strong>Bridge School</strong>
+          </p>
+          <p className='text-center italic text-green-500'>by</p>
+          <p className='text-center py-2'>
             <strong>Richard Stuart</strong>
           </p>
-          <Link
-            href='/login'
-            className='flex items-center gap-5 self-start rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-400 md:text-base'
-          >
-            <span>Log in</span> <ArrowRightIcon className='w-5 md:w-6' />
-          </Link>
         </div>
+        <Link
+          href='/login'
+          className='flex items-center gap-5 self-center rounded-lg bg-blue-500 px-3 py-3 text-sm text-white transition-colors hover:bg-blue-400'
+        >
+          <span>Log in</span> <ArrowRightIcon className='w-5' />
+        </Link>
       </div>
     </main>
   )

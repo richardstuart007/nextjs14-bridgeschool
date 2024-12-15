@@ -289,7 +289,6 @@ export default function Table() {
         filters,
         items_per_page: rowsPerPage
       })
-      console.log('fetchedTotalPages', fetchedTotalPages)
       setTotalPages(fetchedTotalPages)
       //
       //  Errors
