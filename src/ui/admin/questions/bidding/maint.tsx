@@ -110,7 +110,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
     //
     const { pending } = useFormStatus()
     return (
-      <Button className='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
+      <Button overrideClass='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
         Update
       </Button>
     )

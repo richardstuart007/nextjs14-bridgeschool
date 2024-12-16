@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { table_UsershistoryGroupUser } from '@/src/lib/tables/definitions'
 import { fetchFiltered, fetchTotalPages } from '@/src/lib/tables/tableGeneric/table_fetch_pages'
 import Pagination from '@/src/ui/utils/pagination'
-import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdownGeneric'
 import { useUserContext } from '@/UserContext'
 import Link from 'next/link'
 

@@ -141,7 +141,7 @@ export default function Table() {
         <h1 className='px-2 py-1 text-sm'>
           <Button
             onClick={() => handleClickAdd()}
-            className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
+            overrideClass='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
           >
             Add
           </Button>
@@ -183,7 +183,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm'>
                       <Button
                         onClick={() => handleClickEdit(who)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
+                        overrideClass='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
                       </Button>
@@ -191,7 +191,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm'>
                       <Button
                         onClick={() => handleDeleteClick(who)}
-                        className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
+                        overrideClass='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
                       </Button>

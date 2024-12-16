@@ -31,13 +31,13 @@ export default function ConfirmDialog({ confirmDialog, setConfirmDialog }: Confi
       </div>
       <div className='flex justify-center space-x-4'>
         <Button
-          className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none'
+          overrideClass='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none'
           onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
         >
           No
         </Button>
         <Button
-          className='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none'
+          overrideClass='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none'
           onClick={confirmDialog.onConfirm}
         >
           Yes

@@ -5,7 +5,7 @@ import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { Maint_detail } from '@/src/ui/admin/questions/detail/action'
 import type { table_Questions } from '@/src/lib/tables/definitions'
-import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdownGeneric'
 
 interface FormProps {
   record: table_Questions | null
@@ -33,7 +33,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
     //
     const { pending } = useFormStatus()
     return (
-      <Button className='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
+      <Button overrideClass='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
         {qqid === 0 ? 'Create' : 'Update'}
       </Button>
     )

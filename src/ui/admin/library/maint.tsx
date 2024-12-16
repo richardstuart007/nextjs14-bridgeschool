@@ -5,7 +5,7 @@ import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { LibraryMaint } from '@/src/ui/admin/library/maint-action'
 import type { table_Library } from '@/src/lib/tables/definitions'
-import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdownGeneric'
 
 interface FormProps {
   libraryRecord?: table_Library | null
@@ -44,7 +44,7 @@ export default function Form({
     //
     const { pending } = useFormStatus()
     return (
-      <Button className='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
+      <Button overrideClass='mt-2 w-72 md:max-w-md px-4' aria-disabled={pending}>
         {lrlid === 0 ? 'Create' : 'Update'}
       </Button>
     )

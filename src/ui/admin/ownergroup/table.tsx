@@ -167,7 +167,7 @@ export default function Table() {
         <h1 className='px-2 py-1 text-sm'>
           <Button
             onClick={() => handleClickAdd_ownergroup()}
-            className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
+            overrideClass='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
           >
             Add
           </Button>
@@ -218,7 +218,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm '>
                       <Button
                         onClick={() => handleClickEdit_library(row)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
+                        overrideClass='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         {row.ogcntlibrary}
                       </Button>
@@ -226,7 +226,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm '>
                       <Button
                         onClick={() => handleClickEdit_questions(row)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
+                        overrideClass='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         {row.ogcntquestions}
                       </Button>
@@ -235,7 +235,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm'>
                       <Button
                         onClick={() => handleClickEdit_ownergroup(row)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
+                        overrideClass='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
                       </Button>
@@ -243,7 +243,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm'>
                       <Button
                         onClick={() => handleDeleteClick_ownergroup(row)}
-                        className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
+                        overrideClass='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
                       </Button>

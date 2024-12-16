@@ -186,7 +186,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm'>
                       <Button
                         onClick={() => handleEditClick(user)}
-                        className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
+                        overrideClass='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
                       </Button>
@@ -195,7 +195,7 @@ export default function Table() {
                       {user.u_provider === 'email' && (
                         <Button
                           onClick={() => handlePwdClick(user)}
-                          className='bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600'
+                          overrideClass='bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600'
                         >
                           Pwd
                         </Button>
@@ -204,7 +204,7 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm'>
                       <Button
                         onClick={() => handleDeleteClick(user)}
-                        className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
+                        overrideClass='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
                       </Button>

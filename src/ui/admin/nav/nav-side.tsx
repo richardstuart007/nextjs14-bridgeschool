@@ -14,7 +14,7 @@ export default function NavSide() {
           <NavLinks />
           <div className='grow invisible'></div>
           <form action={logout}>
-            <Button className='flex h-15 w-full grow items-center justify-center gap-2 rounded-md bg-black text-white p-3 text-xs font-medium hover:bg-gray-800 md:flex-none md:p-2 md:px-3'>
+            <Button overrideClass='flex h-15 w-full grow items-center justify-center gap-2 rounded-md bg-gray-700 text-white p-3 text-xs font-medium hover:bg-gray-800 md:flex-none md:p-2 md:px-3'>
               Sign-Out
             </Button>
           </form>

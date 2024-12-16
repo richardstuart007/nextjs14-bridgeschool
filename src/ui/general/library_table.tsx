@@ -9,7 +9,7 @@ import { fetchFiltered, fetchTotalPages } from '@/src/lib/tables/tableGeneric/ta
 import Pagination from '@/src/ui/utils/pagination'
 import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 import { update_ogcntlibrary } from '@/src/lib/tables/tableSpecific/ownergroup'
-import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdownGeneric'
 import Link from 'next/link'
 import { useUserContext } from '@/UserContext'
 import { Button } from '@/src/ui/utils/button'
@@ -407,7 +407,7 @@ export default function Table({
         {maintMode && (
           <Button
             onClick={() => handleClickAdd()}
-            className='bg-green-500 text-white px-2 py-1 font-normal text-sm rounded-md hover:bg-green-600'
+            overrideClass='bg-green-500 text-white px-2 py-1 font-normal text-sm rounded-md hover:bg-green-600'
           >
             Add
           </Button>
@@ -684,7 +684,7 @@ export default function Table({
                   <td className=' pl-2 pt-2 text-center'>
                     <Button
                       onClick={() => handleClickEdit(library)}
-                      className='text-white rounded-md bg-blue-500 hover:bg-blue-600 px-2 py-1'
+                      overrideClass='text-white rounded-md bg-blue-500 hover:bg-blue-600 px-2 py-1'
                     >
                       Edit
                     </Button>
@@ -692,7 +692,7 @@ export default function Table({
                 ) : (
                   <td className=' pl-2 pt-2 text-center'>
                     <Button
-                      className='bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 px-2 py-1'
+                      overrideClass='bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 px-2 py-1'
                       onClick={() => window.open(`${library.lrlink}`, '_blank')}
                     >
                       {library.lrtype === 'youtube' ? 'Video' : 'Book'}
@@ -707,7 +707,7 @@ export default function Table({
                   <td className=' pl-2 pt-2 text-center'>
                     <Button
                       onClick={() => handleDeleteClick(library)}
-                      className='bg-red-500 text-white rounded-md hover:bg-red-600 px-2 py-1'
+                      overrideClass='bg-red-500 text-white rounded-md hover:bg-red-600 px-2 py-1'
                     >
                       Delete
                     </Button>

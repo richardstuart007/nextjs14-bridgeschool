@@ -31,7 +31,7 @@ export default function RegisterForm() {
   //-------------------------------------------------------------------------
   function RegisterButton() {
     return (
-      <Button className='mt-4 w-full flex justify-center' disabled={submitting} type='submit'>
+      <Button overrideClass='mt-4 w-full flex justify-center' disabled={submitting} type='submit'>
         {submitting ? 'submitting...' : 'Register'}
       </Button>
     )
@@ -45,7 +45,7 @@ export default function RegisterForm() {
   function LoginButton({ onClick }: LoginButtonProps) {
     return (
       <Button
-        className='mt-4 w-full flex items-center justify-center bg-gray-700 text-white border-none shadow-none hover:bg-gray-900'
+        overrideClass='mt-4 w-full flex items-center justify-center bg-gray-700 text-white border-none shadow-none hover:bg-gray-900'
         onClick={onClick}
       >
         Back to Login
