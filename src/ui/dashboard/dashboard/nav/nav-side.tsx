@@ -10,6 +10,7 @@ import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
 import { structure_SessionsInfo } from '@/src/lib/tables/structures'
 import { logout } from '@/src/ui/utils/user-logout'
 import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
+import { Button } from '@/src/ui/utils/button'
 
 export default function NavSide() {
   const functionName = 'NavSide'
@@ -77,9 +78,9 @@ export default function NavSide() {
             <NavLinks sessionInfo={sessionInfo} />
             <div className='grow invisible'></div>
             <form action={logout}>
-              <button className='flex h-15 w-full grow items-center justify-center gap-2 rounded-md bg-black text-white p-3 text-xs font-medium hover:bg-gray-800 md:flex-none md:p-2 md:px-3'>
+              <Button className='flex h-15 w-full grow items-center justify-center gap-2 rounded-md bg-black text-white p-3 text-xs font-medium hover:bg-gray-800 md:flex-none md:p-2 md:px-3'>
                 Sign-Out
-              </button>
+              </Button>
             </form>
           </div>
         </>

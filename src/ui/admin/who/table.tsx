@@ -11,6 +11,7 @@ import { useSearchParams } from 'next/navigation'
 import { table_check } from '@/src/lib/tables/tableGeneric/table_check'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
+import { Button } from '@/src/ui/utils/button'
 
 export default function Table() {
   const placeholder = 'oid:1 who:Richard title:Richard'
@@ -138,12 +139,12 @@ export default function Table() {
       <div className='flex w-full items-center justify-between'>
         <h1 className={`${lusitana.className} text-2xl`}>who</h1>
         <h1 className='px-2 py-1 text-sm'>
-          <button
+          <Button
             onClick={() => handleClickAdd()}
             className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
           >
             Add
-          </button>
+          </Button>
         </h1>
       </div>
       <SearchWithURL placeholder={placeholder} setShouldFetchData={setShouldFetchData} />
@@ -180,20 +181,20 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm '>{who.wtitle}</td>
                     <td className='px-2 py-1 text-sm '>{who.wwid}</td>
                     <td className='px-2 py-1 text-sm'>
-                      <button
+                      <Button
                         onClick={() => handleClickEdit(who)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
-                      </button>
+                      </Button>
                     </td>
                     <td className='px-2 py-1 text-sm'>
-                      <button
+                      <Button
                         onClick={() => handleDeleteClick(who)}
                         className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}

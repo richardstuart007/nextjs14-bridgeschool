@@ -18,6 +18,7 @@ import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
 import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
 import { update_ogcntquestions } from '@/src/lib/tables/tableSpecific/ownergroup'
+import { Button } from '@/src/ui/utils/button'
 interface FormProps {
   gid?: string | null
 }
@@ -169,12 +170,12 @@ export default function Table({ gid }: FormProps) {
       <div className='flex w-full items-center justify-between'>
         <h1 className={`${lusitana.className} text-2xl`}>questions</h1>
         <h1 className='px-2 py-1 text-sm'>
-          <button
+          <Button
             onClick={() => handleClickAdd_detail()}
             className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
           >
             Add
-          </button>
+          </Button>
         </h1>
       </div>
       {gid ? (
@@ -239,31 +240,31 @@ export default function Table({ gid }: FormProps) {
                     {/* Detail                                                               */}
                     {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm '>
-                      <button
+                      <Button
                         onClick={() => handleClickEdit_detail(record)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         {record.qdetail.length > 75
                           ? `${record.qdetail.slice(0, 75)}...`
                           : record.qdetail}
-                      </button>
+                      </Button>
                     </td>
                     {/* --------------------------------------------------------------------- */}
                     {/* Answers                                                               */}
                     {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm '>
-                      <button
+                      <Button
                         onClick={() => handleClickEdit_answers(record)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         {record.qans && record.qans.length > 0 ? 'Y' : 'N'}
-                      </button>
+                      </Button>
                     </td>
                     {/* --------------------------------------------------------------------- */}
                     {/* Hands                                                               */}
                     {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm'>
-                      <button
+                      <Button
                         onClick={() => handleClickEdit_hands(record)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
@@ -273,18 +274,18 @@ export default function Table({ gid }: FormProps) {
                         (record.qwest?.length ?? 0) > 0
                           ? 'Y'
                           : 'N'}
-                      </button>
+                      </Button>
                     </td>
                     {/* --------------------------------------------------------------------- */}
                     {/* Bidding                                                               */}
                     {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm'>
-                      <button
+                      <Button
                         onClick={() => handleClickEdit_bidding(record)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         {record.qrounds && record.qrounds.length > 0 ? 'Y' : 'N'}
-                      </button>
+                      </Button>
                     </td>
                     {/* --------------------------------------------------------------------- */}
                     {/* ID                                                               */}
@@ -294,12 +295,12 @@ export default function Table({ gid }: FormProps) {
                     {/* Delete                                                               */}
                     {/* --------------------------------------------------------------------- */}
                     <td className='px-2 py-1 text-sm'>
-                      <button
+                      <Button
                         onClick={() => handleDeleteClick(record)}
                         className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
-                      </button>
+                      </Button>
                     </td>
                     {/* --------------------------------------------------------------------- */}
                   </tr>

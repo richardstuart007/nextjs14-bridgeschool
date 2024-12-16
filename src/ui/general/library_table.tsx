@@ -12,6 +12,7 @@ import { update_ogcntlibrary } from '@/src/lib/tables/tableSpecific/ownergroup'
 import DropdownGeneric from '@/src/ui/utils/dropdown/dropdown-generic'
 import Link from 'next/link'
 import { useUserContext } from '@/UserContext'
+import { Button } from '@/src/ui/utils/button'
 
 interface FormProps {
   selected_gid?: number | null
@@ -404,12 +405,12 @@ export default function Table({
         {/** Add button                                                        */}
         {/** -------------------------------------------------------------------- */}
         {maintMode && (
-          <button
+          <Button
             onClick={() => handleClickAdd()}
             className='bg-green-500 text-white px-2 py-1 font-normal text-sm rounded-md hover:bg-green-600'
           >
             Add
-          </button>
+          </Button>
         )}
       </div>
       {/** -------------------------------------------------------------------- */}
@@ -681,21 +682,21 @@ export default function Table({
                 {/* ................................................... */}
                 {maintMode ? (
                   <td className=' pl-2 pt-2 text-center'>
-                    <button
+                    <Button
                       onClick={() => handleClickEdit(library)}
                       className='text-white rounded-md bg-blue-500 hover:bg-blue-600 px-2 py-1'
                     >
                       Edit
-                    </button>
+                    </Button>
                   </td>
                 ) : (
                   <td className=' pl-2 pt-2 text-center'>
-                    <button
+                    <Button
                       className='bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 px-2 py-1'
                       onClick={() => window.open(`${library.lrlink}`, '_blank')}
                     >
                       {library.lrtype === 'youtube' ? 'Video' : 'Book'}
-                    </button>
+                    </Button>
                   </td>
                 )}
 
@@ -704,12 +705,12 @@ export default function Table({
                 {/* ................................................... */}
                 {maintMode ? (
                   <td className=' pl-2 pt-2 text-center'>
-                    <button
+                    <Button
                       onClick={() => handleDeleteClick(library)}
                       className='bg-red-500 text-white rounded-md hover:bg-red-600 px-2 py-1'
                     >
                       Delete
-                    </button>
+                    </Button>
                   </td>
                 ) : (
                   <td className=' pl-2 pt-2 text-center'>

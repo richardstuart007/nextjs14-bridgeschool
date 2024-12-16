@@ -11,6 +11,7 @@ import Pagination from '@/src/ui/utils/pagination'
 import { useSearchParams } from 'next/navigation'
 import SearchWithURL from '@/src/ui/utils/search/search-withURL'
 import { table_delete } from '@/src/lib/tables/tableGeneric/table_delete'
+import { Button } from '@/src/ui/utils/button'
 
 export default function Table() {
   const placeholder = 'uid:23 name:richard email:richardstuart007@hotmail.com fedid:1234'
@@ -183,30 +184,30 @@ export default function Table() {
                     <td className='px-2 py-1 text-sm'>{user.u_fedcountry}</td>
                     <td className='px-2 py-1 text-sm'>{user.u_provider}</td>
                     <td className='px-2 py-1 text-sm'>
-                      <button
+                      <Button
                         onClick={() => handleEditClick(user)}
                         className='bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'
                       >
                         Edit
-                      </button>
+                      </Button>
                     </td>
                     <td className='px-2 py-1 text-sm'>
                       {user.u_provider === 'email' && (
-                        <button
+                        <Button
                           onClick={() => handlePwdClick(user)}
                           className='bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600'
                         >
                           Pwd
-                        </button>
+                        </Button>
                       )}
                     </td>
                     <td className='px-2 py-1 text-sm'>
-                      <button
+                      <Button
                         onClick={() => handleDeleteClick(user)}
                         className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
                       >
                         Delete
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
