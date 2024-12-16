@@ -51,7 +51,10 @@ export default function SessionForm({ id }: { id: number }): JSX.Element {
   function UpdateButton() {
     const { pending } = useFormStatus()
     return (
-      <Button overrideClass='mt-4 w-72 md:max-w-md px-4' aria-disabled={pending}>
+      <Button
+        overrideClass='mt-4 w-72 md:max-w-md px-4 flex justify-center'
+        aria-disabled={pending}
+      >
         Update
       </Button>
     )

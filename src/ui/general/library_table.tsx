@@ -67,7 +67,7 @@ export default function Table({
   //  Data
   //
   const [currentPage, setcurrentPage] = useState(1)
-  const [library, setLibrary] = useState<(table_Library | table_LibraryGroup)[]>([])
+  const [tabledata, setTabledata] = useState<(table_Library | table_LibraryGroup)[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(false)
   //
@@ -304,7 +304,7 @@ export default function Table({
         limit: rowsPerPage,
         offset
       })
-      setLibrary(data)
+      setTabledata(data)
       //
       //  Total number of pages
       //
@@ -325,8 +325,8 @@ export default function Table({
   //----------------------------------------------------------------------------------------------
   //  Edit
   //----------------------------------------------------------------------------------------------
-  function handleClickEdit(library: table_Library) {
-    setSelectedRow(library)
+  function handleClickEdit(tabledata: table_Library) {
+    setSelectedRow(tabledata)
     setIsModelOpenEdit(true)
   }
   //----------------------------------------------------------------------------------------------
@@ -353,31 +353,31 @@ export default function Table({
   //----------------------------------------------------------------------------------------------
   //  Delete
   //----------------------------------------------------------------------------------------------
-  function handleDeleteClick(library: table_Library) {
+  function handleDeleteClick(tabledata: table_Library) {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Deletion',
-      subTitle: `Are you sure you want to delete (${library.lrlid}) : ${library.lrdesc}?`,
-      onConfirm: () => performDelete(library)
+      subTitle: `Are you sure you want to delete (${tabledata.lrlid}) : ${tabledata.lrdesc}?`,
+      onConfirm: () => performDelete(tabledata)
     })
   }
   //----------------------------------------------------------------------------------------------
   //  Perform the delete
   //----------------------------------------------------------------------------------------------
-  async function performDelete(library: table_Library) {
+  async function performDelete(tabledata: table_Library) {
     try {
       //
       // Call the server function to delete
       //
       const Params = {
         table: 'library',
-        whereColumnValuePairs: [{ column: 'lrlid', value: library.lrlid }]
+        whereColumnValuePairs: [{ column: 'lrlid', value: tabledata.lrlid }]
       }
       await table_delete(Params)
       //
       //  update Library counts in Ownergroup
       //
-      await update_ogcntlibrary(library.lrgid)
+      await update_ogcntlibrary(tabledata.lrgid)
       //
       //  Reload the page
       //
@@ -419,57 +419,57 @@ export default function Table({
       <div className='mt-4 bg-gray-50 rounded-lg shadow-md overflow-x-hidden max-w-full'>
         <table className='min-w-full text-gray-900 table-auto'>
           <thead className='rounded-lg text-left font-normal text-xs'>
-            {/* ---------------------------------------------------------------------------------- */}
+            {/* --------------------------------------------------------------------- */}
             {/** HEADINGS                                                                */}
             {/** -------------------------------------------------------------------- */}
             <tr className='text-xs'>
               {show_gid && (
-                <th scope='col' className=' font-medium pl-2'>
+                <th scope='col' className=' font-medium px-2'>
                   Gid
                 </th>
               )}
               {show_owner && (
-                <th scope='col' className=' font-medium pl-2'>
+                <th scope='col' className=' font-medium px-2'>
                   Owner
                 </th>
               )}
               {show_group && (
-                <th scope='col' className=' font-medium pl-2'>
+                <th scope='col' className=' font-medium px-2'>
                   Group-name
                 </th>
               )}
               {show_lid && (
-                <th scope='col' className=' font-medium pl-2'>
+                <th scope='col' className=' font-medium px-2'>
                   Lid
                 </th>
               )}
               {show_ref && (
-                <th scope='col' className=' font-medium pl-2'>
+                <th scope='col' className=' font-medium px-2'>
                   Ref
                 </th>
               )}
-              <th scope='col' className=' font-medium pl-2'>
+              <th scope='col' className=' font-medium px-2'>
                 Description
               </th>
               {show_who && (
-                <th scope='col' className=' font-medium pl-2'>
+                <th scope='col' className=' font-medium px-2'>
                   Who
                 </th>
               )}
               {show_type && (
-                <th scope='col' className=' font-medium pl-2'>
+                <th scope='col' className=' font-medium px-2'>
                   Type
                 </th>
               )}
               {show_questions && (
-                <th scope='col' className=' font-medium pl-2 text-center'>
+                <th scope='col' className=' font-medium px-2 text-center'>
                   Questions
                 </th>
               )}
-              <th scope='col' className=' font-medium pl-2 text-center'>
+              <th scope='col' className=' font-medium px-2 text-center'>
                 {maintMode ? 'Edit' : 'View'}
               </th>
-              <th scope='col' className=' font-medium pl-2 text-center'>
+              <th scope='col' className=' font-medium px-2 text-center'>
                 {maintMode ? 'Delete' : 'Quiz'}
               </th>
             </tr>
@@ -481,7 +481,7 @@ export default function Table({
               {/* GID                                                 */}
               {/* ................................................... */}
               {show_gid && (
-                <th scope='col' className=' pl-2'>
+                <th scope='col' className=' px-2'>
                   {selected_gid ? <h1>{selected_gid}</h1> : null}
                 </th>
               )}
@@ -489,7 +489,7 @@ export default function Table({
               {/* OWNER                                                 */}
               {/* ................................................... */}
               {show_owner && (
-                <th scope='col' className='pl-2'>
+                <th scope='col' className='px-2'>
                   {selected_owner ? (
                     <h1>{selected_owner}</h1>
                   ) : uid === undefined || uid === 0 ? null : maintMode ? (
@@ -526,7 +526,7 @@ export default function Table({
               {/* GROUP                                                 */}
               {/* ................................................... */}
               {show_group && (
-                <th scope='col' className=' pl-2'>
+                <th scope='col' className=' px-2'>
                   {selected_group ? (
                     <h1>{selected_group}</h1>
                   ) : owner === undefined || owner === '' ? null : (
@@ -549,12 +549,12 @@ export default function Table({
               {/* ................................................... */}
               {/* LIBRARY ID                                          */}
               {/* ................................................... */}
-              {show_lid && <th scope='col' className=' pl-2'></th>}
+              {show_lid && <th scope='col' className=' px-2'></th>}
               {/* ................................................... */}
               {/* REF                                                 */}
               {/* ................................................... */}
               {show_ref && (
-                <th scope='col' className=' pl-2 '>
+                <th scope='col' className=' px-2 '>
                   <label htmlFor='ref' className='sr-only'>
                     Reference
                   </label>
@@ -574,7 +574,7 @@ export default function Table({
               {/* ................................................... */}
               {/* DESC                                                 */}
               {/* ................................................... */}
-              <th scope='col' className='pl-2'>
+              <th scope='col' className='px-2'>
                 <label htmlFor='desc' className='sr-only'>
                   Description
                 </label>
@@ -594,7 +594,7 @@ export default function Table({
               {/* WHO                                                 */}
               {/* ................................................... */}
               {show_who && (
-                <th scope='col' className=' pl-2'>
+                <th scope='col' className=' px-2'>
                   <DropdownGeneric
                     selectedOption={who}
                     setSelectedOption={setwho}
@@ -612,7 +612,7 @@ export default function Table({
               {/* type                                                 */}
               {/* ................................................... */}
               {show_type && (
-                <th scope='col' className=' pl-2'>
+                <th scope='col' className=' px-2'>
                   <DropdownGeneric
                     selectedOption={type}
                     setSelectedOption={settype}
@@ -634,7 +634,7 @@ export default function Table({
                   <input
                     id='questions'
                     name='questions'
-                    className={`w-12 md:max-w-md rounded-md border border-blue-500  px-2 font-normal text-xs text-center`}
+                    className={`h-8 w-12 md:max-w-md rounded-md border border-blue-500  px-2 font-normal text-xs text-center`}
                     type='text'
                     value={questions}
                     onChange={e => {
@@ -647,85 +647,82 @@ export default function Table({
                 </th>
               )}
               {/* ................................................... */}
+              {/* View/Quiz                                       */}
+              {/* ................................................... */}
+              <th scope='col' className=' px-2'></th>
+              <th scope='col' className=' px-2'></th>
+              {/* ................................................... */}
             </tr>
           </thead>
           {/* ---------------------------------------------------------------------------------- */}
           {/* BODY                                 */}
           {/* ---------------------------------------------------------------------------------- */}
           <tbody className='bg-white text-xs'>
-            {library?.map(library => (
-              <tr key={library.lrlid} className='w-full border-b'>
+            {tabledata?.map(tabledata => (
+              <tr key={tabledata.lrlid} className='w-full border-b'>
                 {show_gid && (
-                  <td className=' pl-2 pt-2 text-left'>{selected_gid ? '' : library.lrgid}</td>
+                  <td className=' px-2 pt-2 text-left'>{selected_gid ? '' : tabledata.lrgid}</td>
                 )}
-                {show_owner && <td className=' pl-2 pt-2'>{owner ? '' : library.lrowner}</td>}
-                {show_group && <td className=' pl-2 pt-2'>{group ? '' : library.lrgroup}</td>}
-                {show_lid && <td className=' pl-2 pt-2 text-left'>{library.lrlid}</td>}
-                {show_ref && <td className=' pl-2 pt-2'>{library.lrref}</td>}
-                <td className='pl-2 pt-2'>
-                  {library.lrdesc.length > 40
-                    ? `${library.lrdesc.slice(0, 35)}...`
-                    : library.lrdesc}
+                {show_owner && <td className=' px-2 pt-2'>{owner ? '' : tabledata.lrowner}</td>}
+                {show_group && <td className=' px-2 pt-2'>{group ? '' : tabledata.lrgroup}</td>}
+                {show_lid && <td className=' px-2 pt-2 text-left'>{tabledata.lrlid}</td>}
+                {show_ref && <td className=' px-2 pt-2'>{tabledata.lrref}</td>}
+                <td className='px-2 pt-2'>
+                  {tabledata.lrdesc.length > 40
+                    ? `${tabledata.lrdesc.slice(0, 35)}...`
+                    : tabledata.lrdesc}
                 </td>
-                {show_who && <td className=' pl-2 pt-2'>{library.lrwho}</td>}
-                {show_type && <td className=' pl-2 pt-2'>{library.lrtype}</td>}
+                {show_who && <td className=' px-2 pt-2'>{tabledata.lrwho}</td>}
+                {show_type && <td className=' px-2 pt-2'>{tabledata.lrtype}</td>}
                 {/* ................................................... */}
                 {/* Questions                                            */}
                 {/* ................................................... */}
-                {show_questions && 'ogcntquestions' in library && (
-                  <td className='pl-2 pt-2 text-center'>
-                    {library.ogcntquestions > 0 ? library.ogcntquestions : ' '}
+                {show_questions && 'ogcntquestions' in tabledata && (
+                  <td className='px-2 pt-2 text-center'>
+                    {tabledata.ogcntquestions > 0 ? tabledata.ogcntquestions : ' '}
                   </td>
                 )}
                 {/* ................................................... */}
                 {/* Button  1                                                 */}
                 {/* ................................................... */}
-                {maintMode ? (
-                  <td className=' pl-2 pt-2 text-center'>
+                <td className='px-2 py-1 text-center'>
+                  <div className='inline-flex justify-center items-center'>
                     <Button
-                      onClick={() => handleClickEdit(library)}
-                      overrideClass='text-white rounded-md bg-blue-500 hover:bg-blue-600 px-2 py-1'
+                      onClick={
+                        maintMode
+                          ? () => handleClickEdit(tabledata)
+                          : () => window.open(`${tabledata.lrlink}`, '_blank')
+                      }
+                      overrideClass='h-6 px-2 py-2 text-xs text-white rounded-md bg-blue-500 hover:bg-blue-600'
                     >
-                      Edit
+                      {maintMode ? 'Edit' : tabledata.lrtype === 'youtube' ? 'Video' : 'Book'}
                     </Button>
-                  </td>
-                ) : (
-                  <td className=' pl-2 pt-2 text-center'>
-                    <Button
-                      overrideClass='bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 px-2 py-1'
-                      onClick={() => window.open(`${library.lrlink}`, '_blank')}
-                    >
-                      {library.lrtype === 'youtube' ? 'Video' : 'Book'}
-                    </Button>
-                  </td>
-                )}
-
+                  </div>
+                </td>
                 {/* ................................................... */}
                 {/* Button  2                                                 */}
                 {/* ................................................... */}
-                {maintMode ? (
-                  <td className=' pl-2 pt-2 text-center'>
-                    <Button
-                      onClick={() => handleDeleteClick(library)}
-                      overrideClass='bg-red-500 text-white rounded-md hover:bg-red-600 px-2 py-1'
-                    >
-                      Delete
-                    </Button>
-                  </td>
-                ) : (
-                  <td className=' pl-2 pt-2 text-center'>
-                    {'ogcntquestions' in library && library.ogcntquestions > 0 ? (
+                <td className='px-2 py-1 text-center'>
+                  <div className='inline-flex justify-center items-center'>
+                    {maintMode ? (
+                      <Button
+                        onClick={() => handleDeleteClick(tabledata)}
+                        overrideClass=' h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600 px-2 py-1'
+                      >
+                        Delete
+                      </Button>
+                    ) : 'ogcntquestions' in tabledata && tabledata.ogcntquestions > 0 ? (
                       <Link
-                        href={`/dashboard/quiz/${library.lrgid}`}
-                        className='bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 px-2 py-1'
+                        href={`/dashboard/quiz/${tabledata.lrgid}`}
+                        className='bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600'
                       >
                         Quiz
                       </Link>
                     ) : (
                       ' '
-                    )}
-                  </td>
-                )}
+                    )}{' '}
+                  </div>
+                </td>
                 {/* ---------------------------------------------------------------------------------- */}
               </tr>
             ))}
