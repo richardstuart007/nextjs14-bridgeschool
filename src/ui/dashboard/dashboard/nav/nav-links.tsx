@@ -36,10 +36,10 @@ export default function NavLinks(props: FormProps): JSX.Element {
     //
     const links_base = [
       { name: 'Dashboard', href: '/dashboard' },
-      { name: 'Lib', href: hrefLibrary },
-      { name: 'Hist', href: hrefHistory },
+      { name: 'Library', href: hrefLibrary },
+      { name: 'History', href: hrefHistory },
       { name: 'User', href: hrefUser },
-      { name: 'Sess', href: hrefSession }
+      { name: 'Session', href: hrefSession }
     ]
     //
     //  Links authorised to Admin users only

@@ -39,7 +39,7 @@ export default function Table({
   }
   const [filters, setFilters] = useState<Filter[]>([])
   //
-  //  State
+  //  Selection
   //
   const [uid, setuid] = useState(0)
   const [widthNumber, setWidthNumber] = useState(2)
@@ -50,7 +50,9 @@ export default function Table({
   const [who, setwho] = useState('')
   const [ref, setref] = useState('')
   const [type, settype] = useState('')
-
+  //
+  //  Show columns
+  //
   const [show_gid, setshow_gid] = useState(maintMode)
   const [show_owner, setshow_owner] = useState(false)
   const [show_group, setshow_group] = useState(false)
@@ -59,11 +61,16 @@ export default function Table({
   const [show_ref, setshow_ref] = useState(false)
   const [show_type, setshow_type] = useState(false)
   const [show_questions, setshow_questions] = useState(!maintMode)
-
+  //
+  //  Data
+  //
   const [currentPage, setcurrentPage] = useState(1)
   const [library, setLibrary] = useState<(table_Library | table_LibraryGroup)[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(false)
+  //
+  //  Maintenance
+  //
   const [isModelOpenEdit, setIsModelOpenEdit] = useState(false)
   const [isModelOpenAdd, setIsModelOpenAdd] = useState(false)
   const [selectedRow, setSelectedRow] = useState<table_Library | null>(null)

@@ -14,7 +14,7 @@ export default function NavSession(props: FormProps): JSX.Element {
       {/*  Desktop  */}
       <div className='hidden md:block mb-2 rounded-md bg-green-600 p-2 h-16 w-24 flex flex-col items-center justify-center'>
         <div className='text-white text-xs mb-1 text-center'>
-          <p>{`Sess: ${bsid}`}</p>
+          <p>{`Session: ${bsid}`}</p>
         </div>
         <div className='text-white text-xs mb-1 text-center'>
           <p>{`User: ${bsuid}`}</p>

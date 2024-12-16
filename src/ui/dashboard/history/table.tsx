@@ -26,7 +26,7 @@ export default function Table() {
   //
   //  Input selection
   //
-  const [uid, setuid] = useState<number | string>('')
+  const [uid, setuid] = useState<number | string>(0)
   const [widthNumber, setWidthNumber] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(99)
   const [owner, setowner] = useState('')
@@ -51,7 +51,7 @@ export default function Table() {
   //  Other state
   //
   const [currentPage, setcurrentPage] = useState(1)
-  const [history, sethistory] = useState<table_UsershistoryGroupUser[]>([])
+  const [tabledata, settabledata] = useState<table_UsershistoryGroupUser[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const [shouldFetchData, setShouldFetchData] = useState(false)
   //......................................................................................
@@ -252,6 +252,11 @@ export default function Table() {
   // fetchdata
   //----------------------------------------------------------------------------------------------
   async function fetchdata() {
+    //
+    //  uid has not been set, do do not fetch data
+    //
+    if (uid === 0) return
+
     try {
       //
       //  Table
@@ -279,7 +284,7 @@ export default function Table() {
         limit: rowsPerPage,
         offset
       })
-      sethistory(data)
+      settabledata(data)
       //
       //  Total number of pages
       //
@@ -532,30 +537,32 @@ export default function Table() {
           {/* BODY                                 */}
           {/* ---------------------------------------------------------------------------------- */}
           <tbody className='bg-white text-xs'>
-            {history?.map(history => (
-              <tr key={history.r_hid} className='w-full border-b'>
-                {show_gid && <td className=' px-2 py-2 text-left'>{history.r_gid}</td>}
-                {show_owner && <td className=' px-2 py-2'>{owner ? '' : history.r_owner}</td>}
-                {show_group && <td className=' px-2 py-2'>{group ? '' : history.r_group}</td>}
-                {show_hid && <td className=' px-2 py-2 text-left'>{history.r_hid}</td>}
+            {tabledata?.map(tabledata => (
+              <tr key={tabledata.r_hid} className='w-full border-b'>
+                {show_gid && <td className=' px-2 py-2 text-left'>{tabledata.r_gid}</td>}
+                {show_owner && <td className=' px-2 py-2'>{owner ? '' : tabledata.r_owner}</td>}
+                {show_group && <td className=' px-2 py-2'>{group ? '' : tabledata.r_group}</td>}
+                {show_hid && <td className=' px-2 py-2 text-left'>{tabledata.r_hid}</td>}
                 {show_title && (
                   <td className='px-2 py-2'>
-                    {history.ogtitle
-                      ? history.ogtitle.length > 35
-                        ? `${history.ogtitle.slice(0, 30)}...`
-                        : history.ogtitle
+                    {tabledata.ogtitle
+                      ? tabledata.ogtitle.length > 35
+                        ? `${tabledata.ogtitle.slice(0, 30)}...`
+                        : tabledata.ogtitle
                       : ' '}
                   </td>
                 )}
-                {show_uid && <td className='px-2 py-2 text-center'>{history.r_uid}</td>}
-                {show_name && <td className='px-2 py-2'>{history.u_name}</td>}
-                {show_questions && <td className='px-2 py-2 text-center'>{history.r_questions}</td>}
+                {show_uid && <td className='px-2 py-2 text-center'>{tabledata.r_uid}</td>}
+                {show_name && <td className='px-2 py-2'>{tabledata.u_name}</td>}
+                {show_questions && (
+                  <td className='px-2 py-2 text-center'>{tabledata.r_questions}</td>
+                )}
                 {show_correct && (
-                  <td className='px-2 py-2  text-center '>{history.r_correctpercent}</td>
+                  <td className='px-2 py-2  text-center '>{tabledata.r_correctpercent}</td>
                 )}
                 <td className='px-2 py-2 text-center'>
                   <Link
-                    href={`/dashboard/quiz-review/${history.r_hid}`}
+                    href={`/dashboard/quiz-review/${tabledata.r_hid}`}
                     className='bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600'
                   >
                     Review
@@ -564,7 +571,7 @@ export default function Table() {
 
                 <td className='px-2 py-2 text-xs text-center'>
                   <Link
-                    href={`/dashboard/quiz/${history.r_gid}`}
+                    href={`/dashboard/quiz/${tabledata.r_gid}`}
                     className='bg-blue-500 text-white px-2 py-1  rounded-md hover:bg-blue-600'
                   >
                     Quiz
