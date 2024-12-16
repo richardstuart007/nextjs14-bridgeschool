@@ -50,6 +50,7 @@ export default function Table({
   const [who, setwho] = useState('')
   const [ref, setref] = useState('')
   const [type, settype] = useState('')
+  const [questions, setquestions] = useState<number | string>('')
   //
   //  Show columns
   //
@@ -208,7 +209,8 @@ export default function Table({
       { column: 'lrwho', value: who, operator: '=' },
       { column: 'lrtype', value: type, operator: '=' },
       { column: 'lrref', value: ref, operator: 'LIKE' },
-      { column: 'lrdesc', value: desc, operator: 'LIKE' }
+      { column: 'lrdesc', value: desc, operator: 'LIKE' },
+      { column: 'ogcntquestions', value: questions, operator: '>=' }
     ]
     //
     // Add the 'uouid' filter if not in maintMode
@@ -225,7 +227,7 @@ export default function Table({
     //
     setFilters(updatedFilters)
     setShouldFetchData(true)
-  }, [uid, owner, group, who, type, ref, desc, maintMode])
+  }, [uid, owner, group, who, type, ref, desc, questions, maintMode])
   //......................................................................................
   // Fetch on mount and when shouldFetchData changes
   //......................................................................................
@@ -458,16 +460,14 @@ export default function Table({
                   Type
                 </th>
               )}
-
-              <th scope='col' className=' font-medium pl-2 text-center'>
-                {maintMode ? 'Edit' : 'View'}
-              </th>
-
               {show_questions && (
                 <th scope='col' className=' font-medium pl-2 text-center'>
                   Questions
                 </th>
               )}
+              <th scope='col' className=' font-medium pl-2 text-center'>
+                {maintMode ? 'Edit' : 'View'}
+              </th>
               <th scope='col' className=' font-medium pl-2 text-center'>
                 {maintMode ? 'Delete' : 'Quiz'}
               </th>
@@ -625,6 +625,27 @@ export default function Table({
                   />
                 </th>
               )}
+              {/* ................................................... */}
+              {/* Questions                                           */}
+              {/* ................................................... */}
+              {show_questions && (
+                <th scope='col' className='px-2 text-center'>
+                  <input
+                    id='questions'
+                    name='questions'
+                    className={`w-12 md:max-w-md rounded-md border border-blue-500  px-2 font-normal text-xs text-center`}
+                    type='text'
+                    value={questions}
+                    onChange={e => {
+                      const value = e.target.value
+                      const numValue = parseInt(value, 10)
+                      const parsedValue = isNaN(numValue) ? '' : numValue
+                      setquestions(parsedValue)
+                    }}
+                  />
+                </th>
+              )}
+              {/* ................................................... */}
             </tr>
           </thead>
           {/* ---------------------------------------------------------------------------------- */}
@@ -648,6 +669,14 @@ export default function Table({
                 {show_who && <td className=' pl-2 pt-2'>{library.lrwho}</td>}
                 {show_type && <td className=' pl-2 pt-2'>{library.lrtype}</td>}
                 {/* ................................................... */}
+                {/* Questions                                            */}
+                {/* ................................................... */}
+                {show_questions && 'ogcntquestions' in library && (
+                  <td className='pl-2 pt-2 text-center'>
+                    {library.ogcntquestions > 0 ? library.ogcntquestions : ' '}
+                  </td>
+                )}
+                {/* ................................................... */}
                 {/* Button  1                                                 */}
                 {/* ................................................... */}
                 {maintMode ? (
@@ -669,14 +698,7 @@ export default function Table({
                     </button>
                   </td>
                 )}
-                {/* ................................................... */}
-                {/* Questions                                            */}
-                {/* ................................................... */}
-                {show_questions && 'ogcntquestions' in library && (
-                  <td className='pl-2 pt-2 text-center'>
-                    {library.ogcntquestions > 0 ? library.ogcntquestions : ' '}
-                  </td>
-                )}
+
                 {/* ................................................... */}
                 {/* Button  2                                                 */}
                 {/* ................................................... */}

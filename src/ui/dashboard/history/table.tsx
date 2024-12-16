@@ -464,6 +464,7 @@ export default function Table() {
                       const numValue = parseInt(value, 10)
                       const parsedValue = isNaN(numValue) ? '' : numValue
                       setuid(parsedValue)
+                      setname('')
                     }}
                   />
                 </th>
@@ -482,6 +483,7 @@ export default function Table() {
                     onChange={e => {
                       const value = e.target.value.split(' ')[0]
                       setname(value)
+                      setuid('')
                     }}
                   />
                 </th>

@@ -68,7 +68,7 @@ export default function NavSide() {
   }
   //--------------------------------------------------------------------------------
   return (
-    <div className='px-3 py-2 flex h-full flex-row md:flex-col  md:px-2 md:w-28'>
+    <div className='px-2 py-3 flex h-full flex-row md:flex-col  md:px-3 md:w-28'>
       <SchoolLogo />
       {sessionInfo && (
         <>
@@ -77,7 +77,7 @@ export default function NavSide() {
             <NavLinks sessionInfo={sessionInfo} />
             <div className='grow invisible'></div>
             <form action={logout}>
-              <button className='flex h-15 w-full grow items-center justify-center gap-2 rounded-md bg-red-200 p-3 text-xs font-medium hover:bg-red-300 hover:text-blue-600 md:flex-none  md:p-2 md:px-3'>
+              <button className='flex h-15 w-full grow items-center justify-center gap-2 rounded-md bg-black text-white p-3 text-xs font-medium hover:bg-gray-800 md:flex-none md:p-2 md:px-3'>
                 Sign-Out
               </button>
             </form>
