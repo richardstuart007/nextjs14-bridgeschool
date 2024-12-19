@@ -102,7 +102,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
                 type='text'
                 name={`qpoints${index}`}
                 value={qpoints[index] || ''}
-                onChange={e => handlePointsChange(index, e.target.value)}
+                onChange={e => handlePointsChange(index, e.target.value.replace(/\s+/g, ''))}
               />
             </div>
           ))}

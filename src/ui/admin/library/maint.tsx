@@ -147,10 +147,10 @@ export default function Form({
               <input
                 className='w-72 md:max-w-md  rounded-md border border-blue-500 px-4 py-1 text-sm '
                 id='lrref'
-                type='lrref'
+                type='text'
                 name='lrref'
                 value={lrref}
-                onChange={e => setLrref(e.target.value)}
+                onChange={e => setLrref(e.target.value.replace(/\s+/g, ''))}
               />
             ) : (
               /* -----------------Edit ------------------*/
@@ -183,7 +183,7 @@ export default function Form({
             <input
               className='w-72 md:max-w-md rounded-md border border-blue-500 px-4 py-1 text-sm '
               id='lrdesc'
-              type='lrdesc'
+              type='text'
               name='lrdesc'
               value={lrdesc}
               onChange={e => setLrdesc(e.target.value)}
@@ -243,7 +243,7 @@ export default function Form({
             <input
               className='w-72 md:max-w-md  rounded-md border border-blue-500  px-4 py-1 text-sm '
               id='lrlink'
-              type='lrlink'
+              type='text'
               name='lrlink'
               value={lrlink}
               onChange={e => setLrlink(e.target.value)}

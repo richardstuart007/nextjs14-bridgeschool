@@ -4,6 +4,7 @@ import { z } from 'zod'
 import validateOwnergroup from '@/src/ui/admin/ownergroup/maint-validate'
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update Owner Setup
 // ----------------------------------------------------------------------
@@ -31,6 +32,7 @@ export type StateSetup = {
 const Setup = FormSchemaSetup
 
 export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+  const functionName = 'MaintOwnerGroup'
   //
   //  Validate form data
   //
@@ -103,8 +105,10 @@ export async function Maint(_prevState: StateSetup, formData: FormData): Promise
     //  Errors
     //
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update Ownergroup.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update Owner.',
+      message: errorMessage,
       errors: undefined,
       databaseUpdated: false
     }

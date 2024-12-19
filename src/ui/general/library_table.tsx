@@ -152,7 +152,7 @@ export default function Table({
       setshow_gid(true)
       setshow_owner(true)
       setshow_group(true)
-      if (!maintMode) setshow_questions(true)
+      setshow_questions(true)
       setshow_type(true)
     }
     if (widthNumber_new >= 3) {
@@ -268,7 +268,7 @@ export default function Table({
   //----------------------------------------------------------------------------------------------
   async function fetchdata() {
     //
-    //  Not Maint mode & uid = 0 then exit
+    //  For non-maint the user-id must be set
     //
     if (!maintMode && uid === 0) return
     //
@@ -280,15 +280,20 @@ export default function Table({
       //
       const table = 'library'
       //
+      //  Distinct - no uid selected
+      //
+      let distinctColumns: string[] = []
+      if (maintMode) {
+        distinctColumns = ['lrowner', 'lrgroup', 'lrref']
+      }
+      //
       //  Joins
       //
-      let joins
-      if (!maintMode) {
-        joins = [
-          { table: 'usersowner', on: 'lrowner = uoowner' },
-          { table: 'ownergroup', on: 'lrgid = oggid' }
-        ]
-      }
+      const joins = [
+        { table: 'usersowner', on: 'lrowner = uoowner' },
+        { table: 'ownergroup', on: 'lrgid = oggid' }
+      ]
+
       //
       // Calculate the offset for pagination
       //
@@ -302,7 +307,8 @@ export default function Table({
         filters,
         orderBy: 'lrowner, lrgroup, lrref',
         limit: rowsPerPage,
-        offset
+        offset,
+        distinctColumns
       })
       setTabledata(data)
       //
@@ -312,7 +318,8 @@ export default function Table({
         table,
         joins,
         filters,
-        items_per_page: rowsPerPage
+        items_per_page: rowsPerPage,
+        distinctColumns
       })
       setTotalPages(fetchedTotalPages)
       //

@@ -115,7 +115,7 @@ export default function Form() {
             <input
               className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
               id='u_name'
-              type='u_name'
+              type='text'
               name='u_name'
               autoComplete='name'
               value={u_name}
@@ -161,7 +161,7 @@ export default function Form() {
             <input
               className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
               id='u_fedid'
-              type='u_fedid'
+              type='text'
               name='u_fedid'
               value={u_fedid}
               onChange={e => setu_fedid(e.target.value)}

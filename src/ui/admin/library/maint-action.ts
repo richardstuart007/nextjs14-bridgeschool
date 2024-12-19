@@ -6,6 +6,7 @@ import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 import { update_ogcntlibrary } from '@/src/lib/tables/tableSpecific/ownergroup'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update Library Setup
 // ----------------------------------------------------------------------
@@ -44,6 +45,7 @@ export async function LibraryMaint(
   _prevState: StateSetup,
   formData: FormData
 ): Promise<StateSetup> {
+  const functionName = 'LibraryMaint'
   //
   //  Validate form data
   //
@@ -159,8 +161,10 @@ export async function LibraryMaint(
     //  Errors
     //
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update Library.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update Library.',
+      message: errorMessage,
       errors: undefined,
       databaseUpdated: false
     }

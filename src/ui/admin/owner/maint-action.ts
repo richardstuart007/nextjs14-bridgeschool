@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import validateOwner from '@/src/ui/admin/owner/maint-validate'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update Owner Setup
 // ----------------------------------------------------------------------
@@ -26,6 +27,7 @@ export type StateSetup = {
 const Setup = FormSchemaSetup
 
 export async function OwnerMaint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+  const functionName = 'OwnerMaint'
   //
   //  Validate form data
   //
@@ -72,8 +74,10 @@ export async function OwnerMaint(_prevState: StateSetup, formData: FormData): Pr
     //  Errors
     //
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update Owner.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update Owner.',
+      message: errorMessage,
       errors: undefined,
       databaseUpdated: false
     }

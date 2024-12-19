@@ -8,7 +8,7 @@ import type { table_Users } from '@/src/lib/tables/definitions'
 import SelectCountry from '@/src/ui/utils/countries/select-country'
 
 export default function Form({ UserRecord }: { UserRecord: table_Users }) {
-  const initialState = { message: null, errors: {} }
+  const initialState = { message: null, errors: {}, databaseUpdated: false }
   const [formState, formAction] = useFormState(UserEdit, initialState)
   const [u_name, setU_name] = useState(UserRecord.u_name)
   const [u_fedid, setU_fedid] = useState(UserRecord.u_fedid)
@@ -63,7 +63,7 @@ export default function Form({ UserRecord }: { UserRecord: table_Users }) {
               <input
                 className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
                 id='u_name'
-                type='u_name'
+                type='text'
                 name='u_name'
                 autoComplete='name'
                 value={u_name}
@@ -90,7 +90,7 @@ export default function Form({ UserRecord }: { UserRecord: table_Users }) {
               <input
                 className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
                 id='u_fedid'
-                type='u_fedid'
+                type='text'
                 name='u_fedid'
                 value={u_fedid}
                 onChange={e => setU_fedid(e.target.value)}

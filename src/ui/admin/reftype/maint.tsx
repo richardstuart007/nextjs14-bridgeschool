@@ -73,7 +73,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
                 type='rttype'
                 name='rttype'
                 value={rttype}
-                onChange={e => setrttype(e.target.value)}
+                onChange={e => setrttype(e.target.value.replace(/\s+/g, ''))}
               />
             ) : (
               /* -----------------Edit ------------------*/

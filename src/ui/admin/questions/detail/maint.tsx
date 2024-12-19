@@ -153,7 +153,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
             <input
               className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
               id='qdetail'
-              type='qdetail'
+              type='text'
               name='qdetail'
               value={qdetail}
               onChange={e => setqdetail(e.target.value)}

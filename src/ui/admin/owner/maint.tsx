@@ -57,7 +57,7 @@ export default function Form({ onSuccess, shouldCloseOnUpdate = true }: FormProp
               type='oowner'
               name='oowner'
               value={oowner}
-              onChange={e => setoowner(e.target.value)}
+              onChange={e => setoowner(e.target.value.replace(/\s+/g, ''))}
             />
           </div>
         </div>

@@ -7,7 +7,7 @@ import { PwdEdit } from '@/src/ui/admin/users/pwdedit/action'
 import type { table_Users } from '@/src/lib/tables/definitions'
 
 export default function Form({ UserRecord }: { UserRecord: table_Users }) {
-  const initialState = { message: null, errors: {} }
+  const initialState = { message: null, errors: {}, databaseUpdated: false }
   const [formState, formAction] = useFormState(PwdEdit, initialState)
   const [uppwd, setUppwd] = useState('')
   const upuid = UserRecord.u_uid

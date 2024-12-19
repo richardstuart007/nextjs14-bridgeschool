@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import validate from '@/src/ui/admin/reftype/maint-validate'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update Setup
 // ----------------------------------------------------------------------
@@ -29,6 +30,7 @@ export type StateSetup = {
 const Setup = FormSchemaSetup
 
 export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+  const functionName = 'Maintreftype'
   //
   //  Validate form data
   //
@@ -99,8 +101,10 @@ export async function Maint(_prevState: StateSetup, formData: FormData): Promise
     //  Errors
     //
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update reftype.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update.',
+      message: errorMessage,
       errors: undefined,
       databaseUpdated: false
     }

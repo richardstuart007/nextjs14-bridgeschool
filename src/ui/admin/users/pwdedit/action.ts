@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
 import bcrypt from 'bcryptjs'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update User Setup
 // ----------------------------------------------------------------------
@@ -22,11 +23,13 @@ export type StateSetup = {
     uppwd?: string[]
   }
   message?: string | null
+  databaseUpdated?: boolean
 }
 
 const Setup = FormSchemaSetup
 
 export async function PwdEdit(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+  const functionName = 'PwdEdit'
   //
   //  Validate form data
   //
@@ -71,9 +74,12 @@ export async function PwdEdit(_prevState: StateSetup, formData: FormData): Promi
     //  Errors
     //
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update userspwd.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update Password.',
-      errors: undefined
+      message: errorMessage,
+      errors: undefined,
+      databaseUpdated: false
     }
   }
 }

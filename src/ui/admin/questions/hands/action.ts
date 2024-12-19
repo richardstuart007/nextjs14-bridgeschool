@@ -1,6 +1,7 @@
 'use server'
 
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 //
 //  Errors and Messages
 //
@@ -49,6 +50,7 @@ const hand_name = [
 ]
 
 export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+  const functionName = 'Mainthands'
   //
   // Retrieve values from formData and store them in an array
   //
@@ -265,6 +267,13 @@ export async function Maint(_prevState: StateSetup, formData: FormData): Promise
       await table_update(updateParams)
       message = `Database updated successfully.`
       databaseUpdated = true
+      const errorMessage = 'Database Error: Failed to Update Library.'
+      writeLogging(functionName, errorMessage)
+      return {
+        message: errorMessage,
+        errors: undefined,
+        databaseUpdated: false
+      }
       //
       //  Errors
       //

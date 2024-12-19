@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update User Setup
 // ----------------------------------------------------------------------
@@ -27,11 +28,13 @@ export type StateSetup = {
     u_admin?: string[]
   }
   message?: string | null
+  databaseUpdated?: boolean
 }
 
 const Setup = FormSchemaSetup
 
 export async function UserEdit(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+  const functionName = 'UserEdit'
   //
   //  Validate form data
   //
@@ -86,9 +89,12 @@ export async function UserEdit(_prevState: StateSetup, formData: FormData): Prom
     //  Errors
     //
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update User.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update User.',
-      errors: undefined
+      message: errorMessage,
+      errors: undefined,
+      databaseUpdated: false
     }
   }
 }

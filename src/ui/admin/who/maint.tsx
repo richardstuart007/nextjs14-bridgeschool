@@ -70,10 +70,10 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
               <input
                 className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm'
                 id='wwho'
-                type='wwho'
+                type='text'
                 name='wwho'
                 value={wwho}
-                onChange={e => setwwho(e.target.value)}
+                onChange={e => setwwho(e.target.value.replace(/\s+/g, ''))}
               />
             ) : (
               /* -----------------Edit ------------------*/
@@ -107,7 +107,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
             <input
               className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
               id='wtitle'
-              type='wtitle'
+              type='text'
               name='wtitle'
               value={wtitle}
               onChange={e => setwtitle(e.target.value)}

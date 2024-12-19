@@ -107,10 +107,13 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
               <input
                 className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm'
                 id='oggroup'
-                type='oggroup'
+                type='text'
                 name='oggroup'
                 value={oggroup}
-                onChange={e => setoggroup(e.target.value)}
+                onChange={e => {
+                  const strippedValue = e.target.value.replace(/\s+/g, '')
+                  setoggroup(strippedValue)
+                }}
               />
             ) : (
               /* -----------------Edit ------------------*/
@@ -143,7 +146,7 @@ export default function Form({ record, onSuccess, shouldCloseOnUpdate = true }: 
             <input
               className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
               id='ogtitle'
-              type='ogtitle'
+              type='text'
               name='ogtitle'
               value={ogtitle}
               onChange={e => setogtitle(e.target.value)}

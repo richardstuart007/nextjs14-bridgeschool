@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { table_update } from '@/src/lib/tables/tableGeneric/table_update'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update Setup
 // ----------------------------------------------------------------------
@@ -27,6 +28,7 @@ export type StateSetup = {
 const Setup = FormSchemaSetup
 
 export async function Maint(_prevState: StateSetup, formData: FormData): Promise<StateSetup> {
+  const functionName = 'MaintAnswers'
   //
   // Populate qans and qpoints arrays
   //
@@ -126,8 +128,10 @@ export async function Maint(_prevState: StateSetup, formData: FormData): Promise
     //  Errors
     //
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update Questions.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update.',
+      message: errorMessage,
       errors: undefined,
       databaseUpdated: false
     }

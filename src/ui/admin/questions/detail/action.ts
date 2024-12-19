@@ -7,6 +7,7 @@ import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 import validate from '@/src/ui/admin/questions/detail/validate'
 import { getNextSeq } from '@/src/lib/tables/tableSpecific/questions'
 import { update_ogcntquestions } from '@/src/lib/tables/tableSpecific/ownergroup'
+import { writeLogging } from '@/src/lib/tables/tableSpecific/logging'
 // ----------------------------------------------------------------------
 //  Update Setup
 // ----------------------------------------------------------------------
@@ -37,6 +38,7 @@ export async function Maint_detail(
   _prevState: StateSetup,
   formData: FormData
 ): Promise<StateSetup> {
+  const functionName = 'Maintdetail'
   //
   //  Validate form data
   //
@@ -145,8 +147,10 @@ export async function Maint_detail(
       databaseUpdated: true
     }
   } catch (error) {
+    const errorMessage = 'Database Error: Failed to Update Library.'
+    writeLogging(functionName, errorMessage)
     return {
-      message: 'Database Error: Failed to Update.',
+      message: errorMessage,
       errors: undefined,
       databaseUpdated: false
     }
