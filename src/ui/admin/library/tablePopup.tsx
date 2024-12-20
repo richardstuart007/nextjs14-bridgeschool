@@ -1,6 +1,6 @@
 'use client'
 import Popup from '@/src/ui/utils/popup'
-import Table from '@/src/ui/general/library_table'
+import Table from '@/src/ui/dashboard/library/library_table'
 
 interface Props {
   gid: number | null

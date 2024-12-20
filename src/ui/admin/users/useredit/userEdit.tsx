@@ -5,7 +5,8 @@ import { Button } from '@/src/ui/utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { UserEdit } from '@/src/ui/admin/users/useredit/action'
 import type { table_Users } from '@/src/lib/tables/definitions'
-import SelectCountry from '@/src/ui/utils/countries/select-country'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdownGeneric'
+import { COUNTRIES } from '@/src/ui/utils/countries'
 
 export default function Form({ UserRecord }: { UserRecord: table_Users }) {
   const initialState = { message: null, errors: {}, databaseUpdated: false }
@@ -26,15 +27,6 @@ export default function Form({ UserRecord }: { UserRecord: table_Users }) {
         Update
       </Button>
     )
-  }
-  //...................................................................................
-  //.  Select Country
-  //...................................................................................
-  function handleSelectCountry(CountryCode: string) {
-    //
-    //  Update values
-    //
-    setU_fedcountry(CountryCode)
   }
   //-------------------------------------------------------------------------
   return (
@@ -109,20 +101,19 @@ export default function Form({ UserRecord }: { UserRecord: table_Users }) {
           {/*  FEDCOUNTRY  */}
           {/*  ...................................................................................*/}
           <div className='mt-4'>
-            <label
-              className='mb-3 mt-5 block text-xs font-medium text-gray-900'
-              htmlFor='u_fedcountry'
-            >
-              Bridge Federation Country ({u_fedcountry})
-            </label>
-            <input
-              className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
-              id='u_fedcountry'
-              type='hidden'
+            <DropdownGeneric
+              selectedOption={u_fedcountry}
+              setSelectedOption={setU_fedcountry}
+              searchEnabled={true}
               name='u_fedcountry'
-              value={u_fedcountry}
+              label={`Bridge Federation Country (${u_fedcountry})`}
+              tableData={COUNTRIES}
+              orderBy='oowner'
+              optionLabel='label'
+              optionValue='code'
+              dropdownWidth='w-72'
+              includeBlank={false}
             />
-            <SelectCountry onChange={handleSelectCountry} countryCode={u_fedcountry ?? ''} />
           </div>
           {/*  ...................................................................................*/}
           {/*   Toggle - Admin */}

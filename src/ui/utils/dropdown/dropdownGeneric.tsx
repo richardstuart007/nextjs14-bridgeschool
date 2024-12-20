@@ -8,10 +8,11 @@ type DropdownProps = {
   searchEnabled?: boolean
   name: string
   label?: string
-  table: string
+  tableData?: Array<{ [key: string]: any }>
+  table?: string
   tableColumn?: string
   tableColumnValue?: string | number
-  orderBy: string
+  orderBy?: string
   optionLabel: string
   optionValue: string
   dropdownWidth?: string
@@ -24,10 +25,11 @@ export default function DropdownGeneric({
   searchEnabled = false,
   name,
   label,
+  tableData,
   table,
   tableColumn,
   tableColumnValue,
-  orderBy,
+  orderBy = '',
   optionLabel,
   optionValue,
   dropdownWidth,
@@ -37,91 +39,102 @@ export default function DropdownGeneric({
   const [loading, setLoading] = useState(true)
 
   //---------------------------------------------------------------------
-  //  Load dropdown options from the database
+  //  Fetch dropdown options
   //---------------------------------------------------------------------
-  const fetchOptions = useCallback(async () => {
-    try {
-      setLoading(true)
-      //
-      //  Get the data - selection
-      //
-      let rows
-      if (tableColumn) {
-        //
-        // Clear the dropdown options if the value is invalid
-        //
-        if (!tableColumnValue) {
-          setDropdownOptions([])
-          return
+  const fetchOptions = useCallback(
+    async function () {
+      async function determineRows(): Promise<Array<{ [key: string]: any }>> {
+        if (tableData) {
+          return tableData
         }
-        rows = await table_fetch({
-          table: table,
-          whereColumnValuePairs: [{ column: tableColumn, value: tableColumnValue }],
-          orderBy: orderBy
-        })
-      }
-      //
-      //  No selection
-      //
-      else {
-        rows = await table_fetch({
-          table: table,
-          orderBy: orderBy
-        })
-      }
-      //
-      // Map rows into the structure expected by DropdownSearch
-      //
-      const options = rows.map(row => ({
-        value: row[optionValue],
-        label: row[optionLabel]
-      }))
-      //
-      // Optionally add a blank option if includeBlank is true
-      //
-      if (includeBlank) {
-        setDropdownOptions([{ value: '', label: '' }, ...options])
-      } else {
-        setDropdownOptions(options)
-      }
-    } catch (error) {
-      console.error('Error fetching dropdown options:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [table, orderBy, optionLabel, optionValue, tableColumn, tableColumnValue, includeBlank])
 
-  //
-  // Fetch options from the database
-  //
+        if (table) {
+          if (tableColumn && tableColumnValue) {
+            return table_fetch({
+              table,
+              whereColumnValuePairs: [{ column: tableColumn, value: tableColumnValue }],
+              orderBy
+            })
+          }
+
+          return table_fetch({ table, orderBy })
+        }
+
+        throw new Error('Either tableData or table must be provided')
+      }
+
+      try {
+        setLoading(true)
+
+        const rows = await determineRows()
+
+        const options = rows.map(row => ({
+          value: row[optionValue]?.toString() || '',
+          label: row[optionLabel]?.toString() || ''
+        }))
+
+        setDropdownOptions(includeBlank ? [{ value: '', label: '' }, ...options] : options)
+      } catch (error) {
+        console.error('Error fetching dropdown options:', error)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [
+      optionValue,
+      optionLabel,
+      includeBlank,
+      tableData,
+      table,
+      tableColumn,
+      tableColumnValue,
+      orderBy
+    ]
+  )
+
+  //---------------------------------------------------------------------
+  //  Fetch options on component mount and whenever dependencies change
+  //---------------------------------------------------------------------
   useEffect(() => {
     fetchOptions()
   }, [fetchOptions])
 
   //---------------------------------------------------------------------
-  //
-  //  Determine if data fetched
-  //
-  if (loading) return <p className='font-medium'>Loading options...</p>
+  //  Handle loading and empty states
+  //---------------------------------------------------------------------
+  function renderLoadingState() {
+    return <p className='font-medium'>Loading options...</p>
+  }
 
-  if (dropdownOptions.length === 0) {
+  function renderEmptyState() {
     return <p className='font-medium'>No options available</p>
   }
 
   //---------------------------------------------------------------------
-  //  Return dropdown
+  //  Render dropdown
   //---------------------------------------------------------------------
-  return (
-    <div>
-      <DropdownSearch
-        label={label}
-        name={name}
-        options={dropdownOptions}
-        selectedOption={selectedOption}
-        setSelectedOption={setSelectedOption}
-        searchEnabled={searchEnabled}
-        dropdownWidth={dropdownWidth}
-      />
-    </div>
-  )
+  function renderDropdown() {
+    return (
+      <div>
+        <DropdownSearch
+          label={label}
+          name={name}
+          options={dropdownOptions}
+          selectedOption={selectedOption}
+          setSelectedOption={setSelectedOption}
+          searchEnabled={searchEnabled}
+          dropdownWidth={dropdownWidth}
+        />
+      </div>
+    )
+  }
+
+  //---------------------------------------------------------------------
+  //  Return based on state
+  //---------------------------------------------------------------------
+  if (loading) return renderLoadingState()
+
+  if (dropdownOptions.length === 0) return renderEmptyState()
+
+  return renderDropdown()
 }

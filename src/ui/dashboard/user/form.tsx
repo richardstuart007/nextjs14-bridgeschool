@@ -5,7 +5,8 @@ import { Button } from '../../utils/button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { UserEdit } from '@/src/ui/dashboard/user/action'
 import { notFound } from 'next/navigation'
-import SelectCountry from '@/src/ui/utils/countries/select-country'
+import DropdownGeneric from '@/src/ui/utils/dropdown/dropdownGeneric'
+import { COUNTRIES } from '@/src/ui/utils/countries'
 import { useUserContext } from '@/UserContext'
 import { table_fetch } from '@/src/lib/tables/tableGeneric/table_fetch'
 
@@ -81,15 +82,6 @@ export default function Form() {
     )
   }
   //-------------------------------------------------------------------------
-  //.  Select Country
-  //-------------------------------------------------------------------------
-  function handleSelectCountry(CountryCode: string) {
-    //
-    //  Update values
-    //
-    setu_fedcountry(CountryCode)
-  }
-  //-------------------------------------------------------------------------
   return (
     <form action={formAction} className='space-y-3 '>
       <div className='flex-1 rounded-lg bg-gray-50 px-4 pb-2 pt-2 max-w-md'>
@@ -135,20 +127,19 @@ export default function Form() {
         {/*  FEDCOUNTRY  */}
         {/*  ...................................................................................*/}
         <div className='mt-4'>
-          <label
-            className='mb-3 mt-5 block text-xs font-medium text-gray-900'
-            htmlFor='u_fedcountry'
-          >
-            Bridge Federation Country ({u_fedcountry})
-          </label>
-          <input
-            className='w-72 md:max-w-md px-4 rounded-md border border-blue-500 py-[9px] text-sm '
-            id='u_fedcountry'
-            type='hidden'
+          <DropdownGeneric
+            selectedOption={u_fedcountry}
+            setSelectedOption={setu_fedcountry}
+            searchEnabled={true}
             name='u_fedcountry'
-            value={u_fedcountry}
+            label={`Bridge Federation Country (${u_fedcountry})`}
+            tableData={COUNTRIES}
+            orderBy='oowner'
+            optionLabel='label'
+            optionValue='code'
+            dropdownWidth='w-72'
+            includeBlank={false}
           />
-          <SelectCountry onChange={handleSelectCountry} countryCode={u_fedcountry ?? ''} />
         </div>
         {/*  ...................................................................................*/}
         {/*  FEDID  */}

@@ -418,8 +418,8 @@ export default function Table() {
                       tableColumn='ogowner'
                       tableColumnValue={owner}
                       orderBy='ogowner, oggroup'
-                      optionLabel='oggroup'
-                      optionValue='ogroup'
+                      optionLabel='ogtitle'
+                      optionValue='oggroup'
                       dropdownWidth='w-36'
                       includeBlank={true}
                     />
@@ -565,7 +565,7 @@ export default function Table() {
                 <td className='px-2 py-2 text-center'>
                   <Link
                     href={`/dashboard/quiz-review/${tabledata.r_hid}`}
-                    className='bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600'
+                    className='bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600'
                   >
                     Review
                   </Link>
