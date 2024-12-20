@@ -68,11 +68,7 @@ export default function DropdownSearch({
           id={name}
           name={name}
           value={selectedOption}
-          onChange={e => {
-            console.log('Selected options:', options)
-            console.log('Selected option:', e.target.value)
-            setSelectedOption(e.target.value)
-          }}
+          onChange={e => setSelectedOption(e.target.value)}
         >
           {filteredOptions.length > 0 ? (
             filteredOptions.map(option => (
