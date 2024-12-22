@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import RadioGroup from './radio-button'
+import RadioGroup from '@/src/ui/dashboard/quiz/radiobuttons'
 import { table_Questions } from '@/src/lib/tables/definitions'
 
 // Define the RadioOption type
@@ -77,9 +77,8 @@ export default function QuizChoice(props: QuizChoiceProps): JSX.Element {
   //  Format Panel
   //...................................................................................
   return (
-    <div className='rounded-md bg-gray-50 p-1 md:p-2'>
-      <p className='text-lg font-semibold text-left'>Question</p>
-      <p className='text-left italic font-bold text-yellow-500'>{questionText}</p>
+    <div className='my-1 p-1 rounded-md bg-green-50 border border-green-300 min-w-[300px] max-w-[400px]'>
+      <p className='text-xs italic font-bold text-yellow-500 break-words w-full'>{questionText}</p>
       <RadioGroup options={answers} selectedOption={selectedOption} onChange={handleSelect} />
     </div>
   )

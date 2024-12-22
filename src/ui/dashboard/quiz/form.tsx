@@ -1,15 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { table_Questions } from '@/src/lib/tables/definitions'
-import QuizQuestion from '@/src/ui/dashboard/quiz-question/quiz-question'
-import QuizBidding from '@/src/ui/dashboard/quiz-question/quiz-bidding/QuizBidding'
-import QuizHands from '@/src/ui/dashboard/quiz-question/quiz-hands/QuizHands'
-import QuizChoice from './quiz-choice'
-import { QuizSubmit } from '@/src/ui/dashboard/quiz/buttons'
+import QuizBidding from '@/src/ui/dashboard/quiz-question/bidding'
+import QuizHands from '@/src/ui/dashboard/quiz-question/hands'
+import QuizChoice from '@/src/ui/dashboard/quiz/choices'
 import { useRouter } from 'next/navigation'
 import { table_write } from '@/src/lib/tables/tableGeneric/table_write'
 import { fetchSessionInfo } from '@/src/lib/tables/tableSpecific/sessions'
 import { useUserContext } from '@/UserContext'
+import { Button } from '@/src/ui/utils/button'
 
 interface QuestionsFormProps {
   questions: table_Questions[]
@@ -31,11 +30,13 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
   //
   //  Questions state updated in initial load
   //
-  const [questions, setQuestions] = useState<table_Questions[]>([])
+  const [questions, setQuestions] = useState<table_Questions[]>(props.questions || [])
+  console.log('questions', questions)
   //
   //  Fetch session data when the component mounts
   //
   useEffect(() => {
+    console.log('useEffect')
     initializeData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -43,24 +44,21 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
   //  State variables
   //
   const [index, setIndex] = useState(0)
-  const [question, setQuestion] = useState(questions[index])
+  const [question, setQuestion] = useState(questions.length > 0 ? questions[0] : null)
   const [answer, setAnswer] = useState<number[]>([])
   const [showSubmit, setShowSubmit] = useState(false)
-  //
-  //  Array length
-  //
-  const quizTotal = questions.length
   //-------------------------------------------------------------------------
   //  Get Data
   //-------------------------------------------------------------------------
   async function initializeData() {
     try {
-      const data = await fetchSessionInfo(cxid)
-      if (!data) throw Error('No data')
+      const SessionInfo = await fetchSessionInfo(cxid)
+      console.log('SessionInfo', SessionInfo)
+      if (!SessionInfo) throw Error('No SessionInfo')
       //
       //  Update variables
       //
-      const { bsdftmaxquestions, bssortquestions } = data
+      const { bsdftmaxquestions, bssortquestions } = SessionInfo
       //
       //  Deconstruct props
       //
@@ -76,6 +74,7 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
       //
       //  Update questions and initial question
       //
+      console.log('questions_work', questions_work)
       setQuestions(questions_work)
       setQuestion(questions_work[0])
       //
@@ -114,6 +113,11 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
   //.  Quiz Completed
   //...................................................................................
   async function handleQuizCompleted() {
+    if (!question) {
+      // If the question is null, skip the writing process
+      console.error('Question is null, skipping write operation.')
+      return
+    }
     //
     //  Initialise the results
     //
@@ -187,16 +191,26 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
   //...................................................................................
   //.  Render the form
   //...................................................................................
-  if (!question) return <div>Loading...</div>
+  // return <div>testing...</div>
+  if (!question) return <div>No questions...</div>
+
   return (
     <>
-      <QuizQuestion question={question} quizQuestion={index + 1} quizTotal={quizTotal} />
+      <div className='p-2 flex items-center rounded-md bg-green-50 border border-green-300 min-w-[300px] max-w-[400px]'>
+        <p className='text-xs  font-medium'>{`${question.qgroup}`}</p>
+        <p className='ml-2 text-xs font-normal text-gray-500'>{`(${question.qqid})`}</p>
+      </div>
       <QuizBidding question={question} />
       <QuizHands question={question} />
       <QuizChoice question={question} setAnswer={setAnswer} setShowSubmit={setShowSubmit} />
       {showSubmit ? (
         <div className='whitespace-nowrap px-3 h-5'>
-          <QuizSubmit onNextQuestion={handleNextQuestion} />
+          <Button
+            overrideClass='px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'
+            onClick={handleNextQuestion}
+          >
+            Submit Selection
+          </Button>
         </div>
       ) : null}
     </>

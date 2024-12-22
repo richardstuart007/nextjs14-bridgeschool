@@ -57,12 +57,12 @@ export default function RadioGroup(props: RadioGroupProps): JSX.Element {
                 className='sr-only'
               />
               <div
-                className={`block rounded-full absolute inset-0 m-auto ${selectedValue === option.value ? 'w-6 h-6 bg-transparent' : 'w-4 h-4 bg-gray-400'}`}
+                className={`block rounded-full absolute inset-0 m-auto ${selectedValue === option.value ? 'w-4 h-4 bg-transparent' : 'w-3 h-3 bg-gray-400'}`}
               ></div>
               {selectedValue === option.value && (
                 <div className='absolute inset-0 flex items-center justify-center'>
                   <svg
-                    className={`fill-current ${selectedValue === option.value ? 'w-6 h-6 text-red-500' : 'w-4 h-4 text-gray-700'}`}
+                    className={`fill-current ${selectedValue === option.value ? 'w-4 h-4 text-red-500' : 'w-3 h-3 text-gray-700'}`}
                     viewBox='0 0 20 20'
                   >
                     <path d='M0 11l2-2 5 5L18 3l2 2L7 18z' />
@@ -71,7 +71,7 @@ export default function RadioGroup(props: RadioGroupProps): JSX.Element {
               )}
             </div>
             <div
-              className={`ml-2 ${selectedValue === option.value ? 'text-red-500' : 'text-gray-700'}`}
+              className={`text-xs ml-2 ${selectedValue === option.value ? 'text-red-500' : 'text-gray-700'}`}
             >
               {option.label}
             </div>

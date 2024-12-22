@@ -1,6 +1,6 @@
 // Libraries
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid'
-import Popup from './popup'
+import Popup from '@/src/ui/utils/popup'
 import { Button } from '@/src/ui/utils/button'
 
 interface ConfirmDialog {

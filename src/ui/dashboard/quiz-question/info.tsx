@@ -2,18 +2,18 @@ import { table_Questions } from '@/src/lib/tables/definitions'
 
 interface RadioGroupProps {
   question: table_Questions
-  quizQuestion: number
+  QuizInfo: number
   quizTotal: number
 }
 
-export default function QuizQuestion(props: RadioGroupProps): JSX.Element {
+export default function QuizInfo(props: RadioGroupProps): JSX.Element {
   //...................................................................................
   //.  Main Line
   //...................................................................................
   //
   //  Deconstruct params
   //
-  const { question, quizQuestion, quizTotal = 0 } = props
+  const { question, QuizInfo, quizTotal = 0 } = props
   //
   //  Deconstruct row
   //
@@ -21,12 +21,12 @@ export default function QuizQuestion(props: RadioGroupProps): JSX.Element {
   //
   //  Question Info
   //
-  let QuestionInfo = `${qowner}/${qgroup}(${qqid}) ${quizQuestion}/${quizTotal}`
+  let QuestionInfo = `${qowner}/${qgroup}(${qqid}) ${QuizInfo}/${quizTotal}`
   //...................................................................................
   //.  Render the form
   //...................................................................................
   return (
-    <div className='rounded-md bg-gray-50 p-1 md:p-2'>
+    <div className='text-xs p-1 md:p-2'>
       <p>{QuestionInfo}</p>
     </div>
   )

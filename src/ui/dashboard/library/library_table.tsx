@@ -708,7 +708,7 @@ export default function Table({
                             : 'bg-green-500 hover:bg-green-600'
                       }`}
                     >
-                      {maintMode ? 'Edit' : tabledata.lrtype === 'youtube' ? 'Video' : 'Book'}
+                      {maintMode ? 'Edit' : tabledata.lrtype === 'youtube' ? 'Video' : 'Read'}
                     </Button>
                   </div>
                 </td>

@@ -30,7 +30,7 @@ export default function RadioGroup(props: RadioGroupProps): JSX.Element {
               </div>
             </div>
             <div
-              className={`ml-2 ${
+              className={`text-xs ml-2 ${
                 selectedOption === option.value && selectedOption !== correctOption
                   ? 'text-red-500'
                   : correctOption === option.value
