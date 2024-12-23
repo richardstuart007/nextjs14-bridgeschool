@@ -198,7 +198,7 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
     <>
       <div className='p-2 flex items-center rounded-md bg-green-50 border border-green-300 min-w-[300px] max-w-[400px]'>
         <p className='text-xs  font-medium'>{`${question.qgroup}`}</p>
-        <p className='ml-2 text-xs font-normal text-gray-500'>{`(${question.qqid})`}</p>
+        <p className='ml-2 text-xs font-normal text-gray-500'>{`(${question.qqid}) ${index + 1}/${questions.length}`}</p>
       </div>
       <QuizBidding question={question} />
       <QuizHands question={question} />
