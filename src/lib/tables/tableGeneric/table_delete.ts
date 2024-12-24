@@ -11,65 +11,68 @@ interface ColumnValuePair {
   column: string
   value: string | number // Allow both string and numeric values
 }
-
 //
 // Props
 //
 interface Props {
   table: string
-  whereColumnValuePairs: ColumnValuePair[]
+  whereColumnValuePairs?: ColumnValuePair[] // Optional column-value pairs
+  returning?: boolean // Optional flag to determine if RETURNING * is needed
 }
 
-export async function table_delete({ table, whereColumnValuePairs }: Props): Promise<any[]> {
+export async function table_delete({
+  table,
+  whereColumnValuePairs = [],
+  returning = false
+}: Props): Promise<any[]> {
   const functionName = 'table_delete'
   noStore()
+  //
+  // Construct the SQL DELETE query
+  //
   try {
     //
-    // Build the WHERE clause with parameterized values
+    // Base DELETE query
     //
-    const conditions = whereColumnValuePairs.map(({ column }, index) => {
-      return `${column} = $${index + 1}` // Use parameterized placeholders
-    })
-    const whereClause = conditions.join(' AND ')
+    let sqlQueryStatement = `DELETE FROM ${table}`
+    let values: (string | number)[] = []
     //
-    //  Collect Values
+    // WHERE clause
     //
-    const values = whereColumnValuePairs.map(({ value }) => value)
+    if (whereColumnValuePairs.length > 0) {
+      const conditions = whereColumnValuePairs.map(({ column }, index) => {
+        return `${column} = $${index + 1}` // Use parameterized placeholders
+      })
+      const whereClause = conditions.join(' AND ')
+      sqlQueryStatement += ` WHERE ${whereClause}`
+      values = whereColumnValuePairs.map(({ value }) => value)
+    }
     //
-    // Construct the DELETE query
+    // RETURNING clause
     //
-    const sqlQuery = `DELETE FROM ${table} WHERE ${whereClause} RETURNING *`
+    if (returning) sqlQueryStatement += ` RETURNING *`
     //
-    //  Logging
+    // Remove redundant spaces
     //
-    writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`, 'I')
+    const sqlQuery = sqlQueryStatement.replace(/\s+/g, ' ').trim()
     //
     // Execute the query
     //
-    const data = await sql.query(sqlQuery, values)
-    //
-    // Check and return the deleted rows
-    //
-    const rowsNumber = data.rows.length
-    if (rowsNumber > 0) {
-      writeLogging(
-        functionName,
-        `TABLE(${table}) WHERE(${whereClause}) DELETED(${rowsNumber})`,
-        'I'
-      )
-      return data.rows
+    let data
+    if (values.length > 0) {
+      writeLogging(functionName, `Query: ${sqlQuery}, Values: ${JSON.stringify(values)}`, 'I')
+      data = await sql.query(sqlQuery, values)
+    } else {
+      writeLogging(functionName, `Query: ${sqlQuery}`, 'I')
+      data = await sql.query(sqlQuery)
     }
     //
-    // No records were deleted
+    // If RETURNING * is specified, return the deleted rows
     //
+    if (returning) return data.rows
     return []
-    //
-    //  Errors
-    //
   } catch (error) {
-    //
-    //  Logging
-    //
+    // Logging
     const errorMessage = `Table(${table}) DELETE FAILED`
     console.error(`${functionName}: ${errorMessage}`, error)
     writeLogging(functionName, errorMessage)

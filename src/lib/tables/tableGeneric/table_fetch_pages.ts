@@ -41,7 +41,6 @@ export async function fetchFiltered({
   const functionName = 'fetchFiltered'
   noStore()
   const { sqlQuery, queryValues } = buildSqlQuery({ table, joins, filters })
-
   try {
     let finalQuery = sqlQuery
     //
@@ -61,13 +60,17 @@ export async function fetchFiltered({
     if (limit !== undefined) finalQuery += ` LIMIT ${limit}`
     if (offset !== undefined) finalQuery += ` OFFSET ${offset}`
     //
+    // Remove redundant spaces
+    //
+    const sqlQuerystatement = finalQuery.replace(/\s+/g, ' ').trim()
+    //
     // Logging
     //
-    writeLogging(functionName, `Query: ${finalQuery}, Values: ${JSON.stringify(queryValues)}`, 'I')
+    writeLogging(functionName, sqlQuerystatement, 'I')
     //
     // Execute Query
     //
-    const data = await sql.query(finalQuery.replace(/\s+/g, ' ').trim(), queryValues)
+    const data = await sql.query(sqlQuerystatement, queryValues)
     return data.rows.length > 0 ? data.rows : []
   } catch (error) {
     const errorMessage = `Table(${table}) SQL(${sqlQuery}) FAILED`
@@ -157,12 +160,17 @@ function buildSqlQuery({
   //
   if (filters.length) {
     const whereConditions = filters.map(({ column, operator = '=', value }) => {
-      const adjustedColumn = operator === 'LIKE' ? `LOWER(${column})` : column
+      const adjustedColumn =
+        operator === 'LIKE' || operator === 'NOT LIKE' ? `LOWER(${column})` : column
       const adjustedValue =
-        operator === 'LIKE' && typeof value === 'string' ? `%${value.toLowerCase()}%` : value
+        (operator === 'LIKE' || operator === 'NOT LIKE') && typeof value === 'string'
+          ? `%${value.toLowerCase()}%`
+          : value
+
       queryValues.push(adjustedValue)
       return `${adjustedColumn} ${operator} $${queryValues.length}`
     })
+
     sqlQuery += ` WHERE ${whereConditions.join(' AND ')}`
   }
 

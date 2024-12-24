@@ -31,12 +31,10 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
   //  Questions state updated in initial load
   //
   const [questions, setQuestions] = useState<table_Questions[]>(props.questions || [])
-  console.log('questions', questions)
   //
   //  Fetch session data when the component mounts
   //
   useEffect(() => {
-    console.log('useEffect')
     initializeData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -53,7 +51,6 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
   async function initializeData() {
     try {
       const SessionInfo = await fetchSessionInfo(cxid)
-      console.log('SessionInfo', SessionInfo)
       if (!SessionInfo) throw Error('No SessionInfo')
       //
       //  Update variables
@@ -74,7 +71,6 @@ export default function QuestionsForm(props: QuestionsFormProps): JSX.Element {
       //
       //  Update questions and initial question
       //
-      console.log('questions_work', questions_work)
       setQuestions(questions_work)
       setQuestion(questions_work[0])
       //

@@ -159,3 +159,8 @@ export type table_Who = {
   wtitle: string
   wwid: number
 }
+
+export type table_pg_tables = {
+  schemaname: string
+  tablename: string
+}

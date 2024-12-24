@@ -39,7 +39,7 @@ export default function Page() {
   }, [])
 
   return (
-    <main className='flex min-h-screen items-center justify-center p-6 bg-gray-50'>
+    <main className='flex min-h-screen items-center justify-center p-6'>
       <div className='flex flex-col justify-center items-center gap-6 rounded-lg px-6 py-10'>
         <div className='self-center'>
           <Image
