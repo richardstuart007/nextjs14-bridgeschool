@@ -189,7 +189,7 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Duplicate ALL
   //----------------------------------------------------------------------------------------------
-  function handleDupALLClick() {
+  function handleDupClick_ALL() {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Duplicate ALL',
@@ -272,7 +272,7 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Copy ALL
   //----------------------------------------------------------------------------------------------
-  function handleCopyALLClick() {
+  function handleCopyClick_ALL() {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Copy ALL',
@@ -356,7 +356,7 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Clear ALL
   //----------------------------------------------------------------------------------------------
-  function handleClearALLClick() {
+  function handleClearClick_ALL() {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Clear ALL',
@@ -438,7 +438,7 @@ export default function Table() {
   //----------------------------------------------------------------------------------------------
   //  Drop ALL
   //----------------------------------------------------------------------------------------------
-  function handleDropALLClick() {
+  function handleDropClick_ALL() {
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Drop ALL',
@@ -645,7 +645,7 @@ export default function Table() {
                 {tabledata_Z.length > 0 && (
                   <div className='inline-flex justify-center items-center'>
                     <Button
-                      onClick={() => handleDropALLClick()}
+                      onClick={() => handleDropClick_ALL()}
                       overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
                     >
                       Drop ALL
@@ -658,7 +658,7 @@ export default function Table() {
                 {tabledata_Z.length > 0 && (
                   <div className='inline-flex justify-center items-center'>
                     <Button
-                      onClick={() => handleDupALLClick()}
+                      onClick={() => handleDupClick_ALL()}
                       overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
                     >
                       Dup ALL
@@ -671,7 +671,7 @@ export default function Table() {
                 {tabledata_Z.length > 0 && (
                   <div className='inline-flex justify-center items-center'>
                     <Button
-                      onClick={() => handleClearALLClick()}
+                      onClick={() => handleClearClick_ALL()}
                       overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
                     >
                       Clear ALL
@@ -684,7 +684,7 @@ export default function Table() {
                 {tabledata_Z.length > 0 && (
                   <div className='inline-flex justify-center items-center'>
                     <Button
-                      onClick={() => handleCopyALLClick()}
+                      onClick={() => handleCopyClick_ALL()}
                       overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
                     >
                       Copy ALL
