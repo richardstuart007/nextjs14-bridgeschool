@@ -9,8 +9,8 @@ interface Props {
   tablebackup: string
 }
 
-export async function table_data_copy(Props: Props): Promise<boolean> {
-  const functionName = 'table_data_copy'
+export async function table_copy_data(Props: Props): Promise<boolean> {
+  const functionName = 'table_copy_data'
   noStore()
 
   try {

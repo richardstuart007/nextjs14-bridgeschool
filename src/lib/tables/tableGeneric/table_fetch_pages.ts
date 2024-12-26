@@ -12,8 +12,8 @@ type JoinParams = {
 
 type FilterParams = {
   column: string
-  operator?: string
-  value: string | number
+  operator: '=' | 'LIKE' | 'NOT LIKE' | '>' | '>=' | '<' | '<=' | 'IN' | 'NOT IN'
+  value: string | number | (string | number)[]
 }
 
 // Default items per page
@@ -147,6 +147,7 @@ function buildSqlQuery({
   //
   let sqlQuery = `SELECT * FROM ${table}`
   const queryValues: (string | number)[] = []
+
   //
   // Handle JOINs
   //
@@ -155,11 +156,34 @@ function buildSqlQuery({
       sqlQuery += ` LEFT JOIN ${joinTable} ON ${on}`
     })
   }
+
   //
   // Handle WHERE conditions
   //
   if (filters.length) {
-    const whereConditions = filters.map(({ column, operator = '=', value }) => {
+    const whereConditions = filters.map(({ column, operator, value }) => {
+      if (operator === 'IN' || operator === 'NOT IN') {
+        if (!Array.isArray(value)) {
+          throw new Error(`Value for operator "${operator}" must be an array.`)
+        }
+
+        // Push individual values into queryValues
+        const placeholders = value
+          .map(v => {
+            if (typeof v !== 'string' && typeof v !== 'number') {
+              throw new Error(`Invalid value type for IN/NOT IN: ${typeof v}`)
+            }
+            queryValues.push(v)
+            return `$${queryValues.length}` // Generate placeholder
+          })
+          .join(', ')
+
+        return `${column} ${operator} (${placeholders})`
+      }
+
+      //
+      // Handle LIKE, NOT LIKE, and other standard operators
+      //
       const adjustedColumn =
         operator === 'LIKE' || operator === 'NOT LIKE' ? `LOWER(${column})` : column
       const adjustedValue =
@@ -167,12 +191,22 @@ function buildSqlQuery({
           ? `%${value.toLowerCase()}%`
           : value
 
+      if (typeof adjustedValue !== 'string' && typeof adjustedValue !== 'number') {
+        throw new Error(`Invalid value type for operator "${operator}": ${typeof adjustedValue}`)
+      }
+
       queryValues.push(adjustedValue)
       return `${adjustedColumn} ${operator} $${queryValues.length}`
     })
 
+    //
+    // Add WHERE clause with all conditions joined by AND
+    //
     sqlQuery += ` WHERE ${whereConditions.join(' AND ')}`
   }
 
+  //
+  // Return the constructed SQL query and query values
+  //
   return { sqlQuery, queryValues }
 }

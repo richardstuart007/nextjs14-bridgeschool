@@ -1,51 +1,49 @@
 'use client'
 
 import { lusitana } from '@/src/fonts'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import ConfirmDialog from '@/src/ui/utils/confirmDialog'
-import { table_pg_tables } from '@/src/lib/tables/definitions'
 import { fetchFiltered, fetchTotalPages } from '@/src/lib/tables/tableGeneric/table_fetch_pages'
 import { table_duplicate } from '@/src/lib/tables/tableGeneric/table_duplicate'
-import { table_data_copy } from '@/src/lib/tables/tableGeneric/table_data_copy'
+import { table_copy_data } from '@/src/lib/tables/tableGeneric/table_copy_data'
 import { table_truncate } from '@/src/lib/tables/tableGeneric/table_truncate'
 import { table_count } from '@/src/lib/tables/tableGeneric/table_count'
+import { table_drop } from '@/src/lib/tables/tableGeneric/table_drop'
 import Pagination from '@/src/ui/utils/pagination'
 import { Button } from '@/src/ui/utils/button'
+import { basetables } from '@/src/lib/tables/basetables'
 
 export default function Table() {
-  const schemaname = 'public'
-  const backupStartChar = 'z'
   //
   // Define the structure for filters
   //
   type Filter = {
     column: string
-    value: string | number
-    operator: '=' | 'LIKE' | 'NOT LIKE' | '>' | '>=' | '<' | '<='
+    operator: '=' | 'LIKE' | 'NOT LIKE' | '>' | '>=' | '<' | '<=' | 'IN' | 'NOT IN'
+    value: string | number | (string | number)[]
   }
-  const filters = useRef<Filter[]>([])
-  const filtersZ = useRef<Filter[]>([])
   //
-  //  Selection
+  //  Constants
   //
   const rowsPerPage = 20
+  const schemaname = 'public'
+  const backupStartChar = 'z_'
   //
-  //  Data
+  //  Base Data
   //
   const [currentPage, setcurrentPage] = useState(1)
-  const [tablename, settablename] = useState('')
-  const [tabledata, settabledata] = useState<table_pg_tables[]>([])
-  const [tabledatacount, settabledatacount] = useState<number[]>([])
-  const [shouldfetchdata, setshouldfetchdata] = useState(true)
+  const [tabledata, settabledata] = useState<string[]>(basetables)
+  const [tabledata_count, settabledata_count] = useState<number[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
-
-  const [prefix, setprefix] = useState('1_')
-  const [tabledataZ, settabledataZ] = useState<table_pg_tables[]>([])
-  const [tabledatacountZ, settabledatacountZ] = useState<number[]>([])
-
-  const [message, setmessage] = useState<string>('')
   //
-  //  Maintenance
+  //  Backups
+  //
+  const [tabledata_Z, settabledata_Z] = useState<string[]>([])
+  const [tabledata_count_Z, settabledata_count_Z] = useState<number[]>([])
+  const [exists_Z, setexists_Z] = useState<boolean[]>([])
+  const [prefix_Z, setprefix_Z] = useState<string>('1')
+  //
+  //  Messages
   //
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
@@ -53,117 +51,98 @@ export default function Table() {
     subTitle: '',
     onConfirm: () => {}
   })
-  //......................................................................................
-  //  Base values
-  //......................................................................................
-  useEffect(() => {
-    //
-    // Construct filters dynamically from input fields
-    //
-    const filtersToUpdate: Filter[] = [
-      { column: 'schemaname', value: schemaname, operator: '=' },
-      { column: 'tablename', value: `${backupStartChar}%`, operator: 'NOT LIKE' },
-      { column: 'tablename', value: tablename, operator: 'LIKE' }
-    ]
-    //
-    // Filter out any entries where `value` is not defined or empty
-    //
-    const updatedFilters = filtersToUpdate.filter(filter => filter.value)
-    //
-    //  Update filter to fetch data
-    //
-    filters.current = updatedFilters
-    //
-    //  Fetch the data
-    //
-    setshouldfetchdata(true)
-  }, [tablename])
-  //......................................................................................
-  //  Backup values
-  //......................................................................................
-  useEffect(() => {
-    //
-    // Construct filters dynamically from input fields
-    //
-    const filtersToUpdateZ: Filter[] = [
-      { column: 'schemaname', value: schemaname, operator: '=' },
-      { column: 'tablename', value: `${backupStartChar}${prefix}%`, operator: 'LIKE' },
-      { column: 'tablename', value: tablename, operator: 'LIKE' }
-    ]
-    //
-    // Filter out any entries where `value` is not defined or empty
-    //
-    const updatedFiltersZ = filtersToUpdateZ.filter(filter => filter.value)
-    //
-    //  Update filter to fetch data
-    //
-    filtersZ.current = updatedFiltersZ
-    //
-    //  Fetch the data
-    //
-
-    callback_fetchbackup()
-  }, [tablename, prefix])
-  //......................................................................................
+  const [message, setmessage] = useState<string>('')
+  //...................................................................................
   //
-  //  Update Base data
+  // Adjust currentPage if it exceeds totalPages
   //
   useEffect(() => {
-    setshouldfetchdata(true)
-  }, [filters, tablename, currentPage])
-  //......................................................................................
+    if (currentPage > totalPages && totalPages > 0) {
+      setcurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+  //...................................................................................
   //
-  //  Callback - fetchBase
+  //  Update Base
   //
-  const fetchbase = async () => {
+  useEffect(() => {
+    fetchbase()
+  }, [currentPage])
+  //----------------------------------------------------------------------------------------------
+  //  Fetch Base
+  //----------------------------------------------------------------------------------------------
+  async function fetchbase() {
     setmessage('fetchbase')
     try {
+      //
+      // Construct filters dynamically from input fields
+      //
+      const filtersToUpdate: Filter[] = [
+        { column: 'schemaname', value: schemaname, operator: '=' },
+        { column: 'tablename', operator: 'IN', value: basetables }
+      ]
+      //
+      // Filter out any entries where `value` is not defined or empty
+      //
+      const updatedFilters = filtersToUpdate.filter(filter => filter.value)
+      //
+      //  Get Data
+      //
       const offset = (currentPage - 1) * rowsPerPage
-
-      const [data, totalPages] = await Promise.all([
+      const [filtered, totalPages] = await Promise.all([
         fetchFiltered({
           table: 'pg_tables',
-          filters: filters.current,
+          filters: updatedFilters,
           orderBy: 'tablename',
           limit: rowsPerPage,
           offset
         }),
         fetchTotalPages({
           table: 'pg_tables',
-          filters: filters.current,
+          filters: updatedFilters,
           items_per_page: rowsPerPage
         })
       ])
+      const tabledata = filtered.map(row => row?.tablename).filter(Boolean)
 
       const rowCounts = await Promise.all(
-        data.map(async row => {
-          const count = await table_count({ table: row.tablename })
+        tabledata.map(async row => {
+          if (!row) return 0
+          const count = await table_count({ table: row })
           return count || 0
         })
       )
-
-      settabledata(data)
+      settabledata(tabledata)
       setTotalPages(totalPages)
-      settabledatacount(rowCounts)
+      settabledata_count(rowCounts)
+      setmessage('Task completed')
     } catch (error) {
       console.error('Error in fetchbase:', error)
-      setmessage('Error loading data')
-    } finally {
-      setmessage('')
+      setmessage('Error in fetchbase')
     }
   }
-
-  const callback_fetchbase = useCallback(fetchbase, [currentPage, rowsPerPage, filters.current])
-  //......................................................................................
-  //
-  // Callback - fetchBackup
-  //
-  const fetchbackup = async () => {
+  //----------------------------------------------------------------------------------------------
+  //  Build Filters & fetch bacup
+  //----------------------------------------------------------------------------------------------
+  async function fetchbackup() {
     try {
       //
       // Loading state
       //
       setmessage('Fetching all tables...')
+      //
+      // Construct filters dynamically from input fields
+      //
+      const backuptables = tabledata.map(baseTable => `${backupStartChar}${prefix_Z}${baseTable}`)
+
+      const filtersToUpdateZ: Filter[] = [
+        { column: 'schemaname', value: schemaname, operator: '=' },
+        { column: 'tablename', operator: 'IN', value: backuptables }
+      ]
+      //
+      // Filter out any entries where `value` is not defined or empty
+      //
+      const updatedFiltersZ = filtersToUpdateZ.filter(filter => filter.value)
       //
       // Table
       //
@@ -175,82 +154,83 @@ export default function Table() {
       //
       // Fetch table data
       //
-      const dataZ = await fetchFiltered({
+      const filteredZ = await fetchFiltered({
         table,
-        filters: filtersZ.current,
+        filters: updatedFiltersZ,
         orderBy: 'tablename',
         limit: rowsPerPage,
         offset
       })
       //
-      // Map data to `tabledataZ`
-      //
-      const updatedtabledataZ = dataZ.map(row => ({
-        schemaname: row.schemaname,
-        tablename: row.tablename
-      }))
-      settabledataZ(updatedtabledataZ)
-      //
       // Fetch and update row counts for all tables
       //
       const rowCountsZ = await Promise.all(
-        updatedtabledataZ.map(async row => {
-          if (!row.tablename) return 0 // Default to 0 for blank table names
-          const rowCount = await table_count({ table: row.tablename })
-          return rowCount || 0 // Fallback to 0 if count is undefined
+        filteredZ.map(async row => {
+          if (!row) return 0
+          const count = await table_count({ table: row.tablename })
+          return count || 0
         })
       )
-      settabledatacountZ(rowCountsZ)
-
+      //
+      //  Update State
+      //
+      settabledata_Z(backuptables)
+      settabledata_count_Z(rowCountsZ)
+      const exists = backuptables.map(table => filteredZ.some(row => row?.tablename === table))
+      setexists_Z(exists)
       //
       // Clear loading state
       //
-      setmessage('')
+      setmessage('Task completed')
     } catch (error) {
-      console.error('Error in fetchbackup:', error)
       setmessage('Error fetching tables')
     }
   }
-
-  // UseCallback with proper dependency tracking
-  const callback_fetchbackup = useCallback(fetchbackup, [currentPage, rowsPerPage, filtersZ])
-  //...................................................................................
-  //
-  //  Update Base & Backup
-  //
-  const fetchdata = useCallback(async () => {
-    try {
-      await callback_fetchbase()
-      await callback_fetchbackup()
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }, [callback_fetchbase, callback_fetchbackup])
-
-  useEffect(() => {
-    fetchdata()
-    setshouldfetchdata(false)
-  }, [shouldfetchdata, fetchdata, currentPage])
-  //...................................................................................
-  //
-  // Adjust currentPage if it exceeds totalPages
-  //
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      // setcurrentPage(totalPages) ?????????????????
-    }
-  }, [currentPage, totalPages])
+  //----------------------------------------------------------------------------------------------
+  //  Duplicate ALL
+  //----------------------------------------------------------------------------------------------
+  function handleDupALLClick() {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Confirm Duplicate ALL',
+      subTitle: `Are you sure you want to DUPLICATE to ALL BACKUP Tables?`,
+      onConfirm: () => perform_Dup_ALL()
+    })
+  }
   //----------------------------------------------------------------------------------------------
   //  Duplicate
   //----------------------------------------------------------------------------------------------
   function handleDupClick(tablebase: string) {
-    const tablebackup = `${backupStartChar}${prefix}${tablebase}`
+    const tablebackup = `${backupStartChar}${prefix_Z}${tablebase}`
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Duplicate',
       subTitle: `Are you sure you want to Duplicate (${tablebase}) to (${tablebackup}) ?`,
       onConfirm: () => performDup(tablebase, tablebackup)
     })
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Perform the Duplicate ALL
+  //----------------------------------------------------------------------------------------------
+  async function perform_Dup_ALL() {
+    //
+    //  Reset dialog
+    //
+    setConfirmDialog({ ...confirmDialog, isOpen: false })
+    //
+    //  Copy all backup tables
+    //
+    tabledata.forEach((_, index) => {
+      if (!exists_Z[index]) {
+        const tablebase = tabledata[index]
+        const tablebackup = `${backupStartChar}${prefix_Z}${tablebase}`
+        performDup(tablebase, tablebackup)
+      }
+    })
+    //
+    //  Completed
+    //
+    setmessage('perform_Dup_ALL completed')
   }
   //----------------------------------------------------------------------------------------------
   //  Perform the Duplicate
@@ -266,52 +246,74 @@ export default function Table() {
       //
       setConfirmDialog({ ...confirmDialog, isOpen: false })
       //
+      //  Get index
+      //
+      const index = tabledata.findIndex(row => row === tablebase)
+      if (exists_Z[index]) return
+      //
       // Call the server function to Duplicate
       //
       await table_duplicate({ tablebase, tablebackup })
       //
-      //  update the tabledataZ and counts
-      //
-      const backupTable: table_pg_tables = {
-        tablename: tablebackup,
-        schemaname: schemaname
-      }
-      //
-      //  Get the index to update
-      //
-      const index = tabledata.findIndex(row => row.tablename === tablebase)
-      //
-      // Update tabledataZ with the backup table
-      //
-      const updatedata = [...tabledataZ]
-      updatedata[index] = backupTable
-      console.log('index', index)
-      settabledataZ(updatedata)
-      //
       // Set the count for the backup table to 0
       //
-      const updatecount = [...tabledatacountZ]
-      updatecount[index] = 0
-      settabledatacountZ(updatecount)
+
+      updexists_Z(index, true)
+      updcount_Z(index, 0)
       //
       //  Loading state
       //
-      setmessage('')
+      setmessage('Task completed')
     } catch (error) {
       console.error('Error during duplicate:', error)
+      setmessage('Error during duplicate')
     }
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Copy ALL
+  //----------------------------------------------------------------------------------------------
+  function handleCopyALLClick() {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Confirm Copy ALL',
+      subTitle: `Are you sure you want to COPY to ALL BACKUP Tables?`,
+      onConfirm: () => perform_Copy_ALL()
+    })
   }
   //----------------------------------------------------------------------------------------------
   //  Copy
   //----------------------------------------------------------------------------------------------
   function handleCopyClick(tablebase: string) {
-    const tablebackup = `${backupStartChar}${prefix}${tablebase}`
+    const tablebackup = `${backupStartChar}${prefix_Z}${tablebase}`
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Copy',
       subTitle: `Are you sure you want to Copy Data from (${tablebase}) to (${tablebackup}) ?`,
       onConfirm: () => performCopy(tablebase, tablebackup)
     })
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Perform the Copy ALL
+  //----------------------------------------------------------------------------------------------
+  async function perform_Copy_ALL() {
+    //
+    //  Reset dialog
+    //
+    setConfirmDialog({ ...confirmDialog, isOpen: false })
+    //
+    //  Copy all backup tables
+    //
+    tabledata_Z
+      .filter((_, index) => tabledata_Z[index])
+      .forEach((_, index) => {
+        const tablebackup = tabledata_Z[index]
+        const tablebase = tabledata[index]
+        performCopy(tablebase, tablebackup)
+      })
+    //
+    //  Completed
+    //
+    setmessage('perform_Copy_ALL completed')
   }
   //----------------------------------------------------------------------------------------------
   //  Perform the Copy
@@ -327,35 +329,73 @@ export default function Table() {
       //
       setConfirmDialog({ ...confirmDialog, isOpen: false })
       //
+      //  Index check
+      //
+      const index = tabledata_Z.findIndex(row => row === tablebackup)
+      if (!exists_Z[index] || tabledata_count[index] === 0 || tabledata_count_Z[index] > 0) return
+      //
       // Call the server function to Duplicate
       //
-      await table_data_copy({ tablebase, tablebackup })
+      await table_copy_data({ tablebase, tablebackup })
       //
-      // Update State
+      // Update count
       //
-      updateSingleTable(tablebackup)
+      updcount_Z(index, tabledata_count[index])
       //
       //  Loading state
       //
-      setmessage('')
+      setmessage('Task completed')
       //
       //  Errors
       //
     } catch (error) {
-      console.error('Error during table_data_copy:', error)
+      console.error('Error during table_copy_data:', error)
+      setmessage('Error during copy_data')
     }
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Clear ALL
+  //----------------------------------------------------------------------------------------------
+  function handleClearALLClick() {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Confirm Clear ALL',
+      subTitle: `Are you sure you want to CLEAR ALL BACKUP Tables?`,
+      onConfirm: () => perform_Clear_ALL()
+    })
   }
   //----------------------------------------------------------------------------------------------
   //  Clear
   //----------------------------------------------------------------------------------------------
   function handleClearClick(tablebase: string) {
-    const tablebackup = `${backupStartChar}${prefix}${tablebase}`
+    const tablebackup = `${backupStartChar}${prefix_Z}${tablebase}`
     setConfirmDialog({
       isOpen: true,
       title: 'Confirm Clear',
       subTitle: `Are you sure you want to CLEAR (${tablebackup})?`,
       onConfirm: () => performClear(tablebackup)
     })
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Perform the Clear ALL
+  //----------------------------------------------------------------------------------------------
+  async function perform_Clear_ALL() {
+    //
+    //  Reset dialog
+    //
+    setConfirmDialog({ ...confirmDialog, isOpen: false })
+    //
+    //  Clear all backup tables
+    //
+    tabledata_Z
+      .filter(row => row)
+      .forEach(row => {
+        performClear(row)
+      })
+    //
+    //  Completed
+    //
+    setmessage('perform_Clear_ALL completed')
   }
   //----------------------------------------------------------------------------------------------
   //  Perform the Clear
@@ -371,13 +411,18 @@ export default function Table() {
       //
       setConfirmDialog({ ...confirmDialog, isOpen: false })
       //
+      //  Get index
+      //
+      const index = tabledata_Z.findIndex(row => row === tablebackup)
+      if (!exists_Z[index] || tabledata_count_Z[index] === 0) return
+      //
       // Call the server function to Delete
       //
       await table_truncate(tablebackup)
       //
-      // Update State
+      // Update count to zero
       //
-      updateSingleTable(tablebackup)
+      updcount_Z(index, 0)
       //
       //  Loading state
       //
@@ -387,49 +432,117 @@ export default function Table() {
       //
     } catch (error) {
       console.error('Error during table_truncate:', error)
+      setmessage('Error during table_truncate')
     }
   }
   //----------------------------------------------------------------------------------------------
-  // Function: updateSingleTable
+  //  Drop ALL
   //----------------------------------------------------------------------------------------------
-  async function updateSingleTable(backupTable: string) {
-    if (!backupTable) {
-      console.error('No table specified for update')
-      return
-    }
+  function handleDropALLClick() {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Confirm Drop ALL',
+      subTitle: `Are you sure you want to DROP ALL BACKUP Tables?`,
+      onConfirm: () => perform_Drop_ALL()
+    })
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Drop
+  //----------------------------------------------------------------------------------------------
+  function handleDropClick(tablebase: string) {
+    const tablebackup = `${backupStartChar}${prefix_Z}${tablebase}`
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Confirm Drop',
+      subTitle: `Are you sure you want to DROP (${tablebackup})?`,
+      onConfirm: () => performDrop(tablebackup)
+    })
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Perform the Drop ALL
+  //----------------------------------------------------------------------------------------------
+  async function perform_Drop_ALL() {
     //
-    // Display loading state
+    //  Reset dialog
     //
-    setmessage(`Updating count for table ${backupTable}...`)
-
+    setConfirmDialog({ ...confirmDialog, isOpen: false })
+    //
+    //  Drop all backup tables
+    //
+    tabledata_Z
+      .filter(row => row)
+      .forEach(row => {
+        performDrop(row)
+      })
+    //
+    //  Completed
+    //
+    setmessage('perform_Drop_ALL completed')
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Perform the Drop
+  //----------------------------------------------------------------------------------------------
+  async function performDrop(tablebackup: string) {
     try {
       //
-      // Fetch row count for the specified table
+      //  Loading state
       //
-      const rowCount = await table_count({ table: backupTable })
+      setmessage(`CLEAR (${tablebackup}) - starting`)
       //
-      // Update `tabledatacountZ` directly for the specific table
+      //  Reset dialog
       //
-      if (rowCount !== null && rowCount !== undefined) {
-        settabledatacountZ(prevCounts => {
-          const index = tabledataZ.findIndex(row => row.tablename === backupTable)
-          if (index === -1) {
-            console.warn(`Table ${backupTable} not found in tabledataZ`)
-            return prevCounts
-          }
-          const updatedCounts = [...prevCounts]
-          updatedCounts[index] = rowCount
-          return updatedCounts
-        })
-      } else {
-        console.warn(`Failed to fetch row count for table ${backupTable}`)
-      }
+      setConfirmDialog({ ...confirmDialog, isOpen: false })
+      //
+      //  Index check
+      //
+      const index = tabledata_Z.findIndex(row => row === tablebackup)
+      if (!exists_Z[index]) return
+      //
+      // Call the server function to Delete
+      //
+      await table_drop(tablebackup)
+      //
+      // Set the count for the backup table to 0
+      //
+      updexists_Z(index, false)
+      updcount_Z(index, 0)
+      //
+      //  Loading state
+      //
+      setmessage(`DROP (${tablebackup}) - completed`)
+      //
+      //  Errors
+      //
     } catch (error) {
-      console.error('Error updating single table count:', error)
-    } finally {
-      // Clear loading state
-      setmessage('')
+      console.error('Error during table_drop:', error)
+      setmessage('Error during table_drop')
     }
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Update count_Z
+  //----------------------------------------------------------------------------------------------
+  async function updcount_Z(index: number, value: number) {
+    //
+    //  Update the latest version
+    //
+    settabledata_count_Z(prev => {
+      const updatedCount = [...prev]
+      updatedCount[index] = value
+      return updatedCount
+    })
+  }
+  //----------------------------------------------------------------------------------------------
+  //  Update count_Z
+  //----------------------------------------------------------------------------------------------
+  async function updexists_Z(index: number, value: boolean) {
+    //
+    //  Update the latest version
+    //
+    setexists_Z(prev => {
+      const updateexists = [...prev]
+      updateexists[index] = value
+      return updateexists
+    })
   }
   //----------------------------------------------------------------------------------------------
   return (
@@ -453,14 +566,20 @@ export default function Table() {
               <th scope='col' className=' font-medium px-2'>
                 Base Table
               </th>
-              <th scope='col' className=' font-medium px-2'>
+              <th scope='col' className=' font-medium px-2 text-right'>
                 Records
               </th>
               <th scope='col' className=' font-medium px-2'>
                 Backup Table
               </th>
-              <th scope='col' className=' font-medium px-2'>
+              <th scope='col' className=' font-medium px-2 text-center'>
+                Exists
+              </th>
+              <th scope='col' className=' font-medium px-2 text-right'>
                 Records
+              </th>
+              <th scope='col' className=' font-medium px-2 text-center'>
+                Drop Table
               </th>
               <th scope='col' className=' font-medium px-2 text-center'>
                 Duplicate Table
@@ -476,52 +595,103 @@ export default function Table() {
             {/* DROPDOWN & SEARCHES             */}
             {/* ---------------------------------------------------------------------------------- */}
             <tr className='text-xs align-bottom'>
+              <th scope='col' className=' px-2'></th>
               {/* ................................................... */}
-              {/* tablename                                                 */}
+              <th scope='col' className=' font-medium px-2 text-right'>
+                <div className='inline-flex justify-center items-center'>
+                  <Button
+                    onClick={fetchbase}
+                    overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
+                  >
+                    Refresh
+                  </Button>
+                </div>
+              </th>
+              {/* ................................................... */}
+              {/* Backup prefixZ                                       */}
               {/* ................................................... */}
               <th scope='col' className='px-2'>
-                <label htmlFor='tablename' className='sr-only'>
-                  Table
+                <label htmlFor='prefixZ' className='sr-only'>
+                  prefixZ
                 </label>
                 <input
-                  id='tablename'
-                  name='tablename'
+                  id='prefixZ'
+                  name='prefixZ'
                   className={`w-60 md:max-w-md rounded-md border border-blue-500  py-2 font-normal text-xs`}
                   type='text'
-                  value={tablename}
+                  value={prefix_Z}
                   onChange={e => {
                     const value = e.target.value.split(' ')[0]
-                    settablename(value)
+                    setprefix_Z(value)
                   }}
                 />
               </th>
-              <th scope='col' className=' px-2'></th>
               {/* ................................................... */}
-              {/* Backup Prefix                                       */}
-              {/* ................................................... */}
-              <th scope='col' className='px-2'>
-                <label htmlFor='prefix' className='sr-only'>
-                  Prefix
-                </label>
-                <input
-                  id='prefix'
-                  name='prefix'
-                  className={`w-60 md:max-w-md rounded-md border border-blue-500  py-2 font-normal text-xs`}
-                  type='text'
-                  value={prefix}
-                  onChange={e => {
-                    const value = e.target.value.split(' ')[0]
-                    setprefix(value)
-                  }}
-                />
+              <th scope='col' className=' font-medium px-2 text-center'>
+                <div className='inline-flex justify-center items-center'>
+                  <Button
+                    onClick={fetchbackup}
+                    overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
+                  >
+                    Refresh
+                  </Button>
+                </div>
               </th>
-              <th scope='col' className=' px-2'></th>
+              <th scope='col' className='px-2'></th>
               {/* ................................................... */}
               {/* Buttons                                    */}
               {/* ................................................... */}
-              <th scope='col' className=' px-2'></th>
-              <th scope='col' className=' px-2'></th>
-              <th scope='col' className=' px-2'></th>
+              <th scope='col' className=' font-medium px-2 text-center'>
+                {tabledata_Z.length > 0 && (
+                  <div className='inline-flex justify-center items-center'>
+                    <Button
+                      onClick={() => handleDropALLClick()}
+                      overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
+                    >
+                      Drop ALL
+                    </Button>
+                  </div>
+                )}
+              </th>
+              {/* ................................................... */}
+              <th scope='col' className=' font-medium px-2 text-center'>
+                {tabledata_Z.length > 0 && (
+                  <div className='inline-flex justify-center items-center'>
+                    <Button
+                      onClick={() => handleDupALLClick()}
+                      overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
+                    >
+                      Dup ALL
+                    </Button>
+                  </div>
+                )}
+              </th>
+              {/* ................................................... */}
+              <th scope='col' className=' font-medium px-2 text-center'>
+                {tabledata_Z.length > 0 && (
+                  <div className='inline-flex justify-center items-center'>
+                    <Button
+                      onClick={() => handleClearALLClick()}
+                      overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
+                    >
+                      Clear ALL
+                    </Button>
+                  </div>
+                )}
+              </th>
+              {/* ................................................... */}
+              <th scope='col' className=' font-medium px-2 text-center'>
+                {tabledata_Z.length > 0 && (
+                  <div className='inline-flex justify-center items-center'>
+                    <Button
+                      onClick={() => handleCopyALLClick()}
+                      overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
+                    >
+                      Copy ALL
+                    </Button>
+                  </div>
+                )}
+              </th>
               {/* ................................................... */}
             </tr>
           </thead>
@@ -531,24 +701,44 @@ export default function Table() {
           <tbody className='bg-white text-xs'>
             {tabledata?.map((tabledata, index) => {
               // Check if the Z table exists
-              const tableExistsInZ = tabledataZ.some(
-                zTable => zTable.tablename === `${backupStartChar}${prefix}${tabledata.tablename}`
-              )
-
+              const existsInZ = exists_Z[index] || false
               return (
-                <tr key={tabledata.tablename} className='w-full border-b'>
+                <tr key={tabledata} className='w-full border-b'>
                   {/* Table Name */}
-                  <td className='px-2 pt-2'>{tabledata.tablename}</td>
-                  <td className='px-2 pt-2'>{tabledatacount[index] || ''}</td>
-                  <td className='px-2 pt-2'>{tabledataZ[index]?.tablename || ''}</td>
-                  <td className='px-2 pt-2'>{tabledatacountZ[index] || ''}</td>
+                  <td className='px-2 pt-2'>{tabledata}</td>
+                  <td className='px-2 pt-2 text-right'>
+                    {typeof tabledata_count[index] === 'number'
+                      ? tabledata_count[index].toLocaleString()
+                      : ''}
+                  </td>
+                  <td className='px-2 pt-2'>{tabledata_Z[index]}</td>
+                  <td className='px-2 pt-2 text-center'>{existsInZ ? 'Y' : ''}</td>
+                  <td className='px-2 pt-2 text-right'>
+                    {typeof tabledata_count_Z[index] === 'number'
+                      ? tabledata_count_Z[index].toLocaleString()
+                      : ''}
+                  </td>
+
+                  {/* Drop Button - Only if Z table exists */}
+                  <td className='px-2 py-1 text-center'>
+                    {existsInZ && (
+                      <div className='inline-flex justify-center items-center'>
+                        <Button
+                          onClick={() => handleDropClick(tabledata)}
+                          overrideClass='h-6 px-2 py-2 text-xs text-white rounded-md bg-blue-500 hover:bg-blue-600'
+                        >
+                          Drop
+                        </Button>
+                      </div>
+                    )}
+                  </td>
 
                   {/* Duplicate Button - Only if Z table does not exist */}
                   <td className='px-2 py-1 text-center'>
-                    {!tableExistsInZ && (
+                    {!existsInZ && tabledata_Z.length > 0 && (
                       <div className='inline-flex justify-center items-center'>
                         <Button
-                          onClick={() => handleDupClick(tabledata.tablename)}
+                          onClick={() => handleDupClick(tabledata)}
                           overrideClass='h-6 px-2 py-2 text-xs text-white rounded-md bg-blue-500 hover:bg-blue-600'
                         >
                           Duplicate
@@ -559,11 +749,11 @@ export default function Table() {
 
                   {/* Clear Button - Only if Z table exists */}
                   <td className='px-2 py-1 text-center'>
-                    {tableExistsInZ && (
+                    {existsInZ && (
                       <div className='inline-flex justify-center items-center'>
                         <Button
-                          onClick={() => handleClearClick(tabledata.tablename)}
-                          overrideClass='h-6 px-2 py-2 text-xs bg-red-500 text-white rounded-md hover:bg-red-600'
+                          onClick={() => handleClearClick(tabledata)}
+                          overrideClass='h-6 px-2 py-2 text-xs text-white rounded-md bg-blue-500 hover:bg-blue-600'
                         >
                           Clear
                         </Button>
@@ -573,10 +763,10 @@ export default function Table() {
 
                   {/* Copy Button - Only if Z table exists */}
                   <td className='px-2 py-1 text-center'>
-                    {tableExistsInZ && (
+                    {existsInZ && (
                       <div className='inline-flex justify-center items-center'>
                         <Button
-                          onClick={() => handleCopyClick(tabledata.tablename)}
+                          onClick={() => handleCopyClick(tabledata)}
                           overrideClass='h-6 px-2 py-2 text-xs text-white rounded-md bg-blue-500 hover:bg-blue-600'
                         >
                           Copy
@@ -604,7 +794,7 @@ export default function Table() {
       {/* Loading                */}
       {/* ---------------------------------------------------------------------------------- */}
       {message && (
-        <div className='mt-5 flex w-full justify-center text-red-700'>
+        <div className='mt-5 flex w-full justify-center text-xs text-red-700'>
           <p>{message}</p>
         </div>
       )}

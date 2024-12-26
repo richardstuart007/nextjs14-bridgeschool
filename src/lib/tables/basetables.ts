@@ -1,4 +1,4 @@
-const tables = [
+export const basetables = [
   'database',
   'library',
   'logging',
